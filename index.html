@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>Booty Slap Arcade - CPS & Streak Tester</title>
+  <title>Spank Master CPS - CPS & Streak Tester</title>
   <style>
     :root {
       --bg-dark: #0f0c1b;
@@ -133,7 +133,7 @@
       transform: scale(0.96);
     }
 
-    /* Slap Hand overlay */
+    /* Initial Slap Hand overlay (used for first click animation) */
     .slap-hand {
       position: absolute;
       right: -30px;
@@ -189,24 +189,30 @@
       }
     }
 
-    /* Comic burst icon */
-    .impact-burst {
+    /* Spanking Hand Burst Effect */
+    .hand-burst {
       position: absolute;
       pointer-events: none;
-      width: 90px;
-      height: 90px;
-      animation: burstAnim 0.3s ease-out forwards;
+      width: 110px; /* Adjust size to match star burst presence */
+      height: 110px; /* Adjust size */
       z-index: 15;
+      opacity: 0;
+      animation: handBurstAnim 0.35s ease-out forwards;
+      filter: drop-shadow(0 0 10px var(--accent-pink));
     }
 
-    @keyframes burstAnim {
+    @keyframes handBurstAnim {
       0% {
         opacity: 1;
-        transform: translate(-50%, -50%) scale(0.4) rotate(0deg);
+        transform: translate(-50%, -50%) scale(0.8) rotate(var(--hand-rot, 0deg));
+      }
+      30% {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1.1) rotate(var(--hand-rot, 0deg)) translate(-5px, 5px);
       }
       100% {
         opacity: 0;
-        transform: translate(-50%, -50%) scale(1.6) rotate(35deg);
+        transform: translate(-50%, -50%) scale(1.5) rotate(var(--hand-rot, 0deg)) translate(0px, -20px);
       }
     }
 
@@ -317,7 +323,7 @@
 <body>
 
   <header>
-    <h1>Booty Slap CPS</h1>
+    <h1>Spank Master CPS</h1>
     <div class="subtitle">Spank as fast as you can to maintain the streak!</div>
   </header>
 
@@ -387,7 +393,7 @@
       </svg>
     </div>
 
-    <!-- Animated Slap Hand -->
+    <!-- Animated Initial Slap Hand (used for first hit indication) -->
     <svg class="slap-hand" id="slapHand" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
       <path d="M 30 70 C 20 60, 20 40, 35 30 C 42 25, 52 28, 55 35 C 57 24, 70 24, 73 34 C 77 26, 88 30, 88 40 C 92 34, 100 40, 97 52 C 92 75, 65 90, 45 85 Z" 
             fill="#ffd166" stroke="#e09f3e" stroke-width="3" stroke-linejoin="round"/>
@@ -524,7 +530,7 @@
     }
 
     function getRankName() {
-      if (streak >= 100) return '🔥 Godlike Clap Master!';
+      if (streak >= 100) return '🔥 Godlike Spank Master!';
       if (streak >= 50)  return '⚡ Thunder Slapper!';
       if (streak >= 25)  return '💨 Speed Demon!';
       if (streak >= 10)  return '✨ Getting Spicy!';
@@ -584,18 +590,25 @@
       arena.appendChild(floatEl);
       setTimeout(() => floatEl.remove(), 650);
 
-      // 2. Comic burst star
-      const burst = document.createElement('div');
-      burst.className = 'impact-burst';
-      burst.style.left = `${x}px`;
-      burst.style.top = `${y}px`;
-      burst.innerHTML = `
-        <svg viewBox="0 0 100 100" fill="#ffdd00">
-          <polygon points="50,0 63,35 100,38 72,62 82,98 50,75 18,98 28,62 0,38 37,35"/>
+      // 2. Spanking Hand Burst (Replaces Star Burst)
+      const burstHand = document.createElement('div');
+      burstHand.className = 'hand-burst';
+      burstHand.style.left = `${x}px`;
+      burstHand.style.top = `${y}px`;
+
+      // Set a slightly random rotation for each hit effect
+      burstHand.style.setProperty('--hand-rot', `${(Math.random() - 0.5) * 45}deg`);
+
+      burstHand.innerHTML = `
+        <!-- Simplified detailed hand for burst effect -->
+        <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M 30 70 C 20 60, 20 40, 35 30 C 42 25, 52 28, 55 35 C 57 24, 70 24, 73 34 C 77 26, 88 30, 88 40 C 92 34, 100 40, 97 52 C 92 75, 65 90, 45 85 Z" 
+                fill="#ffd166" stroke="#e09f3e" stroke-width="4" stroke-linejoin="round"/>
+          <path d="M 40 45 L 42 65 M 55 42 L 56 65 M 70 45 L 69 65" stroke="#e09f3e" stroke-width="3" stroke-linecap="round"/>
         </svg>
       `;
-      arena.appendChild(burst);
-      setTimeout(() => burst.remove(), 300);
+      arena.appendChild(burstHand);
+      setTimeout(() => burstHand.remove(), 350);
     }
 
     /* -------------------------------------------------------------
@@ -625,7 +638,7 @@
       void target.offsetWidth; // Force DOM reflow to restart CSS animation
       target.classList.add(lastClickSide === 'left' ? 'jiggle-left' : 'jiggle-right');
 
-      // Slap hand animation
+      // (We keep the initial slap hand animation for the first hit indication)
       slapHand.classList.remove('animating');
       void slapHand.offsetWidth;
       slapHand.classList.add('animating');
