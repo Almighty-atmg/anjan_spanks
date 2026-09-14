@@ -1,0 +1,684 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Booty Slap Arcade - CPS & Streak Tester</title>
+  <style>
+    :root {
+      --bg-dark: #0f0c1b;
+      --card-bg: rgba(26, 22, 45, 0.85);
+      --accent-pink: #ff2a85;
+      --accent-purple: #9d4edd;
+      --accent-cyan: #00f0ff;
+      --accent-gold: #ffd60a;
+      --text-main: #f8f9fa;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+      -webkit-user-select: none;
+      touch-action: manipulation;
+    }
+
+    body {
+      min-height: 100vh;
+      background: radial-gradient(circle at 50% 30%, #25163f, var(--bg-dark));
+      color: var(--text-main);
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: space-between;
+      overflow-x: hidden;
+      padding: 16px;
+    }
+
+    header {
+      text-align: center;
+      margin-top: 8px;
+    }
+
+    h1 {
+      font-size: 2.2rem;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      background: linear-gradient(90deg, var(--accent-pink), var(--accent-gold), var(--accent-cyan));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      text-shadow: 0 0 20px rgba(255, 42, 133, 0.4);
+    }
+
+    .subtitle {
+      font-size: 0.95rem;
+      color: #a09cb0;
+      margin-top: 4px;
+    }
+
+    /* Stats Dashboard */
+    .dashboard {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      width: 100%;
+      max-width: 600px;
+      margin: 16px 0;
+    }
+
+    .stat-card {
+      background: var(--card-bg);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 14px;
+      padding: 12px 8px;
+      text-align: center;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .stat-card::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--accent-pink), var(--accent-purple));
+    }
+
+    .stat-label {
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #9d96b8;
+      font-weight: 700;
+    }
+
+    .stat-value {
+      font-size: 1.6rem;
+      font-weight: 800;
+      margin-top: 4px;
+      color: #fff;
+    }
+
+    .stat-value.highlight {
+      color: var(--accent-gold);
+    }
+
+    /* Target Area */
+    .arena {
+      position: relative;
+      width: 100%;
+      max-width: 380px;
+      height: 360px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: auto 0;
+    }
+
+    .target-wrapper {
+      position: relative;
+      cursor: pointer;
+      transform-origin: center bottom;
+      transition: transform 0.05s ease;
+    }
+
+    .target-wrapper:active {
+      transform: scale(0.96);
+    }
+
+    /* Slap Hand overlay */
+    .slap-hand {
+      position: absolute;
+      right: -30px;
+      top: 20%;
+      width: 120px;
+      height: 120px;
+      pointer-events: none;
+      opacity: 0;
+      transform: rotate(25deg) scale(0.5);
+      filter: drop-shadow(0 0 15px rgba(255, 42, 133, 0.6));
+      transition: none;
+      z-index: 10;
+    }
+
+    .slap-hand.animating {
+      animation: slapStrike 0.18s cubic-bezier(0.1, 0.9, 0.2, 1) forwards;
+    }
+
+    @keyframes slapStrike {
+      0% {
+        opacity: 0.8;
+        transform: translate(60px, -40px) rotate(40deg) scale(1.3);
+      }
+      50% {
+        opacity: 1;
+        transform: translate(-30px, 10px) rotate(-10deg) scale(1);
+      }
+      100% {
+        opacity: 0;
+        transform: translate(-10px, 0px) rotate(0deg) scale(0.9);
+      }
+    }
+
+    /* Floating Popups */
+    .float-text {
+      position: absolute;
+      font-weight: 900;
+      font-size: 1.3rem;
+      pointer-events: none;
+      animation: floatUp 0.65s cubic-bezier(0.18, 0.89, 0.32, 1.28) forwards;
+      z-index: 20;
+      text-shadow: 0 2px 8px rgba(0,0,0,0.8);
+    }
+
+    @keyframes floatUp {
+      0% {
+        opacity: 1;
+        transform: translate(-50%, 0) scale(0.8) rotate(var(--rot, 0deg));
+      }
+      100% {
+        opacity: 0;
+        transform: translate(-50%, -85px) scale(1.4) rotate(var(--rot, 0deg));
+      }
+    }
+
+    /* Comic burst icon */
+    .impact-burst {
+      position: absolute;
+      pointer-events: none;
+      width: 90px;
+      height: 90px;
+      animation: burstAnim 0.3s ease-out forwards;
+      z-index: 15;
+    }
+
+    @keyframes burstAnim {
+      0% {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(0.4) rotate(0deg);
+      }
+      100% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(1.6) rotate(35deg);
+      }
+    }
+
+    /* Streak & Combo Meter */
+    .combo-bar-container {
+      width: 100%;
+      max-width: 420px;
+      margin-bottom: 14px;
+    }
+
+    .combo-header {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.85rem;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+
+    .combo-rank {
+      color: var(--accent-cyan);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .combo-track {
+      width: 100%;
+      height: 10px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 99px;
+      overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .combo-fill {
+      width: 0%;
+      height: 100%;
+      background: linear-gradient(90deg, var(--accent-purple), var(--accent-pink), var(--accent-gold));
+      box-shadow: 0 0 10px var(--accent-pink);
+      transition: width 0.08s linear;
+    }
+
+    /* Control Buttons */
+    .controls {
+      display: flex;
+      gap: 12px;
+      margin-top: 10px;
+    }
+
+    button {
+      background: rgba(255, 255, 255, 0.08);
+      color: #fff;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      padding: 10px 18px;
+      border-radius: 10px;
+      font-weight: 700;
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      letter-spacing: 0.5px;
+    }
+
+    button:hover {
+      background: rgba(255, 255, 255, 0.18);
+      border-color: rgba(255, 255, 255, 0.3);
+      transform: translateY(-1px);
+    }
+
+    button:active {
+      transform: translateY(1px);
+    }
+
+    /* Wobble animation classes applied via JS */
+    .jiggle-left {
+      animation: jiggleL 0.22s ease-out;
+    }
+    .jiggle-right {
+      animation: jiggleR 0.22s ease-out;
+    }
+
+    @keyframes jiggleL {
+      0% { transform: scale(1, 1); }
+      30% { transform: scale(1.18, 0.86) rotate(-5deg) translate(-8px, 4px); }
+      60% { transform: scale(0.92, 1.08) rotate(3deg) translate(4px, -2px); }
+      100% { transform: scale(1, 1) rotate(0deg); }
+    }
+
+    @keyframes jiggleR {
+      0% { transform: scale(1, 1); }
+      30% { transform: scale(1.18, 0.86) rotate(5deg) translate(8px, 4px); }
+      60% { transform: scale(0.92, 1.08) rotate(-3deg) translate(-4px, -2px); }
+      100% { transform: scale(1, 1) rotate(0deg); }
+    }
+
+    @media (max-width: 480px) {
+      .dashboard {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 8px;
+      }
+      h1 {
+        font-size: 1.7rem;
+      }
+      .arena {
+        height: 300px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>Booty Slap CPS</h1>
+    <div class="subtitle">Spank as fast as you can to maintain the streak!</div>
+  </header>
+
+  <!-- Metrics -->
+  <div class="dashboard">
+    <div class="stat-card">
+      <div class="stat-label">Total Score</div>
+      <div class="stat-value" id="val-score">0</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">SPS (CPS)</div>
+      <div class="stat-value highlight" id="val-cps">0.0</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Current Streak</div>
+      <div class="stat-value" id="val-streak">0</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Best Streak</div>
+      <div class="stat-value highlight" id="val-high-streak">0</div>
+    </div>
+  </div>
+
+  <!-- Main Game Arena -->
+  <div class="arena" id="arena">
+    <div class="target-wrapper" id="target">
+      <!-- Stylized Cartoon Peach/Booty Silhouette -->
+      <svg width="260" height="240" viewBox="0 0 260 240" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <radialGradient id="buttGrad" cx="50%" cy="40%" r="65%">
+            <stop offset="0%" stop-color="#ff9ebb" />
+            <stop offset="55%" stop-color="#ff4d79" />
+            <stop offset="100%" stop-color="#c9184a" />
+          </radialGradient>
+          <filter id="softGlow" x="-20%" y="-20%" width="140%" height="140%">
+            <feDropShadow dx="0" dy="8" stdDeviation="12" flood-color="#ff2a85" flood-opacity="0.35"/>
+          </filter>
+        </defs>
+
+        <!-- Main Body Curve -->
+        <g filter="url(#softGlow)">
+          <!-- Left Cheek -->
+          <path d="M 130 50 
+                   C 90 20, 20 50, 20 120 
+                   C 20 185, 75 225, 128 220 
+                   C 130 180, 130 110, 130 50 Z" 
+                fill="url(#buttGrad)" stroke="#590d22" stroke-width="4" stroke-linejoin="round" />
+
+          <!-- Right Cheek -->
+          <path d="M 130 50 
+                   C 170 20, 240 50, 240 120 
+                   C 240 185, 185 225, 132 220 
+                   C 130 180, 130 110, 130 50 Z" 
+                fill="url(#buttGrad)" stroke="#590d22" stroke-width="4" stroke-linejoin="round" />
+          
+          <!-- Center Crease Highlight -->
+          <path d="M 130 75 C 130 125, 130 175, 130 215" 
+                stroke="#590d22" stroke-width="4" stroke-linecap="round" opacity="0.6"/>
+
+          <!-- Specular Highlights -->
+          <ellipse cx="75" cy="115" rx="30" ry="18" transform="rotate(-30 75 115)" fill="#ffffff" opacity="0.32" />
+          <ellipse cx="185" cy="115" rx="30" ry="18" transform="rotate(30 185 115)" fill="#ffffff" opacity="0.32" />
+
+          <!-- Stylized Waistband / Bottom Accent -->
+          <path d="M 40 70 C 95 90, 165 90, 220 70" stroke="#ffd60a" stroke-width="6" stroke-linecap="round" opacity="0.85"/>
+        </g>
+      </svg>
+    </div>
+
+    <!-- Animated Slap Hand -->
+    <svg class="slap-hand" id="slapHand" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M 30 70 C 20 60, 20 40, 35 30 C 42 25, 52 28, 55 35 C 57 24, 70 24, 73 34 C 77 26, 88 30, 88 40 C 92 34, 100 40, 97 52 C 92 75, 65 90, 45 85 Z" 
+            fill="#ffd166" stroke="#e09f3e" stroke-width="3" stroke-linejoin="round"/>
+      <path d="M 40 45 L 42 65 M 55 42 L 56 65 M 70 45 L 69 65" stroke="#e09f3e" stroke-width="2.5" stroke-linecap="round"/>
+    </svg>
+  </div>
+
+  <!-- Streak & Tempo Progress -->
+  <div class="combo-bar-container">
+    <div class="combo-header">
+      <span class="combo-rank" id="comboRank">Cold Warmup</span>
+      <span id="multiplierText">1.0x Multiplier</span>
+    </div>
+    <div class="combo-track">
+      <div class="combo-fill" id="comboFill"></div>
+    </div>
+  </div>
+
+  <!-- Controls -->
+  <div class="controls">
+    <button id="btnSound">🔊 Sound: ON</button>
+    <button id="btnReset">🔄 Reset High Scores</button>
+  </div>
+
+  <script>
+    /* -------------------------------------------------------------
+       STATE & AUDIO SYNTHESIZER
+    ------------------------------------------------------------- */
+    let score = 0;
+    let streak = 0;
+    let highStreak = parseInt(localStorage.getItem('booty_high_streak') || '0', 10);
+    let highScore = parseInt(localStorage.getItem('booty_high_score') || '0', 10);
+    let soundEnabled = true;
+
+    // Timers & CPS tracking
+    let clickTimestamps = [];
+    const STREAK_TIMEOUT_MS = 1400; // time before streak drops
+    let streakDecayTimer = null;
+    let lastClickSide = 'left';
+
+    // UI references
+    const valScore = document.getElementById('val-score');
+    const valCps = document.getElementById('val-cps');
+    const valStreak = document.getElementById('val-streak');
+    const valHighStreak = document.getElementById('val-high-streak');
+    const comboFill = document.getElementById('comboFill');
+    const comboRank = document.getElementById('comboRank');
+    const multiplierText = document.getElementById('multiplierText');
+    const target = document.getElementById('target');
+    const arena = document.getElementById('arena');
+    const slapHand = document.getElementById('slapHand');
+    const btnSound = document.getElementById('btnSound');
+    const btnReset = document.getElementById('btnReset');
+
+    // Init UI
+    valHighStreak.textContent = highStreak;
+
+    // Audio Context (Synthesizes slap thumps without external assets)
+    let audioCtx = null;
+    function initAudio() {
+      if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      }
+      if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+    }
+
+    function playSlapSound(isCombo = false) {
+      if (!soundEnabled) return;
+      initAudio();
+
+      const now = audioCtx.currentTime;
+
+      // 1. White noise burst for the sharp slap "crack"
+      const bufferSize = audioCtx.sampleRate * 0.04;
+      const noiseBuffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+      const output = noiseBuffer.getChannelData(0);
+      for (let i = 0; i < bufferSize; i++) {
+        output[i] = Math.random() * 2 - 1;
+      }
+
+      const whiteNoise = audioCtx.createBufferSource();
+      whiteNoise.buffer = noiseBuffer;
+
+      const noiseFilter = audioCtx.createBiquadFilter();
+      noiseFilter.type = 'highpass';
+      noiseFilter.frequency.setValueAtTime(800, now);
+
+      const noiseGain = audioCtx.createGain();
+      noiseGain.gain.setValueAtTime(0.4, now);
+      noiseGain.gain.exponentialRampToValueAtTime(0.001, now + 0.04);
+
+      whiteNoise.connect(noiseFilter);
+      noiseFilter.connect(noiseGain);
+      noiseGain.connect(audioCtx.destination);
+      whiteNoise.start(now);
+
+      // 2. Low-frequency punch for the meaty impact thump
+      const osc = audioCtx.createOscillator();
+      const oscGain = audioCtx.createGain();
+
+      const baseFreq = isCombo ? 180 : 130;
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(baseFreq, now);
+      osc.frequency.exponentialRampToValueAtTime(35, now + 0.1);
+
+      oscGain.gain.setValueAtTime(0.6, now);
+      oscGain.gain.exponentialRampToValueAtTime(0.001, now + 0.1);
+
+      osc.connect(oscGain);
+      oscGain.connect(audioCtx.destination);
+      osc.start(now);
+      osc.stop(now + 0.11);
+    }
+
+    /* -------------------------------------------------------------
+       CPS & STREAK CALCULATIONS
+    ------------------------------------------------------------- */
+    function updateCPS() {
+      const now = performance.now();
+      clickTimestamps = clickTimestamps.filter(t => now - t <= 1000);
+      const cps = clickTimestamps.length;
+      valCps.textContent = cps.toFixed(1);
+    }
+    setInterval(updateCPS, 100);
+
+    function getMultiplier() {
+      if (streak >= 100) return 4.0;
+      if (streak >= 50)  return 3.0;
+      if (streak >= 25)  return 2.0;
+      if (streak >= 10)  return 1.5;
+      return 1.0;
+    }
+
+    function getRankName() {
+      if (streak >= 100) return '🔥 Godlike Clap Master!';
+      if (streak >= 50)  return '⚡ Thunder Slapper!';
+      if (streak >= 25)  return '💨 Speed Demon!';
+      if (streak >= 10)  return '✨ Getting Spicy!';
+      return 'Cold Warmup';
+    }
+
+    function resetStreakDecay() {
+      clearTimeout(streakDecayTimer);
+      comboFill.style.transition = 'none';
+      comboFill.style.width = '100%';
+
+      // Trigger decay visual
+      requestAnimationFrame(() => {
+        comboFill.style.transition = `width ${STREAK_TIMEOUT_MS}ms linear`;
+        comboFill.style.width = '0%';
+      });
+
+      streakDecayTimer = setTimeout(() => {
+        streak = 0;
+        updateUI();
+      }, STREAK_TIMEOUT_MS);
+    }
+
+    function updateUI() {
+      valScore.textContent = score;
+      valStreak.textContent = streak;
+      valHighStreak.textContent = highStreak;
+
+      const mult = getMultiplier();
+      multiplierText.textContent = `${mult.toFixed(1)}x Multiplier`;
+      comboRank.textContent = getRankName();
+
+      if (streak === 0) {
+        comboFill.style.width = '0%';
+      }
+    }
+
+    /* -------------------------------------------------------------
+       VISUAL POPUPS & EFFECTS
+    ------------------------------------------------------------- */
+    const COMIC_PHRASES = ['SLAP!', 'SMACK!', 'POW!', 'CLAP!', 'THWACK!', 'BAM!'];
+
+    function createHitEffect(x, y, mult) {
+      // 1. Floating text
+      const floatEl = document.createElement('div');
+      floatEl.className = 'float-text';
+
+      const phrase = COMIC_PHRASES[Math.floor(Math.random() * COMIC_PHRASES.length)];
+      floatEl.textContent = mult > 1 ? `${phrase} +${mult}` : phrase;
+      floatEl.style.left = `${x}px`;
+      floatEl.style.top = `${y}px`;
+
+      const colors = ['#ffd60a', '#ff2a85', '#00f0ff', '#ff9ebb', '#ffffff'];
+      floatEl.style.color = colors[Math.floor(Math.random() * colors.length)];
+      floatEl.style.setProperty('--rot', `${(Math.random() - 0.5) * 36}deg`);
+
+      arena.appendChild(floatEl);
+      setTimeout(() => floatEl.remove(), 650);
+
+      // 2. Comic burst star
+      const burst = document.createElement('div');
+      burst.className = 'impact-burst';
+      burst.style.left = `${x}px`;
+      burst.style.top = `${y}px`;
+      burst.innerHTML = `
+        <svg viewBox="0 0 100 100" fill="#ffdd00">
+          <polygon points="50,0 63,35 100,38 72,62 82,98 50,75 18,98 28,62 0,38 37,35"/>
+        </svg>
+      `;
+      arena.appendChild(burst);
+      setTimeout(() => burst.remove(), 300);
+    }
+
+    /* -------------------------------------------------------------
+       CLICK / TAP HANDLER
+    ------------------------------------------------------------- */
+    function handleSlap(e) {
+      e.preventDefault();
+      clickTimestamps.push(performance.now());
+
+      // Streak & score calculations
+      streak++;
+      if (streak > highStreak) {
+        highStreak = streak;
+        localStorage.setItem('booty_high_streak', highStreak);
+      }
+
+      const mult = getMultiplier();
+      score += Math.round(1 * mult);
+      if (score > highScore) {
+        highScore = score;
+        localStorage.setItem('booty_high_score', highScore);
+      }
+
+      // Physics animation: toggle alternate wobble directions
+      lastClickSide = lastClickSide === 'left' ? 'right' : 'left';
+      target.classList.remove('jiggle-left', 'jiggle-right');
+      void target.offsetWidth; // Force DOM reflow to restart CSS animation
+      target.classList.add(lastClickSide === 'left' ? 'jiggle-left' : 'jiggle-right');
+
+      // Slap hand animation
+      slapHand.classList.remove('animating');
+      void slapHand.offsetWidth;
+      slapHand.classList.add('animating');
+
+      // Audio feedback
+      playSlapSound(mult > 1.5);
+
+      // Visual particle coordinates
+      const rect = arena.getBoundingClientRect();
+      let clientX = e.clientX;
+      let clientY = e.clientY;
+
+      if (e.touches && e.touches.length > 0) {
+        clientX = e.touches[0].clientX;
+        clientY = e.touches[0].clientY;
+      } else if (!clientX) {
+        clientX = rect.left + rect.width / 2;
+        clientY = rect.top + rect.height / 2;
+      }
+
+      const x = clientX - rect.left;
+      const y = clientY - rect.top;
+      createHitEffect(x, y, mult);
+
+      // Streak timeout refresh
+      resetStreakDecay();
+      updateUI();
+    }
+
+    target.addEventListener('pointerdown', handleSlap);
+
+    /* -------------------------------------------------------------
+       SETTINGS & CONTROLS
+    ------------------------------------------------------------- */
+    btnSound.addEventListener('click', () => {
+      soundEnabled = !soundEnabled;
+      btnSound.textContent = soundEnabled ? '🔊 Sound: ON' : '🔇 Sound: OFF';
+    });
+
+    btnReset.addEventListener('click', () => {
+      if (confirm('Reset your high scores and streaks?')) {
+        highStreak = 0;
+        highScore = 0;
+        score = 0;
+        streak = 0;
+        localStorage.removeItem('booty_high_streak');
+        localStorage.removeItem('booty_high_score');
+        updateUI();
+      }
+    });
+
+    // Initial draw
+    updateUI();
+  </script>
+</body>
+</html>
