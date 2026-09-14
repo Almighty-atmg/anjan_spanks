@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>Spank Master CPS - Mega Spank Edition</title>
+  <title>Spank Master CPS - Mega Spank Cinematic</title>
   <style>
     :root {
       --bg-dark: #0f0c1b;
@@ -39,15 +39,27 @@
       position: relative;
     }
 
+    /* Screen Shake on Mega Spank */
+    body.camera-shake {
+      animation: screenRumble 0.5s cubic-bezier(.36,.07,.19,.97) both;
+    }
+
+    @keyframes screenRumble {
+      10%, 90% { transform: translate3d(-3px, 2px, 0); }
+      20%, 80% { transform: translate3d(5px, -4px, 0); }
+      30%, 50%, 70% { transform: translate3d(-6px, 6px, 0); }
+      40%, 60% { transform: translate3d(6px, -5px, 0); }
+    }
+
     /* Screen Flash Overlay */
     #screenFlash {
       position: fixed;
       inset: 0;
-      background: radial-gradient(circle, #ffffff 10%, #ff8800 60%, transparent 100%);
+      background: radial-gradient(circle, #ffffff 15%, #ff7700 70%, transparent 100%);
       opacity: 0;
       pointer-events: none;
       z-index: 100;
-      transition: opacity 0.05s ease-out;
+      transition: opacity 0.35s ease-out;
     }
 
     #screenFlash.flashing {
@@ -202,7 +214,7 @@
       }
     }
 
-    /* Wobble animation */
+    /* Standard Wobble */
     .jiggle-left { animation: jiggleL 0.2s ease-out; }
     .jiggle-right { animation: jiggleR 0.2s ease-out; }
 
@@ -221,81 +233,101 @@
     }
 
     /* ============================================================
-       MEGA SPANK ANIMATIONS & STYLING
+       CINEMATIC SLOW MEGA SPANK ANIMATIONS
     ============================================================ */
     .mega-hand-container {
       position: absolute;
       top: -380px;
       right: -320px;
-      width: 320px;
-      height: 320px;
+      width: 330px;
+      height: 330px;
       pointer-events: none;
       z-index: 80;
       opacity: 0;
-      filter: drop-shadow(0 0 25px #ff2a00) drop-shadow(0 0 50px #ff9900) drop-shadow(0 0 90px #ff0055);
+      filter: drop-shadow(0 0 25px #ff2a00) drop-shadow(0 0 55px #ff9900) drop-shadow(0 0 100px #ff0055);
       transform-origin: center center;
     }
 
+    /* Extended 1.15s cinematic strike with dramatic windup and snap */
     .mega-hand-strike {
-      animation: megaStrike 0.52s cubic-bezier(0.15, 0.9, 0.2, 1) forwards;
+      animation: cinematicMegaStrike 1.15s cubic-bezier(0.25, 1, 0.3, 1) forwards;
     }
 
-    @keyframes megaStrike {
+    @keyframes cinematicMegaStrike {
       0% {
         opacity: 0;
-        transform: translate(250px, -250px) rotate(60deg) scale(2.8);
+        transform: translate(280px, -280px) rotate(65deg) scale(3.2);
       }
       25% {
         opacity: 1;
+        /* Sweeping down from the clouds */
+        transform: translate(130px, -130px) rotate(42deg) scale(2.4);
       }
-      70% {
-        transform: translate(-190px, 170px) rotate(-10deg) scale(1.4);
-      }
-      85% {
+      65% {
+        /* Dramatic anticipation hang: looms directly above before the slam */
         opacity: 1;
-        transform: translate(-205px, 185px) rotate(-18deg) scale(1.3);
+        transform: translate(25px, -15px) rotate(22deg) scale(1.9);
+      }
+      78% {
+        /* HEAVY SLAM CONTACT */
+        opacity: 1;
+        transform: translate(-170px, 145px) rotate(-14deg) scale(1.4);
+      }
+      88% {
+        /* Follow-through */
+        opacity: 1;
+        transform: translate(-195px, 165px) rotate(-20deg) scale(1.25);
       }
       100% {
         opacity: 0;
-        transform: translate(-240px, 210px) rotate(-22deg) scale(1.1);
+        transform: translate(-240px, 195px) rotate(-25deg) scale(1.05);
       }
     }
 
-    /* Flying Booty Shards */
+    /* Slow-Motion Shattered Shards (1.4s duration) */
     .shattered-shard {
       position: absolute;
       pointer-events: none;
       z-index: 40;
-      animation: shardFly 0.85s cubic-bezier(0.2, 0.8, 0.3, 1) forwards;
+      animation: slowShardFly 1.4s cubic-bezier(0.12, 0.85, 0.28, 1) forwards;
     }
 
-    @keyframes shardFly {
+    @keyframes slowShardFly {
       0% {
         opacity: 1;
-        transform: translate(0, 0) scale(1) rotate(0deg);
+        transform: translate(0, 0) scale(1.3) rotate(0deg);
+      }
+      50% {
+        opacity: 1;
       }
       100% {
         opacity: 0;
-        transform: translate(var(--dest-x), var(--dest-y)) scale(0.2) rotate(var(--dest-rot));
+        transform: translate(var(--dest-x), var(--dest-y)) scale(0.1) rotate(var(--dest-rot));
       }
     }
 
-    /* New Booty Drop-In */
+    /* Exaggerated Bouncy Drop-In from the Sky (0.95s) */
     .target-drop-in {
-      animation: dropFromSky 0.65s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+      animation: slowDropFromSky 0.95s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
     }
 
-    @keyframes dropFromSky {
+    @keyframes slowDropFromSky {
       0% {
         opacity: 0;
-        transform: translateY(-420px) scale(0.6, 1.4);
+        transform: translateY(-500px) scale(0.5, 1.7);
       }
-      65% {
+      55% {
         opacity: 1;
-        transform: translateY(22px) scale(1.3, 0.7);
+        /* Deep squish upon hitting the floor */
+        transform: translateY(28px) scale(1.45, 0.55);
       }
-      82% {
-        transform: translateY(-12px) scale(0.92, 1.08);
+      72% {
+        /* Bouncing back up */
+        transform: translateY(-16px) scale(0.9, 1.15);
+      }
+      88% {
+        /* Soft secondary bounce */
+        transform: translateY(6px) scale(1.06, 0.95);
       }
       100% {
         opacity: 1;
@@ -306,10 +338,10 @@
     /* Mega Spank Banner */
     .mega-banner {
       position: absolute;
-      top: 40%;
+      top: 38%;
       left: 50%;
       transform: translate(-50%, -50%) scale(0.4);
-      font-size: 2.3rem;
+      font-size: 2.2rem;
       font-weight: 900;
       color: #fff;
       text-transform: uppercase;
@@ -318,7 +350,7 @@
       background: linear-gradient(180deg, #ffe600, #ff0055);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
-      text-shadow: 0 0 30px rgba(255, 69, 0, 0.9);
+      text-shadow: 0 0 35px rgba(255, 69, 0, 0.95);
       pointer-events: none;
       z-index: 90;
       opacity: 0;
@@ -326,7 +358,7 @@
     }
 
     .mega-banner.show {
-      animation: bannerPopup 1.3s cubic-bezier(0.18, 0.89, 0.32, 1.28) forwards;
+      animation: bannerPopup 1.8s cubic-bezier(0.18, 0.89, 0.32, 1.28) forwards;
     }
 
     @keyframes bannerPopup {
@@ -392,18 +424,20 @@
     /* Controls */
     .controls {
       display: flex;
-      gap: 12px;
+      gap: 10px;
       margin-top: 8px;
+      flex-wrap: wrap;
+      justify-content: center;
     }
 
     button {
       background: rgba(255, 255, 255, 0.08);
       color: #fff;
       border: 1px solid rgba(255, 255, 255, 0.15);
-      padding: 10px 18px;
+      padding: 10px 16px;
       border-radius: 10px;
       font-weight: 700;
-      font-size: 0.85rem;
+      font-size: 0.82rem;
       cursor: pointer;
       transition: all 0.2s ease;
       letter-spacing: 0.5px;
@@ -415,11 +449,22 @@
       transform: translateY(-1px);
     }
 
+    .btn-test {
+      background: linear-gradient(90deg, #ff4500, #ff2a85);
+      border-color: #ffd60a;
+      box-shadow: 0 0 12px rgba(255, 69, 0, 0.4);
+    }
+
+    .btn-test:hover {
+      background: linear-gradient(90deg, #ff5714, #ff4095);
+      box-shadow: 0 0 18px rgba(255, 69, 0, 0.7);
+    }
+
     @media (max-width: 480px) {
       .dashboard { grid-template-columns: repeat(2, 1fr); gap: 8px; }
       h1 { font-size: 1.6rem; }
       .arena { height: 300px; }
-      .mega-banner { font-size: 1.6rem; }
+      .mega-banner { font-size: 1.5rem; }
     }
   </style>
 </head>
@@ -491,7 +536,6 @@
     <div class="mega-hand-container" id="megaHandContainer">
       <svg viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:100%; height:100%;">
         <defs>
-          <!-- Fiery Gradient -->
           <linearGradient id="fireGrad" x1="0%" y1="0%" x2="100%" y2="100%">
             <stop offset="0%" stop-color="#ffffff" />
             <stop offset="25%" stop-color="#ffee55" />
@@ -507,7 +551,7 @@
         <!-- Fiery Slapping Palm -->
         <path d="M 50 135 C 35 120, 35 90, 60 75 C 70 68, 85 72, 90 82 C 93 66, 112 66, 117 80 C 123 68, 140 74, 140 89 C 146 80, 158 89, 154 107 C 146 142, 105 165, 75 158 Z" 
               fill="#ffe8a3" stroke="#d84a00" stroke-width="5" stroke-linejoin="round"/>
-        <!-- Crease Marks -->
+        <!-- Palm Creases -->
         <path d="M 68 100 L 71 130 M 90 95 L 92 130 M 114 100 L 112 130" stroke="#d84a00" stroke-width="4" stroke-linecap="round"/>
       </svg>
     </div>
@@ -530,6 +574,7 @@
   <!-- Controls -->
   <div class="controls">
     <button id="btnSound">🔊 Sound: ON</button>
+    <button id="btnTestMega" class="btn-test">🔥 Test Mega Spank</button>
     <button id="btnReset">🔄 Reset Scores</button>
   </div>
 
@@ -563,12 +608,13 @@
     const megaHandContainer = document.getElementById('megaHandContainer');
     const megaBanner = document.getElementById('megaBanner');
     const btnSound = document.getElementById('btnSound');
+    const btnTestMega = document.getElementById('btnTestMega');
     const btnReset = document.getElementById('btnReset');
 
     valHighStreak.textContent = highStreak;
 
     /* -------------------------------------------------------------
-       AUDIO SYNTHESIZER (Slap & Mega Spank Explosion)
+       AUDIO SYNTHESIZER
     ------------------------------------------------------------- */
     let audioCtx = null;
     function initAudio() {
@@ -585,7 +631,7 @@
       initAudio();
       const now = audioCtx.currentTime;
 
-      // Noise slap
+      // Noise burst
       const bufferSize = audioCtx.sampleRate * 0.04;
       const noiseBuffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
       const output = noiseBuffer.getChannelData(0);
@@ -606,7 +652,7 @@
       noiseGain.connect(audioCtx.destination);
       whiteNoise.start(now);
 
-      // Low frequency body thump
+      // Low punch
       const osc = audioCtx.createOscillator();
       const oscGain = audioCtx.createGain();
       osc.type = 'sine';
@@ -622,14 +668,14 @@
       osc.stop(now + 0.11);
     }
 
-    // Fiery Mega Spank Explosion Sound
+    // Fiery Mega Spank Explosion Sound with Deep Sub Rumble
     function playMegaExplosionSound() {
       if (!soundEnabled) return;
       initAudio();
       const now = audioCtx.currentTime;
 
       // 1. Long rumble explosion noise
-      const bufferSize = audioCtx.sampleRate * 0.6;
+      const bufferSize = audioCtx.sampleRate * 0.9;
       const noiseBuffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
       const output = noiseBuffer.getChannelData(0);
       for (let i = 0; i < bufferSize; i++) output[i] = Math.random() * 2 - 1;
@@ -638,32 +684,32 @@
       noise.buffer = noiseBuffer;
       const filter = audioCtx.createBiquadFilter();
       filter.type = 'lowpass';
-      filter.frequency.setValueAtTime(1200, now);
-      filter.frequency.linearRampToValueAtTime(100, now + 0.6);
+      filter.frequency.setValueAtTime(1400, now);
+      filter.frequency.linearRampToValueAtTime(70, now + 0.9);
 
       const noiseGain = audioCtx.createGain();
       noiseGain.gain.setValueAtTime(1.0, now);
-      noiseGain.gain.exponentialRampToValueAtTime(0.01, now + 0.6);
+      noiseGain.gain.exponentialRampToValueAtTime(0.01, now + 0.9);
 
       noise.connect(filter);
       filter.connect(noiseGain);
       noiseGain.connect(audioCtx.destination);
       noise.start(now);
 
-      // 2. Sub-bass slam
+      // 2. Sub-bass ground slam
       const subOsc = audioCtx.createOscillator();
       const subGain = audioCtx.createGain();
       subOsc.type = 'sine';
-      subOsc.frequency.setValueAtTime(150, now);
-      subOsc.frequency.exponentialRampToValueAtTime(25, now + 0.5);
+      subOsc.frequency.setValueAtTime(170, now);
+      subOsc.frequency.exponentialRampToValueAtTime(20, now + 0.7);
 
       subGain.gain.setValueAtTime(1.0, now);
-      subGain.gain.exponentialRampToValueAtTime(0.001, now + 0.5);
+      subGain.gain.exponentialRampToValueAtTime(0.001, now + 0.7);
 
       subOsc.connect(subGain);
       subGain.connect(audioCtx.destination);
       subOsc.start(now);
-      subOsc.stop(now + 0.52);
+      subOsc.stop(now + 0.72);
     }
 
     /* -------------------------------------------------------------
@@ -695,6 +741,9 @@
     }
 
     function resetStreakDecay() {
+      // Don't expire the streak while the cinematic is running!
+      if (isMegaSpankActive) return;
+
       clearTimeout(streakDecayTimer);
       comboFill.style.transition = 'none';
       comboFill.style.width = '100%';
@@ -705,8 +754,10 @@
       });
 
       streakDecayTimer = setTimeout(() => {
-        streak = 0;
-        updateUI();
+        if (!isMegaSpankActive) {
+          streak = 0;
+          updateUI();
+        }
       }, STREAK_TIMEOUT_MS);
     }
 
@@ -730,7 +781,6 @@
     const COMIC_PHRASES = ['SLAP!', 'SMACK!', 'POW!', 'CLAP!', 'THWACK!', 'BAM!'];
 
     function createHitEffect(x, y, mult) {
-      // Floating text
       const floatEl = document.createElement('div');
       floatEl.className = 'float-text';
       const phrase = COMIC_PHRASES[Math.floor(Math.random() * COMIC_PHRASES.length)];
@@ -764,45 +814,62 @@
     }
 
     /* -------------------------------------------------------------
-       MEGA SPANK CINEMATIC (AT EVERY 250 STREAKS)
+       SLOW CINEMATIC MEGA SPANK SEQUENCE
     ------------------------------------------------------------- */
     function triggerMegaSpank() {
+      if (isMegaSpankActive) return;
       isMegaSpankActive = true;
 
-      // 1. Launch Giant Fiery Hand Strike
+      // Freeze combo decay bar so player keeps their streak
+      clearTimeout(streakDecayTimer);
+      comboFill.style.transition = 'none';
+      comboFill.style.width = '100%';
+
+      // 1. Launch Giant Fiery Hand Strike (slow dramatic 1.15s windup)
       megaHandContainer.classList.remove('mega-hand-strike');
       void megaHandContainer.offsetWidth;
       megaHandContainer.classList.add('mega-hand-strike');
 
-      // 2. Schedule Impact at exactly 360ms into the strike
+      // 2. Exact moment of impact (at 880ms into the windup)
       setTimeout(() => {
-        // Flash the screen
+        // Flash screen with radiant burst
         screenFlash.classList.add('flashing');
-        setTimeout(() => screenFlash.classList.remove('flashing'), 180);
+        setTimeout(() => screenFlash.classList.remove('flashing'), 280);
 
-        // Sound of devastation
+        // Heavy camera shake
+        document.body.classList.remove('camera-shake');
+        void document.body.offsetWidth;
+        document.body.classList.add('camera-shake');
+
+        // Explosive impact sound
         playMegaExplosionSound();
 
-        // Banner
-        megaBanner.textContent = `💥 ${streak} STREAK MEGA SPANK! 💥`;
+        // Banner Announcement
+        megaBanner.textContent = `💥 ${streak || 250} STREAK MEGA SPANK! 💥`;
         megaBanner.classList.remove('show');
         void megaBanner.offsetWidth;
         megaBanner.classList.add('show');
 
-        // Shatter Booty into Pieces
+        // Shatter target into pieces
         shatterBooty();
 
-        // 3. Drop in a fresh new booty after shatter completes
+        // 3. Anticipation pause before the new target drops in (600ms after shatter)
         setTimeout(() => {
           dropNewBooty();
-          isMegaSpankActive = false;
-        }, 380);
 
-      }, 360);
+          // 4. Once new target finishes dropping and settling (~950ms), resume regular gameplay
+          setTimeout(() => {
+            isMegaSpankActive = false;
+            resetStreakDecay();
+          }, 950);
+
+        }, 600);
+
+      }, 880);
     }
 
     function shatterBooty() {
-      // Hide current target SVG
+      // Hide original target
       target.style.opacity = '0';
       target.classList.remove('jiggle-left', 'jiggle-right', 'target-drop-in');
 
@@ -811,24 +878,24 @@
       const centerX = rect.left - arenaRect.left + rect.width / 2;
       const centerY = rect.top - arenaRect.top + rect.height / 2;
 
-      // Generate 20 flying polygon shards
-      const shardColors = ['#ff9ebb', '#ff4d79', '#c9184a', '#ffd60a', '#ffffff'];
-      for (let i = 0; i < 20; i++) {
+      // Generate 25 flying polygon shards with randomized spread
+      const shardColors = ['#ff9ebb', '#ff4d79', '#c9184a', '#ffd60a', '#ffffff', '#ff5722'];
+      for (let i = 0; i < 25; i++) {
         const shard = document.createElement('div');
         shard.className = 'shattered-shard';
 
-        const size = Math.floor(Math.random() * 26) + 16;
+        const size = Math.floor(Math.random() * 30) + 16;
         shard.style.width = `${size}px`;
         shard.style.height = `${size}px`;
         shard.style.left = `${centerX + (Math.random() - 0.5) * 80}px`;
         shard.style.top = `${centerY + (Math.random() - 0.5) * 80}px`;
 
-        // Radial explosion vector
+        // Radial explosion vector with gravity
         const angle = Math.random() * Math.PI * 2;
-        const dist = Math.random() * 220 + 90;
+        const dist = Math.random() * 260 + 100;
         const destX = Math.cos(angle) * dist;
-        const destY = Math.sin(angle) * dist + 80; // gravity bias
-        const rot = (Math.random() - 0.5) * 720;
+        const destY = Math.sin(angle) * dist + 100; // gravity downward bias
+        const rot = (Math.random() - 0.5) * 900;
 
         shard.style.setProperty('--dest-x', `${destX}px`);
         shard.style.setProperty('--dest-y', `${destY}px`);
@@ -837,18 +904,20 @@
         const color = shardColors[Math.floor(Math.random() * shardColors.length)];
         shard.innerHTML = `
           <svg viewBox="0 0 30 30" width="100%" height="100%">
-            <polygon points="${Math.random()*10},${Math.random()*10} ${Math.random()*20+10},0 ${Math.random()*30},${Math.random()*20+10} 0,${Math.random()*20+10}" fill="${color}" stroke="#590d22" stroke-width="2"/>
+            <polygon points="${Math.random()*10},${Math.random()*10} ${Math.random()*20+10},0 ${Math.random()*30},${Math.random()*20+10} 0,${Math.random()*20+10}" fill="${color}" stroke="#590d22" stroke-width="2.5"/>
           </svg>
         `;
 
         arena.appendChild(shard);
-        setTimeout(() => shard.remove(), 850);
+        setTimeout(() => shard.remove(), 1400);
       }
     }
 
     function dropNewBooty() {
-      // Restore visibility and play bouncy drop animation
+      // Re-show target and play slow, bouncy cartoon drop
       target.style.opacity = '1';
+      target.classList.remove('target-drop-in');
+      void target.offsetWidth;
       target.classList.add('target-drop-in');
     }
 
@@ -857,9 +926,11 @@
     ------------------------------------------------------------- */
     function handleSpank(e) {
       e.preventDefault();
+      if (isMegaSpankActive) return; // Prevent spam clicks mid-cinematic
+
       clickTimestamps.push(performance.now());
 
-      // Increment Streak & Highscores
+      // Increment Streak & Score
       streak++;
       if (streak > highStreak) {
         highStreak = streak;
@@ -877,7 +948,7 @@
       if (streak > 0 && streak % 250 === 0) {
         triggerMegaSpank();
       } else {
-        // Normal slap dynamics
+        // Standard slapping feedback
         lastClickSide = lastClickSide === 'left' ? 'right' : 'left';
         target.classList.remove('jiggle-left', 'jiggle-right', 'target-drop-in');
         void target.offsetWidth;
@@ -885,7 +956,6 @@
 
         playSlapSound(mult > 1.5);
 
-        // Position coordinates for comic popup
         const rect = arena.getBoundingClientRect();
         let clientX = e.clientX;
         let clientY = e.clientY;
@@ -915,6 +985,15 @@
     btnSound.addEventListener('click', () => {
       soundEnabled = !soundEnabled;
       btnSound.textContent = soundEnabled ? '🔊 Sound: ON' : '🔇 Sound: OFF';
+    });
+
+    // Test button to view the cinematic immediately
+    btnTestMega.addEventListener('click', () => {
+      if (!isMegaSpankActive) {
+        streak = Math.max(streak, 250);
+        updateUI();
+        triggerMegaSpank();
+      }
     });
 
     btnReset.addEventListener('click', () => {
