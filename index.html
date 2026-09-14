@@ -3,11 +3,11 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>Spank Master CPS - Mega Spank Cinematic</title>
+  <title>Spank Master CPS - Top 10 Leaderboard Edition</title>
   <style>
     :root {
       --bg-dark: #0f0c1b;
-      --card-bg: rgba(26, 22, 45, 0.85);
+      --card-bg: rgba(26, 22, 45, 0.88);
       --accent-pink: #ff2a85;
       --accent-purple: #9d4edd;
       --accent-cyan: #00f0ff;
@@ -30,12 +30,7 @@
       background: radial-gradient(circle at 50% 30%, #25163f, var(--bg-dark));
       color: var(--text-main);
       font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: space-between;
       overflow-x: hidden;
-      padding: 16px;
       position: relative;
     }
 
@@ -51,25 +46,187 @@
       40%, 60% { transform: translate3d(6px, -5px, 0); }
     }
 
-    /* Screen Flash Overlay */
+    /* Flash Overlay */
     #screenFlash {
       position: fixed;
       inset: 0;
       background: radial-gradient(circle, #ffffff 15%, #ff7700 70%, transparent 100%);
       opacity: 0;
       pointer-events: none;
-      z-index: 100;
+      z-index: 200;
       transition: opacity 0.35s ease-out;
     }
-
     #screenFlash.flashing {
       opacity: 0.95;
       transition: none;
     }
 
+    /* ============================================================
+       INTRO MODAL OVERLAY
+    ============================================================ */
+    #introOverlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(10, 8, 20, 0.92);
+      backdrop-filter: blur(14px);
+      z-index: 300;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      transition: opacity 0.4s ease, visibility 0.4s;
+    }
+
+    #introOverlay.hidden {
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+    }
+
+    .intro-card {
+      background: var(--card-bg);
+      border: 1px solid rgba(255, 42, 133, 0.35);
+      border-radius: 20px;
+      padding: 30px 24px;
+      max-width: 420px;
+      width: 100%;
+      text-align: center;
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.7), 0 0 30px rgba(255, 42, 133, 0.25);
+    }
+
+    .intro-title {
+      font-size: 2rem;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      background: linear-gradient(90deg, var(--accent-pink), var(--accent-gold));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 8px;
+    }
+
+    .intro-desc {
+      font-size: 0.9rem;
+      color: #b3aeca;
+      margin-bottom: 24px;
+      line-height: 1.4;
+    }
+
+    .name-input-group {
+      margin-bottom: 20px;
+      text-align: left;
+    }
+
+    .name-input-group label {
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      font-weight: 700;
+      color: var(--accent-cyan);
+      display: block;
+      margin-bottom: 8px;
+    }
+
+    .name-input {
+      width: 100%;
+      background: rgba(15, 12, 27, 0.9);
+      border: 2px solid rgba(255, 255, 255, 0.15);
+      border-radius: 12px;
+      padding: 14px 16px;
+      color: #fff;
+      font-size: 1.1rem;
+      font-weight: 700;
+      outline: none;
+      transition: all 0.2s ease;
+      user-select: auto;
+      -webkit-user-select: auto;
+    }
+
+    .name-input:focus {
+      border-color: var(--accent-pink);
+      box-shadow: 0 0 15px rgba(255, 42, 133, 0.4);
+    }
+
+    .btn-start {
+      width: 100%;
+      background: linear-gradient(90deg, var(--accent-pink), var(--accent-fire));
+      color: #fff;
+      border: none;
+      padding: 14px;
+      border-radius: 12px;
+      font-size: 1.1rem;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      cursor: pointer;
+      box-shadow: 0 6px 20px rgba(255, 42, 133, 0.4);
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    .btn-start:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(255, 42, 133, 0.6);
+    }
+
+    /* ============================================================
+       APP LAYOUT (SPLIT ON DESKTOP, RESPONSIVE ON MOBILE)
+    ============================================================ */
+    .app-layout {
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 16px;
+      position: relative;
+    }
+
+    @media (min-width: 960px) {
+      .app-layout {
+        flex-direction: row;
+        gap: 24px;
+        align-items: stretch;
+      }
+    }
+
+    .game-section {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: space-between;
+      min-width: 0;
+    }
+
+    /* Player Profile Bar */
+    .player-badge {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: rgba(255, 255, 255, 0.06);
+      padding: 6px 14px;
+      border-radius: 99px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      margin-bottom: 8px;
+      font-size: 0.85rem;
+    }
+
+    .player-badge strong {
+      color: var(--accent-cyan);
+    }
+
+    .btn-edit-name {
+      background: transparent;
+      border: none;
+      color: #a09cb0;
+      cursor: pointer;
+      font-size: 0.75rem;
+      text-decoration: underline;
+      padding: 0 4px;
+    }
+
     header {
       text-align: center;
-      margin-top: 6px;
     }
 
     h1 {
@@ -84,7 +241,7 @@
     }
 
     .subtitle {
-      font-size: 0.9rem;
+      font-size: 0.88rem;
       color: #a09cb0;
       margin-top: 4px;
     }
@@ -93,20 +250,19 @@
     .dashboard {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
-      gap: 10px;
+      gap: 8px;
       width: 100%;
-      max-width: 600px;
-      margin: 14px 0;
+      max-width: 580px;
+      margin: 12px 0;
     }
 
     .stat-card {
       background: var(--card-bg);
       border: 1px solid rgba(255, 255, 255, 0.1);
-      border-radius: 14px;
-      padding: 10px 6px;
+      border-radius: 12px;
+      padding: 8px 4px;
       text-align: center;
-      backdrop-filter: blur(10px);
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
       position: relative;
       overflow: hidden;
     }
@@ -122,15 +278,15 @@
     }
 
     .stat-label {
-      font-size: 0.7rem;
+      font-size: 0.68rem;
       text-transform: uppercase;
-      letter-spacing: 1px;
+      letter-spacing: 0.5px;
       color: #9d96b8;
       font-weight: 700;
     }
 
     .stat-value {
-      font-size: 1.5rem;
+      font-size: 1.4rem;
       font-weight: 800;
       margin-top: 2px;
       color: #fff;
@@ -140,12 +296,12 @@
       color: var(--accent-gold);
     }
 
-    /* Target Area */
+    /* Arena */
     .arena {
       position: relative;
       width: 100%;
-      max-width: 400px;
-      height: 360px;
+      max-width: 380px;
+      height: 330px;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -165,12 +321,12 @@
       transform: scale(0.96);
     }
 
-    /* Normal Slap Hand Click Burst */
+    /* Hand Burst Effect */
     .hand-burst {
       position: absolute;
       pointer-events: none;
-      width: 105px;
-      height: 105px;
+      width: 100px;
+      height: 100px;
       z-index: 25;
       opacity: 0;
       animation: handBurstAnim 0.32s ease-out forwards;
@@ -196,7 +352,7 @@
     .float-text {
       position: absolute;
       font-weight: 900;
-      font-size: 1.3rem;
+      font-size: 1.25rem;
       pointer-events: none;
       animation: floatUp 0.65s cubic-bezier(0.18, 0.89, 0.32, 1.28) forwards;
       z-index: 30;
@@ -214,7 +370,7 @@
       }
     }
 
-    /* Standard Wobble */
+    /* Jiggles */
     .jiggle-left { animation: jiggleL 0.2s ease-out; }
     .jiggle-right { animation: jiggleR 0.2s ease-out; }
 
@@ -224,7 +380,6 @@
       60% { transform: scale(0.92, 1.08) rotate(3deg) translate(4px, -2px); }
       100% { transform: scale(1, 1) rotate(0deg); }
     }
-
     @keyframes jiggleR {
       0% { transform: scale(1, 1); }
       30% { transform: scale(1.18, 0.86) rotate(5deg) translate(8px, 4px); }
@@ -232,59 +387,33 @@
       100% { transform: scale(1, 1) rotate(0deg); }
     }
 
-    /* ============================================================
-       CINEMATIC SLOW MEGA SPANK ANIMATIONS
-    ============================================================ */
+    /* Mega Spank Hand */
     .mega-hand-container {
       position: absolute;
       top: -380px;
       right: -320px;
-      width: 330px;
-      height: 330px;
+      width: 320px;
+      height: 320px;
       pointer-events: none;
       z-index: 80;
       opacity: 0;
-      filter: drop-shadow(0 0 25px #ff2a00) drop-shadow(0 0 55px #ff9900) drop-shadow(0 0 100px #ff0055);
+      filter: drop-shadow(0 0 25px #ff2a00) drop-shadow(0 0 55px #ff9900) drop-shadow(0 0 90px #ff0055);
       transform-origin: center center;
     }
 
-    /* Extended 1.15s cinematic strike with dramatic windup and snap */
     .mega-hand-strike {
       animation: cinematicMegaStrike 1.15s cubic-bezier(0.25, 1, 0.3, 1) forwards;
     }
 
     @keyframes cinematicMegaStrike {
-      0% {
-        opacity: 0;
-        transform: translate(280px, -280px) rotate(65deg) scale(3.2);
-      }
-      25% {
-        opacity: 1;
-        /* Sweeping down from the clouds */
-        transform: translate(130px, -130px) rotate(42deg) scale(2.4);
-      }
-      65% {
-        /* Dramatic anticipation hang: looms directly above before the slam */
-        opacity: 1;
-        transform: translate(25px, -15px) rotate(22deg) scale(1.9);
-      }
-      78% {
-        /* HEAVY SLAM CONTACT */
-        opacity: 1;
-        transform: translate(-170px, 145px) rotate(-14deg) scale(1.4);
-      }
-      88% {
-        /* Follow-through */
-        opacity: 1;
-        transform: translate(-195px, 165px) rotate(-20deg) scale(1.25);
-      }
-      100% {
-        opacity: 0;
-        transform: translate(-240px, 195px) rotate(-25deg) scale(1.05);
-      }
+      0% { opacity: 0; transform: translate(280px, -280px) rotate(65deg) scale(3.2); }
+      25% { opacity: 1; transform: translate(130px, -130px) rotate(42deg) scale(2.4); }
+      65% { opacity: 1; transform: translate(25px, -15px) rotate(22deg) scale(1.9); }
+      78% { opacity: 1; transform: translate(-170px, 145px) rotate(-14deg) scale(1.4); }
+      88% { opacity: 1; transform: translate(-195px, 165px) rotate(-20deg) scale(1.25); }
+      100% { opacity: 0; transform: translate(-240px, 195px) rotate(-25deg) scale(1.05); }
     }
 
-    /* Slow-Motion Shattered Shards (1.4s duration) */
     .shattered-shard {
       position: absolute;
       pointer-events: none;
@@ -293,55 +422,28 @@
     }
 
     @keyframes slowShardFly {
-      0% {
-        opacity: 1;
-        transform: translate(0, 0) scale(1.3) rotate(0deg);
-      }
-      50% {
-        opacity: 1;
-      }
-      100% {
-        opacity: 0;
-        transform: translate(var(--dest-x), var(--dest-y)) scale(0.1) rotate(var(--dest-rot));
-      }
+      0% { opacity: 1; transform: translate(0, 0) scale(1.3) rotate(0deg); }
+      100% { opacity: 0; transform: translate(var(--dest-x), var(--dest-y)) scale(0.1) rotate(var(--dest-rot)); }
     }
 
-    /* Exaggerated Bouncy Drop-In from the Sky (0.95s) */
     .target-drop-in {
       animation: slowDropFromSky 0.95s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
     }
 
     @keyframes slowDropFromSky {
-      0% {
-        opacity: 0;
-        transform: translateY(-500px) scale(0.5, 1.7);
-      }
-      55% {
-        opacity: 1;
-        /* Deep squish upon hitting the floor */
-        transform: translateY(28px) scale(1.45, 0.55);
-      }
-      72% {
-        /* Bouncing back up */
-        transform: translateY(-16px) scale(0.9, 1.15);
-      }
-      88% {
-        /* Soft secondary bounce */
-        transform: translateY(6px) scale(1.06, 0.95);
-      }
-      100% {
-        opacity: 1;
-        transform: translateY(0px) scale(1, 1);
-      }
+      0% { opacity: 0; transform: translateY(-500px) scale(0.5, 1.7); }
+      55% { opacity: 1; transform: translateY(28px) scale(1.45, 0.55); }
+      72% { transform: translateY(-16px) scale(0.9, 1.15); }
+      88% { transform: translateY(6px) scale(1.06, 0.95); }
+      100% { opacity: 1; transform: translateY(0px) scale(1, 1); }
     }
 
-    /* Mega Spank Banner */
     .mega-banner {
       position: absolute;
       top: 38%;
       left: 50%;
       transform: translate(-50%, -50%) scale(0.4);
-      font-size: 2.2rem;
+      font-size: 2.1rem;
       font-weight: 900;
       color: #fff;
       text-transform: uppercase;
@@ -362,28 +464,14 @@
     }
 
     @keyframes bannerPopup {
-      0% {
-        opacity: 0;
-        transform: translate(-50%, -50%) scale(0.3) rotate(-8deg);
-      }
-      20% {
-        opacity: 1;
-        transform: translate(-50%, -50%) scale(1.2) rotate(3deg);
-      }
-      40% {
-        transform: translate(-50%, -50%) scale(1) rotate(0deg);
-      }
-      80% {
-        opacity: 1;
-        transform: translate(-50%, -50%) scale(1.05);
-      }
-      100% {
-        opacity: 0;
-        transform: translate(-50%, -90px) scale(0.7);
-      }
+      0% { opacity: 0; transform: translate(-50%, -50%) scale(0.3) rotate(-8deg); }
+      20% { opacity: 1; transform: translate(-50%, -50%) scale(1.2) rotate(3deg); }
+      40% { transform: translate(-50%, -50%) scale(1) rotate(0deg); }
+      80% { opacity: 1; transform: translate(-50%, -50%) scale(1.05); }
+      100% { opacity: 0; transform: translate(-50%, -90px) scale(0.7); }
     }
 
-    /* Streak & Combo Meter */
+    /* Combo Bar */
     .combo-bar-container {
       width: 100%;
       max-width: 420px;
@@ -406,7 +494,7 @@
 
     .combo-track {
       width: 100%;
-      height: 10px;
+      height: 9px;
       background: rgba(255, 255, 255, 0.1);
       border-radius: 99px;
       overflow: hidden;
@@ -424,47 +512,204 @@
     /* Controls */
     .controls {
       display: flex;
-      gap: 10px;
-      margin-top: 8px;
+      gap: 8px;
+      margin-top: 6px;
       flex-wrap: wrap;
       justify-content: center;
     }
 
-    button {
+    button.btn-pill {
       background: rgba(255, 255, 255, 0.08);
       color: #fff;
       border: 1px solid rgba(255, 255, 255, 0.15);
-      padding: 10px 16px;
+      padding: 9px 15px;
       border-radius: 10px;
       font-weight: 700;
-      font-size: 0.82rem;
+      font-size: 0.8rem;
       cursor: pointer;
       transition: all 0.2s ease;
       letter-spacing: 0.5px;
     }
 
-    button:hover {
+    button.btn-pill:hover {
       background: rgba(255, 255, 255, 0.18);
       border-color: rgba(255, 255, 255, 0.3);
       transform: translateY(-1px);
     }
 
     .btn-test {
-      background: linear-gradient(90deg, #ff4500, #ff2a85);
-      border-color: #ffd60a;
-      box-shadow: 0 0 12px rgba(255, 69, 0, 0.4);
+      background: linear-gradient(90deg, #ff4500, #ff2a85) !important;
+      border-color: #ffd60a !important;
     }
 
-    .btn-test:hover {
-      background: linear-gradient(90deg, #ff5714, #ff4095);
-      box-shadow: 0 0 18px rgba(255, 69, 0, 0.7);
+    /* ============================================================
+       TOP 10 LEADERBOARD SIDEBAR / DRAWER
+    ============================================================ */
+    .leaderboard-container {
+      width: 100%;
+      background: var(--card-bg);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 18px;
+      padding: 18px;
+      backdrop-filter: blur(12px);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+      display: flex;
+      flex-direction: column;
+      margin-top: 20px;
     }
 
-    @media (max-width: 480px) {
-      .dashboard { grid-template-columns: repeat(2, 1fr); gap: 8px; }
-      h1 { font-size: 1.6rem; }
-      .arena { height: 300px; }
-      .mega-banner { font-size: 1.5rem; }
+    @media (min-width: 960px) {
+      .leaderboard-container {
+        width: 340px;
+        margin-top: 0;
+      }
+    }
+
+    .lb-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      padding-bottom: 12px;
+      margin-bottom: 12px;
+    }
+
+    .lb-title {
+      font-size: 1.1rem;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--accent-gold);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .lb-count {
+      font-size: 0.72rem;
+      background: rgba(255, 214, 10, 0.15);
+      color: var(--accent-gold);
+      border-radius: 99px;
+      padding: 2px 8px;
+      font-weight: 800;
+    }
+
+    .lb-list {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      max-height: 480px;
+      overflow-y: auto;
+      padding-right: 4px;
+    }
+
+    .lb-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 12px;
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      font-size: 0.85rem;
+      transition: all 0.2s ease;
+    }
+
+    .lb-row.active-user {
+      background: rgba(255, 42, 133, 0.18);
+      border-color: var(--accent-pink);
+      box-shadow: 0 0 10px rgba(255, 42, 133, 0.3);
+    }
+
+    .lb-rank {
+      width: 24px;
+      font-weight: 900;
+      color: #9d96b8;
+    }
+
+    .lb-rank.rank-1 { color: #ffd700; font-size: 1.05rem; }
+    .lb-rank.rank-2 { color: #e0e0e0; font-size: 1rem; }
+    .lb-rank.rank-3 { color: #cd7f32; font-size: 0.95rem; }
+
+    .lb-name {
+      flex: 1;
+      font-weight: 700;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      margin: 0 8px;
+      color: #f1f1f1;
+    }
+
+    .lb-stats {
+      text-align: right;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+    }
+
+    .lb-streak {
+      color: var(--accent-gold);
+      font-weight: 800;
+      font-size: 0.85rem;
+    }
+
+    .lb-subscore {
+      font-size: 0.68rem;
+      color: #8c889f;
+    }
+
+    /* Leaderboard Actions */
+    .lb-actions {
+      display: flex;
+      gap: 6px;
+      margin-top: 14px;
+      padding-top: 12px;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .lb-actions button {
+      flex: 1;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: #b0abc4;
+      padding: 7px 10px;
+      border-radius: 8px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .lb-actions button:hover {
+      background: rgba(255, 255, 255, 0.12);
+      color: #fff;
+    }
+
+    /* Mobile toggle button */
+    .mobile-lb-btn {
+      display: none;
+    }
+
+    @media (max-width: 959px) {
+      .mobile-lb-btn {
+        display: block;
+        margin-top: 10px;
+        width: 100%;
+        max-width: 420px;
+        background: rgba(255, 214, 10, 0.12);
+        color: var(--accent-gold);
+        border: 1px solid rgba(255, 214, 10, 0.3);
+        padding: 10px;
+        border-radius: 12px;
+        font-weight: 800;
+        font-size: 0.85rem;
+        cursor: pointer;
+      }
+
+      .leaderboard-container.collapsed-mobile {
+        display: none;
+      }
     }
   </style>
 </head>
@@ -473,119 +718,330 @@
   <!-- Screen Flash -->
   <div id="screenFlash"></div>
 
-  <header>
-    <h1>Spank Master CPS</h1>
-    <div class="subtitle">Reach a 250-streak for the fiery MEGA SPANK!</div>
-  </header>
-
-  <!-- Metrics -->
-  <div class="dashboard">
-    <div class="stat-card">
-      <div class="stat-label">Total Score</div>
-      <div class="stat-value" id="val-score">0</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-label">SPS (CPS)</div>
-      <div class="stat-value highlight" id="val-cps">0.0</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-label">Current Streak</div>
-      <div class="stat-value" id="val-streak">0</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-label">Best Streak</div>
-      <div class="stat-value highlight" id="val-high-streak">0</div>
-    </div>
-  </div>
-
-  <!-- Arena -->
-  <div class="arena" id="arena">
-    <!-- Target Container -->
-    <div class="target-wrapper" id="target">
-      <svg width="260" height="240" viewBox="0 0 260 240" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <defs>
-          <radialGradient id="buttGrad" cx="50%" cy="40%" r="65%">
-            <stop offset="0%" stop-color="#ff9ebb" />
-            <stop offset="55%" stop-color="#ff4d79" />
-            <stop offset="100%" stop-color="#c9184a" />
-          </radialGradient>
-          <filter id="softGlow" x="-20%" y="-20%" width="140%" height="140%">
-            <feDropShadow dx="0" dy="8" stdDeviation="12" flood-color="#ff2a85" flood-opacity="0.35"/>
-          </filter>
-        </defs>
-
-        <g filter="url(#softGlow)">
-          <!-- Left Cheek -->
-          <path d="M 130 50 C 90 20, 20 50, 20 120 C 20 185, 75 225, 128 220 C 130 180, 130 110, 130 50 Z" 
-                fill="url(#buttGrad)" stroke="#590d22" stroke-width="4" stroke-linejoin="round" />
-          <!-- Right Cheek -->
-          <path d="M 130 50 C 170 20, 240 50, 240 120 C 240 185, 185 225, 132 220 C 130 180, 130 110, 130 50 Z" 
-                fill="url(#buttGrad)" stroke="#590d22" stroke-width="4" stroke-linejoin="round" />
-          <!-- Center Crease Highlight -->
-          <path d="M 130 75 C 130 125, 130 175, 130 215" stroke="#590d22" stroke-width="4" stroke-linecap="round" opacity="0.6"/>
-          <!-- Specular Highlights -->
-          <ellipse cx="75" cy="115" rx="30" ry="18" transform="rotate(-30 75 115)" fill="#ffffff" opacity="0.32" />
-          <ellipse cx="185" cy="115" rx="30" ry="18" transform="rotate(30 185 115)" fill="#ffffff" opacity="0.32" />
-          <!-- Waistband Accent -->
-          <path d="M 40 70 C 95 90, 165 90, 220 70" stroke="#ffd60a" stroke-width="6" stroke-linecap="round" opacity="0.85"/>
-        </g>
-      </svg>
-    </div>
-
-    <!-- Mega Hand with Fiery Aura -->
-    <div class="mega-hand-container" id="megaHandContainer">
-      <svg viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:100%; height:100%;">
-        <defs>
-          <linearGradient id="fireGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stop-color="#ffffff" />
-            <stop offset="25%" stop-color="#ffee55" />
-            <stop offset="60%" stop-color="#ff4400" />
-            <stop offset="100%" stop-color="#880000" />
-          </linearGradient>
-        </defs>
-
-        <!-- Outer Flame Aura Spikes -->
-        <path d="M 40 140 C 15 120, -10 80, 10 50 C 20 70, 30 70, 35 40 C 45 65, 55 50, 60 25 C 75 55, 85 45, 95 15 C 110 50, 125 40, 135 25 C 145 55, 165 60, 185 40 C 180 75, 195 95, 175 130 C 190 150, 180 180, 150 185 C 130 190, 70 190, 40 140 Z" 
-              fill="url(#fireGrad)" opacity="0.85" />
-
-        <!-- Fiery Slapping Palm -->
-        <path d="M 50 135 C 35 120, 35 90, 60 75 C 70 68, 85 72, 90 82 C 93 66, 112 66, 117 80 C 123 68, 140 74, 140 89 C 146 80, 158 89, 154 107 C 146 142, 105 165, 75 158 Z" 
-              fill="#ffe8a3" stroke="#d84a00" stroke-width="5" stroke-linejoin="round"/>
-        <!-- Palm Creases -->
-        <path d="M 68 100 L 71 130 M 90 95 L 92 130 M 114 100 L 112 130" stroke="#d84a00" stroke-width="4" stroke-linecap="round"/>
-      </svg>
-    </div>
-
-    <!-- Mega Spank Banner Announcement -->
-    <div class="mega-banner" id="megaBanner">💥 250 STREAK MEGA SPANK! 💥</div>
-  </div>
-
-  <!-- Combo Meter -->
-  <div class="combo-bar-container">
-    <div class="combo-header">
-      <span class="combo-rank" id="comboRank">Cold Warmup</span>
-      <span id="multiplierText">1.0x Multiplier</span>
-    </div>
-    <div class="combo-track">
-      <div class="combo-fill" id="comboFill"></div>
+  <!-- INTRO POPUP MODAL -->
+  <div id="introOverlay">
+    <div class="intro-card">
+      <div class="intro-title">Spank Master CPS</div>
+      <p class="intro-desc">Enter your Spanker tag to start clapping cheeks, climb the live top 10 leaderboard, and unlock the 250-streak Mega Spank.</p>
+      
+      <form id="introForm" onsubmit="startGame(event)">
+        <div class="name-input-group">
+          <label for="playerNameInput">Spanker Tag / Name</label>
+          <input 
+            type="text" 
+            id="playerNameInput" 
+            class="name-input" 
+            placeholder="e.g. ThunderCheeks" 
+            maxlength="14" 
+            required 
+            autocomplete="off" 
+          />
+        </div>
+        <button type="submit" class="btn-start">⚡ Enter the Arena</button>
+      </form>
     </div>
   </div>
 
-  <!-- Controls -->
-  <div class="controls">
-    <button id="btnSound">🔊 Sound: ON</button>
-    <button id="btnTestMega" class="btn-test">🔥 Test Mega Spank</button>
-    <button id="btnReset">🔄 Reset Scores</button>
+  <!-- MAIN APPLICATION LAYOUT -->
+  <div class="app-layout">
+    
+    <!-- LEFT / CENTER GAME SECTION -->
+    <main class="game-section">
+      
+      <!-- Player Profile Badge -->
+      <div class="player-badge">
+        <span>Player: <strong id="activePlayerTag">Guest</strong></span>
+        <button class="btn-edit-name" onclick="openNamePrompt()">[Change]</button>
+      </div>
+
+      <header>
+        <h1>Spank Master CPS</h1>
+        <div class="subtitle">Reach a 250-streak for the cinematic Mega Spank!</div>
+      </header>
+
+      <!-- Dashboard -->
+      <div class="dashboard">
+        <div class="stat-card">
+          <div class="stat-label">Score</div>
+          <div class="stat-value" id="val-score">0</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">SPS (CPS)</div>
+          <div class="stat-value highlight" id="val-cps">0.0</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Streak</div>
+          <div class="stat-value" id="val-streak">0</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Best Streak</div>
+          <div class="stat-value highlight" id="val-high-streak">0</div>
+        </div>
+      </div>
+
+      <!-- Arena -->
+      <div class="arena" id="arena">
+        <div class="target-wrapper" id="target">
+          <svg width="250" height="230" viewBox="0 0 260 240" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <radialGradient id="buttGrad" cx="50%" cy="40%" r="65%">
+                <stop offset="0%" stop-color="#ff9ebb" />
+                <stop offset="55%" stop-color="#ff4d79" />
+                <stop offset="100%" stop-color="#c9184a" />
+              </radialGradient>
+              <filter id="softGlow" x="-20%" y="-20%" width="140%" height="140%">
+                <feDropShadow dx="0" dy="8" stdDeviation="12" flood-color="#ff2a85" flood-opacity="0.35"/>
+              </filter>
+            </defs>
+
+            <g filter="url(#softGlow)">
+              <path d="M 130 50 C 90 20, 20 50, 20 120 C 20 185, 75 225, 128 220 C 130 180, 130 110, 130 50 Z" 
+                    fill="url(#buttGrad)" stroke="#590d22" stroke-width="4" stroke-linejoin="round" />
+              <path d="M 130 50 C 170 20, 240 50, 240 120 C 240 185, 185 225, 132 220 C 130 180, 130 110, 130 50 Z" 
+                    fill="url(#buttGrad)" stroke="#590d22" stroke-width="4" stroke-linejoin="round" />
+              <path d="M 130 75 C 130 125, 130 175, 130 215" stroke="#590d22" stroke-width="4" stroke-linecap="round" opacity="0.6"/>
+              <ellipse cx="75" cy="115" rx="30" ry="18" transform="rotate(-30 75 115)" fill="#ffffff" opacity="0.32" />
+              <ellipse cx="185" cy="115" rx="30" ry="18" transform="rotate(30 185 115)" fill="#ffffff" opacity="0.32" />
+              <path d="M 40 70 C 95 90, 165 90, 220 70" stroke="#ffd60a" stroke-width="6" stroke-linecap="round" opacity="0.85"/>
+            </g>
+          </svg>
+        </div>
+
+        <!-- Fiery Mega Hand -->
+        <div class="mega-hand-container" id="megaHandContainer">
+          <svg viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:100%; height:100%;">
+            <defs>
+              <linearGradient id="fireGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#ffffff" />
+                <stop offset="25%" stop-color="#ffee55" />
+                <stop offset="60%" stop-color="#ff4400" />
+                <stop offset="100%" stop-color="#880000" />
+              </linearGradient>
+            </defs>
+            <path d="M 40 140 C 15 120, -10 80, 10 50 C 20 70, 30 70, 35 40 C 45 65, 55 50, 60 25 C 75 55, 85 45, 95 15 C 110 50, 125 40, 135 25 C 145 55, 165 60, 185 40 C 180 75, 195 95, 175 130 C 190 150, 180 180, 150 185 C 130 190, 70 190, 40 140 Z" fill="url(#fireGrad)" opacity="0.85" />
+            <path d="M 50 135 C 35 120, 35 90, 60 75 C 70 68, 85 72, 90 82 C 93 66, 112 66, 117 80 C 123 68, 140 74, 140 89 C 146 80, 158 89, 154 107 C 146 142, 105 165, 75 158 Z" fill="#ffe8a3" stroke="#d84a00" stroke-width="5" stroke-linejoin="round"/>
+            <path d="M 68 100 L 71 130 M 90 95 L 92 130 M 114 100 L 112 130" stroke="#d84a00" stroke-width="4" stroke-linecap="round"/>
+          </svg>
+        </div>
+
+        <div class="mega-banner" id="megaBanner">💥 250 STREAK MEGA SPANK! 💥</div>
+      </div>
+
+      <!-- Combo Bar -->
+      <div class="combo-bar-container">
+        <div class="combo-header">
+          <span class="combo-rank" id="comboRank">Cold Warmup</span>
+          <span id="multiplierText">1.0x Multiplier</span>
+        </div>
+        <div class="combo-track">
+          <div class="combo-fill" id="comboFill"></div>
+        </div>
+      </div>
+
+      <!-- Controls -->
+      <div class="controls">
+        <button id="btnSound" class="btn-pill">🔊 Sound: ON</button>
+        <button id="btnTestMega" class="btn-pill btn-test">🔥 Test Mega</button>
+        <button id="btnReset" class="btn-pill">🔄 Reset My Score</button>
+      </div>
+
+      <!-- Mobile Leaderboard Drawer Toggle -->
+      <button class="mobile-lb-btn" id="btnToggleMobileLb" onclick="toggleMobileLeaderboard()">🏆 View Top 10 Leaderboard</button>
+    </main>
+
+    <!-- RIGHT SIDEBAR: TOP 10 PLAYERS -->
+    <aside class="leaderboard-container collapsed-mobile" id="leaderboardBox">
+      <div class="lb-header">
+        <div class="lb-title">🏆 Top 10 Spankers</div>
+        <span class="lb-count">Live JSON</span>
+      </div>
+
+      <div class="lb-list" id="lbList">
+        <!-- Injected via JavaScript from JSON Database -->
+      </div>
+
+      <div class="lb-actions">
+        <button onclick="exportLeaderboardJSON()">📥 Export JSON</button>
+        <button onclick="resetLeaderboardJSON()">⚠️ Reset Board</button>
+      </div>
+    </aside>
+
   </div>
 
   <script>
     /* -------------------------------------------------------------
-       STATE & CONSTANTS
+       JSON DATABASE & LEADERBOARD SYSTEM
+    ------------------------------------------------------------- */
+    const STORAGE_KEY_LB = 'spank_master_leaderboard_json';
+    const STORAGE_KEY_USER = 'spank_master_active_user';
+
+    // Seed data in case initial local JSON is empty
+    const DEFAULT_LEADERBOARD = [
+      { name: "ThunderClap", streak: 512, score: 2840 },
+      { name: "SpeedyCheeks", streak: 320, score: 1750 },
+      { name: "Spankzilla", streak: 250, score: 1420 },
+      { name: "TurboHand", streak: 184, score: 980 },
+      { name: "ClapMaster", streak: 142, score: 710 },
+      { name: "CheekyNinja", streak: 98, score: 480 },
+      { name: "ButtBuster", streak: 76, score: 360 },
+      { name: "SPS_Demon", streak: 54, score: 260 },
+      { name: "WarmupKing", streak: 35, score: 170 },
+      { name: "PeachRider", streak: 21, score: 95 }
+    ];
+
+    let activePlayerName = localStorage.getItem(STORAGE_KEY_USER) || "";
+
+    function loadLeaderboardJSON() {
+      const raw = localStorage.getItem(STORAGE_KEY_LB);
+      if (!raw) {
+        localStorage.setItem(STORAGE_KEY_LB, JSON.stringify(DEFAULT_LEADERBOARD));
+        return DEFAULT_LEADERBOARD;
+      }
+      try {
+        return JSON.parse(raw);
+      } catch (e) {
+        return DEFAULT_LEADERBOARD;
+      }
+    }
+
+    function saveLeaderboardJSON(data) {
+      localStorage.setItem(STORAGE_KEY_LB, JSON.stringify(data));
+    }
+
+    function renderLeaderboard() {
+      const lb = loadLeaderboardJSON();
+      // Sort primarily by highest streak, secondarily by score
+      lb.sort((a, b) => b.streak - a.streak || b.score - a.score);
+
+      const listEl = document.getElementById('lbList');
+      listEl.innerHTML = '';
+
+      const top10 = lb.slice(0, 10);
+      top10.forEach((player, idx) => {
+        const row = document.createElement('div');
+        const isCurrent = (player.name.toLowerCase() === activePlayerName.toLowerCase());
+        row.className = `lb-row ${isCurrent ? 'active-user' : ''}`;
+
+        const rankDisplay = idx === 0 ? '🥇' : idx === 1 ? '🥈' : idx === 2 ? '🥉' : `#${idx + 1}`;
+
+        row.innerHTML = `
+          <span class="lb-rank rank-${idx + 1}">${rankDisplay}</span>
+          <span class="lb-name" title="${escapeHtml(player.name)}">${escapeHtml(player.name)}</span>
+          <div class="lb-stats">
+            <span class="lb-streak">${player.streak} <small>streak</small></span>
+            <span class="lb-subscore">${player.score} pts</span>
+          </div>
+        `;
+        listEl.appendChild(row);
+      });
+    }
+
+    function recordPlayerMetrics(currentStreak, currentScore) {
+      if (!activePlayerName) return;
+
+      const lb = loadLeaderboardJSON();
+      let existing = lb.find(p => p.name.toLowerCase() === activePlayerName.toLowerCase());
+
+      if (existing) {
+        let updated = false;
+        if (currentStreak > existing.streak) {
+          existing.streak = currentStreak;
+          updated = true;
+        }
+        if (currentScore > existing.score) {
+          existing.score = currentScore;
+          updated = true;
+        }
+      } else {
+        lb.push({
+          name: activePlayerName,
+          streak: currentStreak,
+          score: currentScore
+        });
+      }
+
+      saveLeaderboardJSON(lb);
+      renderLeaderboard();
+    }
+
+    function exportLeaderboardJSON() {
+      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(loadLeaderboardJSON(), null, 2));
+      const downloadAnchor = document.createElement('a');
+      downloadAnchor.setAttribute("href", dataStr);
+      downloadAnchor.setAttribute("download", "spank_master_leaderboard.json");
+      document.body.appendChild(downloadAnchor);
+      downloadAnchor.click();
+      downloadAnchor.remove();
+    }
+
+    function resetLeaderboardJSON() {
+      if (confirm("Reset the top 10 leaderboard back to default players?")) {
+        localStorage.setItem(STORAGE_KEY_LB, JSON.stringify(DEFAULT_LEADERBOARD));
+        renderLeaderboard();
+      }
+    }
+
+    function escapeHtml(str) {
+      return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    }
+
+    /* -------------------------------------------------------------
+       INTRO & PROFILE MANAGEMENT
+    ------------------------------------------------------------- */
+    const introOverlay = document.getElementById('introOverlay');
+    const playerNameInput = document.getElementById('playerNameInput');
+    const activePlayerTag = document.getElementById('activePlayerTag');
+
+    function checkIntro() {
+      if (!activePlayerName) {
+        introOverlay.classList.remove('hidden');
+        setTimeout(() => playerNameInput.focus(), 200);
+      } else {
+        activePlayerTag.textContent = activePlayerName;
+        introOverlay.classList.add('hidden');
+        renderLeaderboard();
+      }
+    }
+
+    function startGame(e) {
+      e.preventDefault();
+      const val = playerNameInput.value.trim();
+      if (!val) return;
+
+      activePlayerName = val;
+      localStorage.setItem(STORAGE_KEY_USER, activePlayerName);
+      activePlayerTag.textContent = activePlayerName;
+
+      introOverlay.classList.add('hidden');
+      initAudio(); // Warm up Web Audio
+      recordPlayerMetrics(highStreak, highScore);
+    }
+
+    function openNamePrompt() {
+      playerNameInput.value = activePlayerName;
+      introOverlay.classList.remove('hidden');
+      setTimeout(() => playerNameInput.focus(), 200);
+    }
+
+    function toggleMobileLeaderboard() {
+      const box = document.getElementById('leaderboardBox');
+      const btn = document.getElementById('btnToggleMobileLb');
+      box.classList.toggle('collapsed-mobile');
+      if (box.classList.contains('collapsed-mobile')) {
+        btn.textContent = '🏆 View Top 10 Leaderboard';
+      } else {
+        btn.textContent = '✖ Close Leaderboard';
+        box.scrollIntoView({ behavior: 'smooth' });
+      }
+    }
+
+    /* -------------------------------------------------------------
+       GAMEPLAY STATE & AUDIO
     ------------------------------------------------------------- */
     let score = 0;
     let streak = 0;
-    let highStreak = parseInt(localStorage.getItem('booty_high_streak') || '0', 10);
-    let highScore = parseInt(localStorage.getItem('booty_high_score') || '0', 10);
+    let highStreak = 0;
+    let highScore = 0;
     let soundEnabled = true;
     let isMegaSpankActive = false;
 
@@ -594,7 +1050,6 @@
     let streakDecayTimer = null;
     let lastClickSide = 'left';
 
-    // DOM Elements
     const valScore = document.getElementById('val-score');
     const valCps = document.getElementById('val-cps');
     const valStreak = document.getElementById('val-streak');
@@ -611,11 +1066,6 @@
     const btnTestMega = document.getElementById('btnTestMega');
     const btnReset = document.getElementById('btnReset');
 
-    valHighStreak.textContent = highStreak;
-
-    /* -------------------------------------------------------------
-       AUDIO SYNTHESIZER
-    ------------------------------------------------------------- */
     let audioCtx = null;
     function initAudio() {
       if (!audioCtx) {
@@ -631,7 +1081,7 @@
       initAudio();
       const now = audioCtx.currentTime;
 
-      // Noise burst
+      // Crack
       const bufferSize = audioCtx.sampleRate * 0.04;
       const noiseBuffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
       const output = noiseBuffer.getChannelData(0);
@@ -652,7 +1102,7 @@
       noiseGain.connect(audioCtx.destination);
       whiteNoise.start(now);
 
-      // Low punch
+      // Meaty body slap
       const osc = audioCtx.createOscillator();
       const oscGain = audioCtx.createGain();
       osc.type = 'sine';
@@ -668,13 +1118,11 @@
       osc.stop(now + 0.11);
     }
 
-    // Fiery Mega Spank Explosion Sound with Deep Sub Rumble
     function playMegaExplosionSound() {
       if (!soundEnabled) return;
       initAudio();
       const now = audioCtx.currentTime;
 
-      // 1. Long rumble explosion noise
       const bufferSize = audioCtx.sampleRate * 0.9;
       const noiseBuffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
       const output = noiseBuffer.getChannelData(0);
@@ -696,7 +1144,6 @@
       noiseGain.connect(audioCtx.destination);
       noise.start(now);
 
-      // 2. Sub-bass ground slam
       const subOsc = audioCtx.createOscillator();
       const subGain = audioCtx.createGain();
       subOsc.type = 'sine';
@@ -713,7 +1160,7 @@
     }
 
     /* -------------------------------------------------------------
-       CPS & COMBO LOGIC
+       METRICS & COMBO
     ------------------------------------------------------------- */
     function updateCPS() {
       const now = performance.now();
@@ -741,7 +1188,6 @@
     }
 
     function resetStreakDecay() {
-      // Don't expire the streak while the cinematic is running!
       if (isMegaSpankActive) return;
 
       clearTimeout(streakDecayTimer);
@@ -776,7 +1222,7 @@
     }
 
     /* -------------------------------------------------------------
-       REGULAR HIT EFFECTS
+       HIT EFFECTS
     ------------------------------------------------------------- */
     const COMIC_PHRASES = ['SLAP!', 'SMACK!', 'POW!', 'CLAP!', 'THWACK!', 'BAM!'];
 
@@ -795,7 +1241,6 @@
       arena.appendChild(floatEl);
       setTimeout(() => floatEl.remove(), 650);
 
-      // Hand Burst Effect
       const burstHand = document.createElement('div');
       burstHand.className = 'hand-burst';
       burstHand.style.left = `${x}px`;
@@ -814,62 +1259,49 @@
     }
 
     /* -------------------------------------------------------------
-       SLOW CINEMATIC MEGA SPANK SEQUENCE
+       CINEMATIC MEGA SPANK SEQUENCE
     ------------------------------------------------------------- */
     function triggerMegaSpank() {
       if (isMegaSpankActive) return;
       isMegaSpankActive = true;
 
-      // Freeze combo decay bar so player keeps their streak
       clearTimeout(streakDecayTimer);
       comboFill.style.transition = 'none';
       comboFill.style.width = '100%';
 
-      // 1. Launch Giant Fiery Hand Strike (slow dramatic 1.15s windup)
       megaHandContainer.classList.remove('mega-hand-strike');
       void megaHandContainer.offsetWidth;
       megaHandContainer.classList.add('mega-hand-strike');
 
-      // 2. Exact moment of impact (at 880ms into the windup)
       setTimeout(() => {
-        // Flash screen with radiant burst
         screenFlash.classList.add('flashing');
         setTimeout(() => screenFlash.classList.remove('flashing'), 280);
 
-        // Heavy camera shake
         document.body.classList.remove('camera-shake');
         void document.body.offsetWidth;
         document.body.classList.add('camera-shake');
 
-        // Explosive impact sound
         playMegaExplosionSound();
 
-        // Banner Announcement
         megaBanner.textContent = `💥 ${streak || 250} STREAK MEGA SPANK! 💥`;
         megaBanner.classList.remove('show');
         void megaBanner.offsetWidth;
         megaBanner.classList.add('show');
 
-        // Shatter target into pieces
         shatterBooty();
 
-        // 3. Anticipation pause before the new target drops in (600ms after shatter)
         setTimeout(() => {
           dropNewBooty();
-
-          // 4. Once new target finishes dropping and settling (~950ms), resume regular gameplay
           setTimeout(() => {
             isMegaSpankActive = false;
             resetStreakDecay();
           }, 950);
-
         }, 600);
 
       }, 880);
     }
 
     function shatterBooty() {
-      // Hide original target
       target.style.opacity = '0';
       target.classList.remove('jiggle-left', 'jiggle-right', 'target-drop-in');
 
@@ -878,7 +1310,6 @@
       const centerX = rect.left - arenaRect.left + rect.width / 2;
       const centerY = rect.top - arenaRect.top + rect.height / 2;
 
-      // Generate 25 flying polygon shards with randomized spread
       const shardColors = ['#ff9ebb', '#ff4d79', '#c9184a', '#ffd60a', '#ffffff', '#ff5722'];
       for (let i = 0; i < 25; i++) {
         const shard = document.createElement('div');
@@ -890,11 +1321,10 @@
         shard.style.left = `${centerX + (Math.random() - 0.5) * 80}px`;
         shard.style.top = `${centerY + (Math.random() - 0.5) * 80}px`;
 
-        // Radial explosion vector with gravity
         const angle = Math.random() * Math.PI * 2;
         const dist = Math.random() * 260 + 100;
         const destX = Math.cos(angle) * dist;
-        const destY = Math.sin(angle) * dist + 100; // gravity downward bias
+        const destY = Math.sin(angle) * dist + 100;
         const rot = (Math.random() - 0.5) * 900;
 
         shard.style.setProperty('--dest-x', `${destX}px`);
@@ -914,7 +1344,6 @@
     }
 
     function dropNewBooty() {
-      // Re-show target and play slow, bouncy cartoon drop
       target.style.opacity = '1';
       target.classList.remove('target-drop-in');
       void target.offsetWidth;
@@ -922,33 +1351,31 @@
     }
 
     /* -------------------------------------------------------------
-       CLICK / INTERACTION HANDLER
+       TOUCH / CLICK CONTROLLER
     ------------------------------------------------------------- */
     function handleSpank(e) {
       e.preventDefault();
-      if (isMegaSpankActive) return; // Prevent spam clicks mid-cinematic
+      if (isMegaSpankActive) return;
 
       clickTimestamps.push(performance.now());
 
-      // Increment Streak & Score
       streak++;
       if (streak > highStreak) {
         highStreak = streak;
-        localStorage.setItem('booty_high_streak', highStreak);
       }
 
       const mult = getMultiplier();
       score += Math.round(1 * mult);
       if (score > highScore) {
         highScore = score;
-        localStorage.setItem('booty_high_score', highScore);
       }
 
-      // Check for 250 Mega Spank milestone
+      // Record to JSON database
+      recordPlayerMetrics(highStreak, highScore);
+
       if (streak > 0 && streak % 250 === 0) {
         triggerMegaSpank();
       } else {
-        // Standard slapping feedback
         lastClickSide = lastClickSide === 'left' ? 'right' : 'left';
         target.classList.remove('jiggle-left', 'jiggle-right', 'target-drop-in');
         void target.offsetWidth;
@@ -980,14 +1407,13 @@
     target.addEventListener('pointerdown', handleSpank);
 
     /* -------------------------------------------------------------
-       SETTINGS & CONTROLS
+       BUTTONS
     ------------------------------------------------------------- */
     btnSound.addEventListener('click', () => {
       soundEnabled = !soundEnabled;
       btnSound.textContent = soundEnabled ? '🔊 Sound: ON' : '🔇 Sound: OFF';
     });
 
-    // Test button to view the cinematic immediately
     btnTestMega.addEventListener('click', () => {
       if (!isMegaSpankActive) {
         streak = Math.max(streak, 250);
@@ -997,17 +1423,18 @@
     });
 
     btnReset.addEventListener('click', () => {
-      if (confirm('Reset your high scores and streaks?')) {
+      if (confirm('Reset your current session score and streak?')) {
         highStreak = 0;
         highScore = 0;
         score = 0;
         streak = 0;
-        localStorage.removeItem('booty_high_streak');
-        localStorage.removeItem('booty_high_score');
         updateUI();
+        recordPlayerMetrics(0, 0);
       }
     });
 
+    // Start setup
+    checkIntro();
     updateUI();
   </script>
 </body>
