@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>Spank Master CPS - Real Player Leaderboard</title>
+  <title>Spank Master CPS - Live Cloud Leaderboard</title>
   <style>
     :root {
       --bg-dark: #0f0c1b;
@@ -13,6 +13,7 @@
       --accent-cyan: #00f0ff;
       --accent-gold: #ffd60a;
       --accent-fire: #ff4500;
+      --accent-green: #00ff88;
       --text-main: #f8f9fa;
     }
 
@@ -169,7 +170,7 @@
     }
 
     /* ============================================================
-       APP LAYOUT (DESKTOP 2-COLUMN / MOBILE RESPONSIVE)
+       APP LAYOUT
     ============================================================ */
     .app-layout {
       display: flex;
@@ -252,7 +253,7 @@
       gap: 8px;
       width: 100%;
       max-width: 580px;
-      margin: 12px 0;
+      margin: 12px 0 6px 0;
     }
 
     .stat-card {
@@ -295,12 +296,58 @@
       color: var(--accent-gold);
     }
 
+    /* ============================================================
+       SHOW LEADERBOARD BUTTON (Directly Below Scores Tab)
+    ============================================================ */
+    .btn-show-leaderboard {
+      width: 100%;
+      max-width: 580px;
+      background: linear-gradient(90deg, rgba(255, 214, 10, 0.15), rgba(255, 42, 133, 0.15));
+      border: 1px solid rgba(255, 214, 10, 0.45);
+      color: var(--accent-gold);
+      padding: 10px 16px;
+      border-radius: 12px;
+      font-size: 0.88rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      cursor: pointer;
+      margin: 4px 0 10px 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      box-shadow: 0 4px 15px rgba(255, 214, 10, 0.15);
+      transition: all 0.2s ease;
+    }
+
+    .btn-show-leaderboard:hover {
+      background: linear-gradient(90deg, rgba(255, 214, 10, 0.25), rgba(255, 42, 133, 0.25));
+      border-color: var(--accent-gold);
+      transform: translateY(-1px);
+    }
+
+    .btn-show-leaderboard .pulse-dot {
+      width: 8px;
+      height: 8px;
+      background: var(--accent-green);
+      border-radius: 50%;
+      box-shadow: 0 0 8px var(--accent-green);
+      animation: pulse 1.5s infinite;
+    }
+
+    @keyframes pulse {
+      0% { opacity: 0.4; transform: scale(0.8); }
+      50% { opacity: 1; transform: scale(1.2); }
+      100% { opacity: 0.4; transform: scale(0.8); }
+    }
+
     /* Arena */
     .arena {
       position: relative;
       width: 100%;
       max-width: 380px;
-      height: 330px;
+      height: 320px;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -320,7 +367,7 @@
       transform: scale(0.96);
     }
 
-    /* Normal Hand Burst */
+    /* Hand Burst */
     .hand-burst {
       position: absolute;
       pointer-events: none;
@@ -333,18 +380,9 @@
     }
 
     @keyframes handBurstAnim {
-      0% {
-        opacity: 1;
-        transform: translate(-50%, -50%) scale(0.8) rotate(var(--hand-rot, 0deg));
-      }
-      35% {
-        opacity: 1;
-        transform: translate(-50%, -50%) scale(1.15) rotate(var(--hand-rot, 0deg)) translate(-6px, 6px);
-      }
-      100% {
-        opacity: 0;
-        transform: translate(-50%, -50%) scale(1.5) rotate(var(--hand-rot, 0deg)) translate(0px, -20px);
-      }
+      0% { opacity: 1; transform: translate(-50%, -50%) scale(0.8) rotate(var(--hand-rot, 0deg)); }
+      35% { opacity: 1; transform: translate(-50%, -50%) scale(1.15) rotate(var(--hand-rot, 0deg)) translate(-6px, 6px); }
+      100% { opacity: 0; transform: translate(-50%, -50%) scale(1.5) rotate(var(--hand-rot, 0deg)) translate(0px, -20px); }
     }
 
     .float-text {
@@ -358,14 +396,8 @@
     }
 
     @keyframes floatUp {
-      0% {
-        opacity: 1;
-        transform: translate(-50%, 0) scale(0.8) rotate(var(--rot, 0deg));
-      }
-      100% {
-        opacity: 0;
-        transform: translate(-50%, -90px) scale(1.4) rotate(var(--rot, 0deg));
-      }
+      0% { opacity: 1; transform: translate(-50%, 0) scale(0.8) rotate(var(--rot, 0deg)); }
+      100% { opacity: 0; transform: translate(-50%, -90px) scale(1.4) rotate(var(--rot, 0deg)); }
     }
 
     .jiggle-left { animation: jiggleL 0.2s ease-out; }
@@ -540,10 +572,9 @@
     }
 
     /* ============================================================
-       TOP 10 LEADERBOARD SIDEBAR / DRAWER
+       TOP 10 LEADERBOARD (DESKTOP SIDEBAR / MOBILE MODAL DRAWER)
     ============================================================ */
     .leaderboard-container {
-      width: 100%;
       background: var(--card-bg);
       border: 1px solid rgba(255, 255, 255, 0.12);
       border-radius: 18px;
@@ -552,13 +583,53 @@
       box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
       display: flex;
       flex-direction: column;
-      margin-top: 20px;
     }
 
     @media (min-width: 960px) {
       .leaderboard-container {
-        width: 340px;
-        margin-top: 0;
+        width: 350px;
+        min-height: 540px;
+      }
+      .lb-close-btn {
+        display: none !important;
+      }
+    }
+
+    /* Mobile Drawer View */
+    @media (max-width: 959px) {
+      .leaderboard-container {
+        position: fixed;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        max-height: 85vh;
+        z-index: 250;
+        border-bottom-left-radius: 0;
+        border-bottom-right-radius: 0;
+        box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.8);
+        border: 1px solid rgba(255, 42, 133, 0.4);
+        transform: translateY(110%);
+        transition: transform 0.3s cubic-bezier(0.1, 0.9, 0.2, 1);
+      }
+
+      .leaderboard-container.mobile-open {
+        transform: translateY(0%);
+      }
+
+      .mobile-backdrop {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.7);
+        backdrop-filter: blur(4px);
+        z-index: 240;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.3s ease;
+      }
+
+      .mobile-backdrop.active {
+        opacity: 1;
+        pointer-events: auto;
       }
     }
 
@@ -582,27 +653,41 @@
       gap: 6px;
     }
 
-    .lb-count {
-      font-size: 0.72rem;
-      background: rgba(255, 214, 10, 0.15);
-      color: var(--accent-gold);
+    .lb-sync-badge {
+      font-size: 0.7rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      background: rgba(0, 255, 136, 0.12);
+      color: var(--accent-green);
       border-radius: 99px;
-      padding: 2px 8px;
+      padding: 3px 8px;
+      font-weight: 700;
+      border: 1px solid rgba(0, 255, 136, 0.3);
+    }
+
+    .lb-close-btn {
+      background: rgba(255, 255, 255, 0.1);
+      border: none;
+      color: #fff;
+      padding: 6px 12px;
+      border-radius: 8px;
       font-weight: 800;
+      cursor: pointer;
     }
 
     .lb-list {
       display: flex;
       flex-direction: column;
       gap: 6px;
-      max-height: 520px;
+      max-height: 480px;
       overflow-y: auto;
       padding-right: 4px;
     }
 
     .lb-empty {
       text-align: center;
-      padding: 30px 10px;
+      padding: 35px 10px;
       color: #8c889f;
       font-size: 0.88rem;
       line-height: 1.6;
@@ -663,43 +748,18 @@
       font-size: 0.68rem;
       color: #8c889f;
     }
-
-    /* Mobile drawer toggle button */
-    .mobile-lb-btn {
-      display: none;
-    }
-
-    @media (max-width: 959px) {
-      .mobile-lb-btn {
-        display: block;
-        margin-top: 10px;
-        width: 100%;
-        max-width: 420px;
-        background: rgba(255, 214, 10, 0.12);
-        color: var(--accent-gold);
-        border: 1px solid rgba(255, 214, 10, 0.3);
-        padding: 10px;
-        border-radius: 12px;
-        font-weight: 800;
-        font-size: 0.85rem;
-        cursor: pointer;
-      }
-
-      .leaderboard-container.collapsed-mobile {
-        display: none;
-      }
-    }
   </style>
 </head>
 <body>
 
   <div id="screenFlash"></div>
+  <div class="mobile-backdrop" id="mobileBackdrop" onclick="closeLeaderboard()"></div>
 
   <!-- INTRO POPUP -->
   <div id="introOverlay">
     <div class="intro-card">
       <div class="intro-title">Spank Master CPS</div>
-      <p class="intro-desc">Enter your Spanker tag to record your stats and take your place on the Top 10 Leaderboard.</p>
+      <p class="intro-desc">Enter your Spanker tag to sync with the real-time Cloud Leaderboard across mobile and laptop.</p>
       
       <form id="introForm" onsubmit="startGame(event)">
         <div class="name-input-group">
@@ -721,10 +781,9 @@
 
   <div class="app-layout">
     
-    <!-- LEFT / CENTER GAME SECTION -->
+    <!-- MAIN GAME SECTION -->
     <main class="game-section">
       
-      <!-- Player Tag -->
       <div class="player-badge">
         <span>Player: <strong id="activePlayerTag">Guest</strong></span>
         <button class="btn-edit-name" onclick="openNamePrompt()">[Change Name]</button>
@@ -735,7 +794,7 @@
         <div class="subtitle">Reach a 250-streak for the cinematic Mega Spank!</div>
       </header>
 
-      <!-- Dashboard -->
+      <!-- 4 Score Tabs / Dashboard -->
       <div class="dashboard">
         <div class="stat-card">
           <div class="stat-label">Score</div>
@@ -754,6 +813,12 @@
           <div class="stat-value highlight" id="val-high-streak">0</div>
         </div>
       </div>
+
+      <!-- SHOW LEADERBOARD BUTTON (JUST BELOW SCORES TAB) -->
+      <button class="btn-show-leaderboard" id="btnShowLeaderboard" onclick="openLeaderboard()">
+        <span class="pulse-dot"></span>
+        🏆 Show Leaderboard (Top 10)
+      </button>
 
       <!-- Arena -->
       <div class="arena" id="arena">
@@ -819,16 +884,14 @@
         <button id="btnSound" class="btn-pill">🔊 Sound: ON</button>
         <button id="btnTestMega" class="btn-pill btn-test">🔥 Test Mega</button>
       </div>
-
-      <!-- Mobile Leaderboard Button -->
-      <button class="mobile-lb-btn" id="btnToggleMobileLb" onclick="toggleMobileLeaderboard()">🏆 View Top 10 Leaderboard</button>
     </main>
 
-    <!-- RIGHT SIDEBAR: REAL PLAYERS ONLY -->
-    <aside class="leaderboard-container collapsed-mobile" id="leaderboardBox">
+    <!-- TOP 10 REAL-PLAYER LEADERBOARD (CLOUD-SYNCED) -->
+    <aside class="leaderboard-container" id="leaderboardBox">
       <div class="lb-header">
         <div class="lb-title">🏆 Top 10 Spankers</div>
-        <span class="lb-count" id="lbCountBadge">0 Players</span>
+        <div class="lb-sync-badge" id="syncBadge">● Cloud Synced</div>
+        <button class="lb-close-btn" onclick="closeLeaderboard()">✖ Close</button>
       </div>
 
       <div class="lb-list" id="lbList">
@@ -840,38 +903,108 @@
 
   <script>
     /* -------------------------------------------------------------
-       REAL PLAYERS JSON STORAGE SYSTEM
+       REAL ONLINE CLOUD JSON SYNC (CROSS-DEVICE: PHONE <-> LAPTOP)
     ------------------------------------------------------------- */
-    const STORAGE_KEY_LB = 'spank_master_live_players';
     const STORAGE_KEY_USER = 'spank_master_active_user';
+    const CLOUD_JSON_URL = 'https://mantledb.sh/v2/spank-master-cps-v2/leaderboard';
 
     let activePlayerName = localStorage.getItem(STORAGE_KEY_USER) || "";
+    let cloudPlayers = [];
+    let saveDebounceTimer = null;
 
-    function loadLeaderboardJSON() {
-      const raw = localStorage.getItem(STORAGE_KEY_LB);
-      if (!raw) return [];
+    // Fetch live leaderboard JSON from the cloud
+    async function fetchCloudLeaderboard() {
       try {
-        return JSON.parse(raw);
-      } catch (e) {
-        return [];
+        const response = await fetch(CLOUD_JSON_URL, {
+          headers: { 'Accept': 'application/json' }
+        });
+        if (response.ok) {
+          const data = await response.json();
+          if (data && Array.isArray(data.players)) {
+            cloudPlayers = data.players;
+            renderLeaderboard();
+            updateSyncStatus("● Cloud Synced", "#00ff88");
+
+            // Sync personal best from cloud if user returned
+            const me = cloudPlayers.find(p => p.name.toLowerCase() === activePlayerName.toLowerCase());
+            if (me) {
+              highStreak = Math.max(highStreak, me.streak || 0);
+              highScore = Math.max(highScore, me.score || 0);
+              updateUI();
+            }
+          }
+        }
+      } catch (err) {
+        console.warn('Cloud sync offline / network error:', err);
+        updateSyncStatus("● Offline Cache", "#ffd60a");
       }
     }
 
-    function saveLeaderboardJSON(data) {
-      localStorage.setItem(STORAGE_KEY_LB, JSON.stringify(data));
+    // Save updated records to the online cloud JSON
+    async function saveCloudLeaderboard() {
+      try {
+        updateSyncStatus("● Syncing...", "#00f0ff");
+        const response = await fetch(CLOUD_JSON_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ players: cloudPlayers })
+        });
+        if (response.ok) {
+          updateSyncStatus("● Cloud Synced", "#00ff88");
+        }
+      } catch (err) {
+        console.warn('Could not push to cloud JSON:', err);
+        updateSyncStatus("● Sync Pending", "#ff4500");
+      }
+    }
+
+    function updateSyncStatus(text, color) {
+      const badge = document.getElementById('syncBadge');
+      badge.textContent = text;
+      badge.style.color = color;
+      badge.style.borderColor = color;
+    }
+
+    function recordPlayerMetrics(currentStreak, currentScore) {
+      if (!activePlayerName) return;
+
+      let existing = cloudPlayers.find(p => p.name.toLowerCase() === activePlayerName.toLowerCase());
+      let modified = false;
+
+      if (existing) {
+        if (currentStreak > existing.streak) {
+          existing.streak = currentStreak;
+          modified = true;
+        }
+        if (currentScore > existing.score) {
+          existing.score = currentScore;
+          modified = true;
+        }
+      } else {
+        cloudPlayers.push({
+          name: activePlayerName,
+          streak: currentStreak,
+          score: currentScore
+        });
+        modified = true;
+      }
+
+      if (modified) {
+        renderLeaderboard();
+        // Debounce cloud write by 500ms to avoid hammering network while spanking fast
+        clearTimeout(saveDebounceTimer);
+        saveDebounceTimer = setTimeout(saveCloudLeaderboard, 500);
+      }
     }
 
     function renderLeaderboard() {
-      const lb = loadLeaderboardJSON();
       // Sort: Highest streak first, then highest score
-      lb.sort((a, b) => b.streak - a.streak || b.score - a.score);
+      cloudPlayers.sort((a, b) => b.streak - a.streak || b.score - a.score);
 
       const listEl = document.getElementById('lbList');
-      const badgeEl = document.getElementById('lbCountBadge');
       listEl.innerHTML = '';
 
-      const top10 = lb.slice(0, 10);
-      badgeEl.textContent = `${top10.length} / 10`;
+      const top10 = cloudPlayers.slice(0, 10);
 
       if (top10.length === 0) {
         listEl.innerHTML = `
@@ -902,29 +1035,37 @@
       });
     }
 
-    function recordPlayerMetrics(currentStreak, currentScore) {
-      if (!activePlayerName) return;
-
-      const lb = loadLeaderboardJSON();
-      let existing = lb.find(p => p.name.toLowerCase() === activePlayerName.toLowerCase());
-
-      if (existing) {
-        if (currentStreak > existing.streak) existing.streak = currentStreak;
-        if (currentScore > existing.score) existing.score = currentScore;
-      } else {
-        lb.push({
-          name: activePlayerName,
-          streak: currentStreak,
-          score: currentScore
-        });
-      }
-
-      saveLeaderboardJSON(lb);
-      renderLeaderboard();
-    }
-
     function escapeHtml(str) {
       return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    }
+
+    // Auto-sync polling every 4 seconds so laptop & mobile stay live
+    setInterval(fetchCloudLeaderboard, 4000);
+    window.addEventListener('focus', fetchCloudLeaderboard);
+
+    /* -------------------------------------------------------------
+       MODAL & DRAWER INTERFACE (SHOW LEADERBOARD)
+    ------------------------------------------------------------- */
+    const leaderboardBox = document.getElementById('leaderboardBox');
+    const mobileBackdrop = document.getElementById('mobileBackdrop');
+
+    function openLeaderboard() {
+      if (window.innerWidth < 960) {
+        leaderboardBox.classList.add('mobile-open');
+        mobileBackdrop.classList.add('active');
+      } else {
+        leaderboardBox.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        leaderboardBox.style.boxShadow = '0 0 25px rgba(255, 214, 10, 0.6)';
+        setTimeout(() => {
+          leaderboardBox.style.boxShadow = '0 10px 30px rgba(0, 0, 0, 0.4)';
+        }, 800);
+      }
+      fetchCloudLeaderboard(); // refresh latest immediately
+    }
+
+    function closeLeaderboard() {
+      leaderboardBox.classList.remove('mobile-open');
+      mobileBackdrop.classList.remove('active');
     }
 
     /* -------------------------------------------------------------
@@ -941,7 +1082,7 @@
       } else {
         activePlayerTag.textContent = activePlayerName;
         introOverlay.classList.add('hidden');
-        renderLeaderboard();
+        fetchCloudLeaderboard();
       }
     }
 
@@ -956,19 +1097,7 @@
 
       introOverlay.classList.add('hidden');
       initAudio();
-
-      // Load existing records for this user if any
-      const lb = loadLeaderboardJSON();
-      const existing = lb.find(p => p.name.toLowerCase() === activePlayerName.toLowerCase());
-      if (existing) {
-        highStreak = existing.streak || 0;
-        highScore = existing.score || 0;
-      } else {
-        highStreak = 0;
-        highScore = 0;
-      }
-      updateUI();
-      renderLeaderboard();
+      fetchCloudLeaderboard();
     }
 
     function openNamePrompt() {
@@ -977,20 +1106,8 @@
       setTimeout(() => playerNameInput.focus(), 200);
     }
 
-    function toggleMobileLeaderboard() {
-      const box = document.getElementById('leaderboardBox');
-      const btn = document.getElementById('btnToggleMobileLb');
-      box.classList.toggle('collapsed-mobile');
-      if (box.classList.contains('collapsed-mobile')) {
-        btn.textContent = '🏆 View Top 10 Leaderboard';
-      } else {
-        btn.textContent = '✖ Close Leaderboard';
-        box.scrollIntoView({ behavior: 'smooth' });
-      }
-    }
-
     /* -------------------------------------------------------------
-       GAMEPLAY LOGIC & AUDIO
+       GAMEPLAY LOGIC & PROCEDURAL AUDIO
     ------------------------------------------------------------- */
     let score = 0;
     let streak = 0;
@@ -1112,9 +1229,6 @@
       subOsc.stop(now + 0.72);
     }
 
-    /* -------------------------------------------------------------
-       METRICS & COMBO
-    ------------------------------------------------------------- */
     function updateCPS() {
       const now = performance.now();
       clickTimestamps = clickTimestamps.filter(t => now - t <= 1000);
@@ -1174,9 +1288,6 @@
       }
     }
 
-    /* -------------------------------------------------------------
-       HIT EFFECTS
-    ------------------------------------------------------------- */
     const COMIC_PHRASES = ['SLAP!', 'SMACK!', 'POW!', 'CLAP!', 'THWACK!', 'BAM!'];
 
     function createHitEffect(x, y, mult) {
@@ -1212,7 +1323,7 @@
     }
 
     /* -------------------------------------------------------------
-       CINEMATIC MEGA SPANK SEQUENCE (250 STREAK)
+       CINEMATIC MEGA SPANK (250 STREAKS)
     ------------------------------------------------------------- */
     function triggerMegaSpank() {
       if (isMegaSpankActive) return;
@@ -1313,17 +1424,13 @@
       clickTimestamps.push(performance.now());
 
       streak++;
-      if (streak > highStreak) {
-        highStreak = streak;
-      }
+      if (streak > highStreak) highStreak = streak;
 
       const mult = getMultiplier();
       score += Math.round(1 * mult);
-      if (score > highScore) {
-        highScore = score;
-      }
+      if (score > highScore) highScore = score;
 
-      // Record real player's stats live
+      // Sync metrics live to Cloud JSON
       recordPlayerMetrics(highStreak, highScore);
 
       if (streak > 0 && streak % 250 === 0) {
@@ -1375,7 +1482,7 @@
       }
     });
 
-    // Start setup
+    // Start
     checkIntro();
     updateUI();
   </script>
