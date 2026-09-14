@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>Spank Master CPS - Top 10 Leaderboard Edition</title>
+  <title>Spank Master CPS - Real Player Leaderboard</title>
   <style>
     :root {
       --bg-dark: #0f0c1b;
@@ -67,14 +67,14 @@
     #introOverlay {
       position: fixed;
       inset: 0;
-      background: rgba(10, 8, 20, 0.92);
-      backdrop-filter: blur(14px);
+      background: rgba(10, 8, 20, 0.94);
+      backdrop-filter: blur(16px);
       z-index: 300;
       display: flex;
       align-items: center;
       justify-content: center;
       padding: 20px;
-      transition: opacity 0.4s ease, visibility 0.4s;
+      transition: opacity 0.35s ease, visibility 0.35s;
     }
 
     #introOverlay.hidden {
@@ -129,7 +129,7 @@
 
     .name-input {
       width: 100%;
-      background: rgba(15, 12, 27, 0.9);
+      background: rgba(15, 12, 27, 0.95);
       border: 2px solid rgba(255, 255, 255, 0.15);
       border-radius: 12px;
       padding: 14px 16px;
@@ -169,7 +169,7 @@
     }
 
     /* ============================================================
-       APP LAYOUT (SPLIT ON DESKTOP, RESPONSIVE ON MOBILE)
+       APP LAYOUT (DESKTOP 2-COLUMN / MOBILE RESPONSIVE)
     ============================================================ */
     .app-layout {
       display: flex;
@@ -198,7 +198,6 @@
       min-width: 0;
     }
 
-    /* Player Profile Bar */
     .player-badge {
       display: flex;
       align-items: center;
@@ -246,7 +245,7 @@
       margin-top: 4px;
     }
 
-    /* Stats Dashboard */
+    /* Dashboard */
     .dashboard {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
@@ -321,7 +320,7 @@
       transform: scale(0.96);
     }
 
-    /* Hand Burst Effect */
+    /* Normal Hand Burst */
     .hand-burst {
       position: absolute;
       pointer-events: none;
@@ -348,7 +347,6 @@
       }
     }
 
-    /* Floating Popups */
     .float-text {
       position: absolute;
       font-weight: 900;
@@ -370,7 +368,6 @@
       }
     }
 
-    /* Jiggles */
     .jiggle-left { animation: jiggleL 0.2s ease-out; }
     .jiggle-right { animation: jiggleR 0.2s ease-out; }
 
@@ -512,7 +509,7 @@
     /* Controls */
     .controls {
       display: flex;
-      gap: 8px;
+      gap: 10px;
       margin-top: 6px;
       flex-wrap: wrap;
       justify-content: center;
@@ -522,10 +519,10 @@
       background: rgba(255, 255, 255, 0.08);
       color: #fff;
       border: 1px solid rgba(255, 255, 255, 0.15);
-      padding: 9px 15px;
+      padding: 9px 16px;
       border-radius: 10px;
       font-weight: 700;
-      font-size: 0.8rem;
+      font-size: 0.82rem;
       cursor: pointer;
       transition: all 0.2s ease;
       letter-spacing: 0.5px;
@@ -598,9 +595,17 @@
       display: flex;
       flex-direction: column;
       gap: 6px;
-      max-height: 480px;
+      max-height: 520px;
       overflow-y: auto;
       padding-right: 4px;
+    }
+
+    .lb-empty {
+      text-align: center;
+      padding: 30px 10px;
+      color: #8c889f;
+      font-size: 0.88rem;
+      line-height: 1.6;
     }
 
     .lb-row {
@@ -659,34 +664,7 @@
       color: #8c889f;
     }
 
-    /* Leaderboard Actions */
-    .lb-actions {
-      display: flex;
-      gap: 6px;
-      margin-top: 14px;
-      padding-top: 12px;
-      border-top: 1px solid rgba(255, 255, 255, 0.08);
-    }
-
-    .lb-actions button {
-      flex: 1;
-      background: rgba(255, 255, 255, 0.05);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      color: #b0abc4;
-      padding: 7px 10px;
-      border-radius: 8px;
-      font-size: 0.72rem;
-      font-weight: 700;
-      cursor: pointer;
-      transition: all 0.2s ease;
-    }
-
-    .lb-actions button:hover {
-      background: rgba(255, 255, 255, 0.12);
-      color: #fff;
-    }
-
-    /* Mobile toggle button */
+    /* Mobile drawer toggle button */
     .mobile-lb-btn {
       display: none;
     }
@@ -715,14 +693,13 @@
 </head>
 <body>
 
-  <!-- Screen Flash -->
   <div id="screenFlash"></div>
 
-  <!-- INTRO POPUP MODAL -->
+  <!-- INTRO POPUP -->
   <div id="introOverlay">
     <div class="intro-card">
       <div class="intro-title">Spank Master CPS</div>
-      <p class="intro-desc">Enter your Spanker tag to start clapping cheeks, climb the live top 10 leaderboard, and unlock the 250-streak Mega Spank.</p>
+      <p class="intro-desc">Enter your Spanker tag to record your stats and take your place on the Top 10 Leaderboard.</p>
       
       <form id="introForm" onsubmit="startGame(event)">
         <div class="name-input-group">
@@ -742,16 +719,15 @@
     </div>
   </div>
 
-  <!-- MAIN APPLICATION LAYOUT -->
   <div class="app-layout">
     
     <!-- LEFT / CENTER GAME SECTION -->
     <main class="game-section">
       
-      <!-- Player Profile Badge -->
+      <!-- Player Tag -->
       <div class="player-badge">
         <span>Player: <strong id="activePlayerTag">Guest</strong></span>
-        <button class="btn-edit-name" onclick="openNamePrompt()">[Change]</button>
+        <button class="btn-edit-name" onclick="openNamePrompt()">[Change Name]</button>
       </div>
 
       <header>
@@ -842,27 +818,21 @@
       <div class="controls">
         <button id="btnSound" class="btn-pill">🔊 Sound: ON</button>
         <button id="btnTestMega" class="btn-pill btn-test">🔥 Test Mega</button>
-        <button id="btnReset" class="btn-pill">🔄 Reset My Score</button>
       </div>
 
-      <!-- Mobile Leaderboard Drawer Toggle -->
+      <!-- Mobile Leaderboard Button -->
       <button class="mobile-lb-btn" id="btnToggleMobileLb" onclick="toggleMobileLeaderboard()">🏆 View Top 10 Leaderboard</button>
     </main>
 
-    <!-- RIGHT SIDEBAR: TOP 10 PLAYERS -->
+    <!-- RIGHT SIDEBAR: REAL PLAYERS ONLY -->
     <aside class="leaderboard-container collapsed-mobile" id="leaderboardBox">
       <div class="lb-header">
         <div class="lb-title">🏆 Top 10 Spankers</div>
-        <span class="lb-count">Live JSON</span>
+        <span class="lb-count" id="lbCountBadge">0 Players</span>
       </div>
 
       <div class="lb-list" id="lbList">
-        <!-- Injected via JavaScript from JSON Database -->
-      </div>
-
-      <div class="lb-actions">
-        <button onclick="exportLeaderboardJSON()">📥 Export JSON</button>
-        <button onclick="resetLeaderboardJSON()">⚠️ Reset Board</button>
+        <!-- Live Real Players Injected Here -->
       </div>
     </aside>
 
@@ -870,37 +840,20 @@
 
   <script>
     /* -------------------------------------------------------------
-       JSON DATABASE & LEADERBOARD SYSTEM
+       REAL PLAYERS JSON STORAGE SYSTEM
     ------------------------------------------------------------- */
-    const STORAGE_KEY_LB = 'spank_master_leaderboard_json';
+    const STORAGE_KEY_LB = 'spank_master_live_players';
     const STORAGE_KEY_USER = 'spank_master_active_user';
-
-    // Seed data in case initial local JSON is empty
-    const DEFAULT_LEADERBOARD = [
-      { name: "ThunderClap", streak: 512, score: 2840 },
-      { name: "SpeedyCheeks", streak: 320, score: 1750 },
-      { name: "Spankzilla", streak: 250, score: 1420 },
-      { name: "TurboHand", streak: 184, score: 980 },
-      { name: "ClapMaster", streak: 142, score: 710 },
-      { name: "CheekyNinja", streak: 98, score: 480 },
-      { name: "ButtBuster", streak: 76, score: 360 },
-      { name: "SPS_Demon", streak: 54, score: 260 },
-      { name: "WarmupKing", streak: 35, score: 170 },
-      { name: "PeachRider", streak: 21, score: 95 }
-    ];
 
     let activePlayerName = localStorage.getItem(STORAGE_KEY_USER) || "";
 
     function loadLeaderboardJSON() {
       const raw = localStorage.getItem(STORAGE_KEY_LB);
-      if (!raw) {
-        localStorage.setItem(STORAGE_KEY_LB, JSON.stringify(DEFAULT_LEADERBOARD));
-        return DEFAULT_LEADERBOARD;
-      }
+      if (!raw) return [];
       try {
         return JSON.parse(raw);
       } catch (e) {
-        return DEFAULT_LEADERBOARD;
+        return [];
       }
     }
 
@@ -910,13 +863,26 @@
 
     function renderLeaderboard() {
       const lb = loadLeaderboardJSON();
-      // Sort primarily by highest streak, secondarily by score
+      // Sort: Highest streak first, then highest score
       lb.sort((a, b) => b.streak - a.streak || b.score - a.score);
 
       const listEl = document.getElementById('lbList');
+      const badgeEl = document.getElementById('lbCountBadge');
       listEl.innerHTML = '';
 
       const top10 = lb.slice(0, 10);
+      badgeEl.textContent = `${top10.length} / 10`;
+
+      if (top10.length === 0) {
+        listEl.innerHTML = `
+          <div class="lb-empty">
+            No spankers on the board yet.<br>
+            Start slapping to claim <strong>#1</strong>!
+          </div>
+        `;
+        return;
+      }
+
       top10.forEach((player, idx) => {
         const row = document.createElement('div');
         const isCurrent = (player.name.toLowerCase() === activePlayerName.toLowerCase());
@@ -943,15 +909,8 @@
       let existing = lb.find(p => p.name.toLowerCase() === activePlayerName.toLowerCase());
 
       if (existing) {
-        let updated = false;
-        if (currentStreak > existing.streak) {
-          existing.streak = currentStreak;
-          updated = true;
-        }
-        if (currentScore > existing.score) {
-          existing.score = currentScore;
-          updated = true;
-        }
+        if (currentStreak > existing.streak) existing.streak = currentStreak;
+        if (currentScore > existing.score) existing.score = currentScore;
       } else {
         lb.push({
           name: activePlayerName,
@@ -964,29 +923,12 @@
       renderLeaderboard();
     }
 
-    function exportLeaderboardJSON() {
-      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(loadLeaderboardJSON(), null, 2));
-      const downloadAnchor = document.createElement('a');
-      downloadAnchor.setAttribute("href", dataStr);
-      downloadAnchor.setAttribute("download", "spank_master_leaderboard.json");
-      document.body.appendChild(downloadAnchor);
-      downloadAnchor.click();
-      downloadAnchor.remove();
-    }
-
-    function resetLeaderboardJSON() {
-      if (confirm("Reset the top 10 leaderboard back to default players?")) {
-        localStorage.setItem(STORAGE_KEY_LB, JSON.stringify(DEFAULT_LEADERBOARD));
-        renderLeaderboard();
-      }
-    }
-
     function escapeHtml(str) {
       return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
     }
 
     /* -------------------------------------------------------------
-       INTRO & PROFILE MANAGEMENT
+       INTRO & NAME SYSTEM
     ------------------------------------------------------------- */
     const introOverlay = document.getElementById('introOverlay');
     const playerNameInput = document.getElementById('playerNameInput');
@@ -1013,8 +955,20 @@
       activePlayerTag.textContent = activePlayerName;
 
       introOverlay.classList.add('hidden');
-      initAudio(); // Warm up Web Audio
-      recordPlayerMetrics(highStreak, highScore);
+      initAudio();
+
+      // Load existing records for this user if any
+      const lb = loadLeaderboardJSON();
+      const existing = lb.find(p => p.name.toLowerCase() === activePlayerName.toLowerCase());
+      if (existing) {
+        highStreak = existing.streak || 0;
+        highScore = existing.score || 0;
+      } else {
+        highStreak = 0;
+        highScore = 0;
+      }
+      updateUI();
+      renderLeaderboard();
     }
 
     function openNamePrompt() {
@@ -1036,7 +990,7 @@
     }
 
     /* -------------------------------------------------------------
-       GAMEPLAY STATE & AUDIO
+       GAMEPLAY LOGIC & AUDIO
     ------------------------------------------------------------- */
     let score = 0;
     let streak = 0;
@@ -1064,7 +1018,6 @@
     const megaBanner = document.getElementById('megaBanner');
     const btnSound = document.getElementById('btnSound');
     const btnTestMega = document.getElementById('btnTestMega');
-    const btnReset = document.getElementById('btnReset');
 
     let audioCtx = null;
     function initAudio() {
@@ -1102,7 +1055,7 @@
       noiseGain.connect(audioCtx.destination);
       whiteNoise.start(now);
 
-      // Meaty body slap
+      // Thump
       const osc = audioCtx.createOscillator();
       const oscGain = audioCtx.createGain();
       osc.type = 'sine';
@@ -1259,7 +1212,7 @@
     }
 
     /* -------------------------------------------------------------
-       CINEMATIC MEGA SPANK SEQUENCE
+       CINEMATIC MEGA SPANK SEQUENCE (250 STREAK)
     ------------------------------------------------------------- */
     function triggerMegaSpank() {
       if (isMegaSpankActive) return;
@@ -1370,7 +1323,7 @@
         highScore = score;
       }
 
-      // Record to JSON database
+      // Record real player's stats live
       recordPlayerMetrics(highStreak, highScore);
 
       if (streak > 0 && streak % 250 === 0) {
@@ -1407,7 +1360,7 @@
     target.addEventListener('pointerdown', handleSpank);
 
     /* -------------------------------------------------------------
-       BUTTONS
+       CONTROLS
     ------------------------------------------------------------- */
     btnSound.addEventListener('click', () => {
       soundEnabled = !soundEnabled;
@@ -1419,17 +1372,6 @@
         streak = Math.max(streak, 250);
         updateUI();
         triggerMegaSpank();
-      }
-    });
-
-    btnReset.addEventListener('click', () => {
-      if (confirm('Reset your current session score and streak?')) {
-        highStreak = 0;
-        highScore = 0;
-        score = 0;
-        streak = 0;
-        updateUI();
-        recordPlayerMetrics(0, 0);
       }
     });
 
