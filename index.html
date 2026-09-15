@@ -225,6 +225,29 @@
       padding: 0 4px;
     }
 
+    /* Settings Gear Button (Dev Exclusive) */
+    .btn-admin-gear {
+      background: linear-gradient(90deg, #ff2a85, #ff4500);
+      color: #fff;
+      border: 1px solid #ffd60a;
+      border-radius: 99px;
+      padding: 3px 10px;
+      font-size: 0.75rem;
+      font-weight: 800;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      box-shadow: 0 0 10px rgba(255, 42, 133, 0.5);
+      animation: gearPulse 2s infinite;
+    }
+
+    @keyframes gearPulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+      100% { transform: scale(1); }
+    }
+
     header {
       text-align: center;
     }
@@ -296,9 +319,7 @@
       color: var(--accent-gold);
     }
 
-    /* ============================================================
-       SHOW LEADERBOARD BUTTON (Directly Below Scores Tab)
-    ============================================================ */
+    /* Show Leaderboard Button */
     .btn-show-leaderboard {
       width: 100%;
       max-width: 580px;
@@ -640,10 +661,11 @@
       border-bottom: 1px solid rgba(255, 255, 255, 0.1);
       padding-bottom: 12px;
       margin-bottom: 12px;
+      gap: 6px;
     }
 
     .lb-title {
-      font-size: 1.1rem;
+      font-size: 1.05rem;
       font-weight: 900;
       text-transform: uppercase;
       letter-spacing: 1px;
@@ -748,6 +770,151 @@
       font-size: 0.68rem;
       color: #8c889f;
     }
+
+    /* ============================================================
+       MOBILE-FRIENDLY ADMIN PANEL MODAL
+    ============================================================ */
+    #adminOverlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(10, 8, 20, 0.92);
+      backdrop-filter: blur(14px);
+      z-index: 350;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      transition: opacity 0.3s ease, visibility 0.3s;
+    }
+
+    #adminOverlay.hidden {
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+    }
+
+    .admin-card {
+      background: var(--card-bg);
+      border: 1px solid var(--accent-pink);
+      border-radius: 18px;
+      padding: 22px 18px;
+      max-width: 460px;
+      width: 100%;
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.8), 0 0 25px rgba(255, 42, 133, 0.4);
+      display: flex;
+      flex-direction: column;
+      max-height: 88vh;
+    }
+
+    .admin-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 14px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      padding-bottom: 10px;
+    }
+
+    .admin-header h3 {
+      color: var(--accent-gold);
+      font-size: 1.15rem;
+      font-weight: 900;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      text-transform: uppercase;
+    }
+
+    .admin-close {
+      background: rgba(255, 255, 255, 0.1);
+      color: #fff;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 8px;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    .admin-player-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      overflow-y: auto;
+      margin-bottom: 16px;
+      padding-right: 4px;
+    }
+
+    .admin-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 10px;
+      padding: 8px 12px;
+      gap: 8px;
+    }
+
+    .admin-player-info {
+      flex: 1;
+      overflow: hidden;
+    }
+
+    .admin-player-name {
+      font-weight: 800;
+      font-size: 0.9rem;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      overflow: hidden;
+      color: #fff;
+    }
+
+    .admin-player-metrics {
+      font-size: 0.72rem;
+      color: #9d96b8;
+    }
+
+    .admin-row-actions {
+      display: flex;
+      gap: 6px;
+    }
+
+    .btn-admin-action {
+      border: none;
+      border-radius: 6px;
+      padding: 6px 10px;
+      font-size: 0.75rem;
+      font-weight: 800;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 2px;
+    }
+
+    .btn-admin-edit {
+      background: var(--accent-cyan);
+      color: #000;
+    }
+
+    .btn-admin-del {
+      background: #441824;
+      color: #ff4d6d;
+      border: 1px solid #ff4d6d;
+    }
+
+    .btn-wipe-all {
+      width: 100%;
+      background: linear-gradient(90deg, #880022, #d80032);
+      border: 1px solid #ff4d6d;
+      color: #fff;
+      padding: 12px;
+      border-radius: 12px;
+      font-weight: 900;
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      cursor: pointer;
+    }
   </style>
 </head>
 <body>
@@ -768,7 +935,7 @@
             type="text" 
             id="playerNameInput" 
             class="name-input" 
-            placeholder="e.g. ThunderCheeks" 
+            placeholder="e.g. dev" 
             maxlength="14" 
             required 
             autocomplete="off" 
@@ -787,6 +954,8 @@
       <div class="player-badge">
         <span>Player: <strong id="activePlayerTag">Guest</strong></span>
         <button class="btn-edit-name" onclick="openNamePrompt()">[Change Name]</button>
+        <!-- Gear icon for dev only -->
+        <button class="btn-admin-gear" id="adminGearBtn" style="display:none;" onclick="openAdminPanel()">⚙️ Admin</button>
       </div>
 
       <header>
@@ -891,6 +1060,8 @@
       <div class="lb-header">
         <div class="lb-title">🏆 Top 10 Spankers</div>
         <div class="lb-sync-badge" id="syncBadge">● Cloud Synced</div>
+        <!-- Admin quick button in leaderboard drawer for dev -->
+        <button class="btn-admin-gear" id="lbAdminBtn" style="display:none;" onclick="openAdminPanel()">⚙️</button>
         <button class="lb-close-btn" onclick="closeLeaderboard()">✖ Close</button>
       </div>
 
@@ -901,110 +1072,144 @@
 
   </div>
 
+  <!-- ADMIN MANAGEMENT MODAL (DEV ONLY) -->
+  <div id="adminOverlay" class="hidden">
+    <div class="admin-card">
+      <div class="admin-header">
+        <h3>⚙️ Admin Panel (dev)</h3>
+        <button class="admin-close" onclick="closeAdminPanel()">✖</button>
+      </div>
+
+      <div class="admin-player-list" id="adminPlayerList">
+        <!-- Admin Player Rows Injected Here -->
+      </div>
+
+      <button class="btn-wipe-all" onclick="adminClearAll()">
+        🗑️ Wipe Entire Leaderboard
+      </button>
+    </div>
+  </div>
+
   <script>
     /* -------------------------------------------------------------
        REAL ONLINE CLOUD JSON SYNC (CROSS-DEVICE: PHONE <-> LAPTOP)
     ------------------------------------------------------------- */
-    const STORAGE_KEY_USER = 'spank_master_active_user';
-    const CLOUD_JSON_URL = 'https://mantledb.sh/v2/spank-master-cps-v2/leaderboard';
+    const STORAGE_KEY_USER = 'spank_master_active_user';[cite: 1]
+    const CLOUD_JSON_URL = 'https://mantledb.sh/v2/spank-master-cps-v2/leaderboard';[cite: 1]
 
-    let activePlayerName = localStorage.getItem(STORAGE_KEY_USER) || "";
-    let cloudPlayers = [];
-    let saveDebounceTimer = null;
+    let activePlayerName = localStorage.getItem(STORAGE_KEY_USER) || "";[cite: 1]
+    let cloudPlayers = [];[cite: 1]
+    let saveDebounceTimer = null;[cite: 1]
+
+    // Identity check: Dev check (case-insensitive)
+    function isDevAdmin() {
+      return activePlayerName && activePlayerName.trim().toLowerCase() === 'dev';
+    }
+
+    function updateAdminVisibility() {
+      const isDev = isDevAdmin();
+      const gearBtn = document.getElementById('adminGearBtn');
+      const lbGearBtn = document.getElementById('lbAdminBtn');
+      if (gearBtn) gearBtn.style.display = isDev ? 'inline-flex' : 'none';
+      if (lbGearBtn) lbGearBtn.style.display = isDev ? 'inline-flex' : 'none';
+    }
 
     // Fetch live leaderboard JSON from the cloud
     async function fetchCloudLeaderboard() {
       try {
         const response = await fetch(CLOUD_JSON_URL, {
           headers: { 'Accept': 'application/json' }
-        });
+        });[cite: 1]
         if (response.ok) {
-          const data = await response.json();
+          const data = await response.json();[cite: 1]
           if (data && Array.isArray(data.players)) {
-            cloudPlayers = data.players;
-            renderLeaderboard();
-            updateSyncStatus("● Cloud Synced", "#00ff88");
+            cloudPlayers = data.players;[cite: 1]
+            renderLeaderboard();[cite: 1]
+            if (document.getElementById('adminOverlay') && !document.getElementById('adminOverlay').classList.contains('hidden')) {
+              renderAdminList();
+            }
+            updateSyncStatus("● Cloud Synced", "#00ff88");[cite: 1]
 
             // Sync personal best from cloud if user returned
-            const me = cloudPlayers.find(p => p.name.toLowerCase() === activePlayerName.toLowerCase());
+            const me = cloudPlayers.find(p => p.name.toLowerCase() === activePlayerName.toLowerCase());[cite: 1]
             if (me) {
-              highStreak = Math.max(highStreak, me.streak || 0);
-              highScore = Math.max(highScore, me.score || 0);
-              updateUI();
+              highStreak = Math.max(highStreak, me.streak || 0);[cite: 1]
+              highScore = Math.max(highScore, me.score || 0);[cite: 1]
+              updateUI();[cite: 1]
             }
           }
         }
       } catch (err) {
-        console.warn('Cloud sync offline / network error:', err);
-        updateSyncStatus("● Offline Cache", "#ffd60a");
+        console.warn('Cloud sync offline / network error:', err);[cite: 1]
+        updateSyncStatus("● Offline Cache", "#ffd60a");[cite: 1]
       }
     }
 
     // Save updated records to the online cloud JSON
     async function saveCloudLeaderboard() {
       try {
-        updateSyncStatus("● Syncing...", "#00f0ff");
+        updateSyncStatus("● Syncing...", "#00f0ff");[cite: 1]
         const response = await fetch(CLOUD_JSON_URL, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ players: cloudPlayers })
-        });
+        });[cite: 1]
         if (response.ok) {
-          updateSyncStatus("● Cloud Synced", "#00ff88");
+          updateSyncStatus("● Cloud Synced", "#00ff88");[cite: 1]
         }
       } catch (err) {
-        console.warn('Could not push to cloud JSON:', err);
-        updateSyncStatus("● Sync Pending", "#ff4500");
+        console.warn('Could not push to cloud JSON:', err);[cite: 1]
+        updateSyncStatus("● Sync Pending", "#ff4500");[cite: 1]
       }
     }
 
     function updateSyncStatus(text, color) {
-      const badge = document.getElementById('syncBadge');
-      badge.textContent = text;
-      badge.style.color = color;
-      badge.style.borderColor = color;
+      const badge = document.getElementById('syncBadge');[cite: 1]
+      if (badge) {
+        badge.textContent = text;[cite: 1]
+        badge.style.color = color;[cite: 1]
+        badge.style.borderColor = color;[cite: 1]
+      }
     }
 
     function recordPlayerMetrics(currentStreak, currentScore) {
-      if (!activePlayerName) return;
+      if (!activePlayerName) return;[cite: 1]
 
-      let existing = cloudPlayers.find(p => p.name.toLowerCase() === activePlayerName.toLowerCase());
-      let modified = false;
+      let existing = cloudPlayers.find(p => p.name.toLowerCase() === activePlayerName.toLowerCase());[cite: 1]
+      let modified = false;[cite: 1]
 
       if (existing) {
         if (currentStreak > existing.streak) {
-          existing.streak = currentStreak;
-          modified = true;
+          existing.streak = currentStreak;[cite: 1]
+          modified = true;[cite: 1]
         }
         if (currentScore > existing.score) {
-          existing.score = currentScore;
-          modified = true;
+          existing.score = currentScore;[cite: 1]
+          modified = true;[cite: 1]
         }
       } else {
         cloudPlayers.push({
           name: activePlayerName,
           streak: currentStreak,
           score: currentScore
-        });
-        modified = true;
+        });[cite: 1]
+        modified = true;[cite: 1]
       }
 
       if (modified) {
-        renderLeaderboard();
-        // Debounce cloud write by 500ms to avoid hammering network while spanking fast
-        clearTimeout(saveDebounceTimer);
-        saveDebounceTimer = setTimeout(saveCloudLeaderboard, 500);
+        renderLeaderboard();[cite: 1]
+        clearTimeout(saveDebounceTimer);[cite: 1]
+        saveDebounceTimer = setTimeout(saveCloudLeaderboard, 500);[cite: 1]
       }
     }
 
     function renderLeaderboard() {
-      // Sort: Highest streak first, then highest score
-      cloudPlayers.sort((a, b) => b.streak - a.streak || b.score - a.score);
+      cloudPlayers.sort((a, b) => b.streak - a.streak || b.score - a.score);[cite: 1]
 
-      const listEl = document.getElementById('lbList');
-      listEl.innerHTML = '';
+      const listEl = document.getElementById('lbList');[cite: 1]
+      listEl.innerHTML = '';[cite: 1]
 
-      const top10 = cloudPlayers.slice(0, 10);
+      const top10 = cloudPlayers.slice(0, 10);[cite: 1]
 
       if (top10.length === 0) {
         listEl.innerHTML = `
@@ -1012,16 +1217,16 @@
             No spankers on the board yet.<br>
             Start slapping to claim <strong>#1</strong>!
           </div>
-        `;
+        `;[cite: 1]
         return;
       }
 
       top10.forEach((player, idx) => {
-        const row = document.createElement('div');
-        const isCurrent = (player.name.toLowerCase() === activePlayerName.toLowerCase());
-        row.className = `lb-row ${isCurrent ? 'active-user' : ''}`;
+        const row = document.createElement('div');[cite: 1]
+        const isCurrent = (player.name.toLowerCase() === activePlayerName.toLowerCase());[cite: 1]
+        row.className = `lb-row ${isCurrent ? 'active-user' : ''}`;[cite: 1]
 
-        const rankDisplay = idx === 0 ? '🥇' : idx === 1 ? '🥈' : idx === 2 ? '🥉' : `#${idx + 1}`;
+        const rankDisplay = idx === 0 ? '🥇' : idx === 1 ? '🥈' : idx === 2 ? '🥉' : `#${idx + 1}`;[cite: 1]
 
         row.innerHTML = `
           <span class="lb-rank rank-${idx + 1}">${rankDisplay}</span>
@@ -1030,286 +1235,373 @@
             <span class="lb-streak">${player.streak} <small>streak</small></span>
             <span class="lb-subscore">${player.score} pts</span>
           </div>
-        `;
-        listEl.appendChild(row);
+        `;[cite: 1]
+        listEl.appendChild(row);[cite: 1]
       });
     }
 
     function escapeHtml(str) {
-      return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+      return String(str).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");[cite: 1]
     }
 
-    // Auto-sync polling every 4 seconds so laptop & mobile stay live
-    setInterval(fetchCloudLeaderboard, 4000);
-    window.addEventListener('focus', fetchCloudLeaderboard);
+    // Auto-sync polling every 4 seconds
+    setInterval(fetchCloudLeaderboard, 4000);[cite: 1]
+    window.addEventListener('focus', fetchCloudLeaderboard);[cite: 1]
 
     /* -------------------------------------------------------------
-       MODAL & DRAWER INTERFACE (SHOW LEADERBOARD)
+       ADMIN MODAL LOGIC (DEV ONLY)
     ------------------------------------------------------------- */
-    const leaderboardBox = document.getElementById('leaderboardBox');
-    const mobileBackdrop = document.getElementById('mobileBackdrop');
+    function openAdminPanel() {
+      if (!isDevAdmin()) {
+        alert("Access Denied: Only 'dev' has administrative permissions.");
+        return;
+      }
+      renderAdminList();
+      document.getElementById('adminOverlay').classList.remove('hidden');
+    }
+
+    function closeAdminPanel() {
+      document.getElementById('adminOverlay').classList.add('hidden');
+    }
+
+    function renderAdminList() {
+      const list = document.getElementById('adminPlayerList');
+      list.innerHTML = '';
+
+      if (cloudPlayers.length === 0) {
+        list.innerHTML = '<div style="text-align:center; color:#888; padding:20px;">No players in database.</div>';
+        return;
+      }
+
+      // Show all recorded players
+      cloudPlayers.forEach((player, idx) => {
+        const row = document.createElement('div');
+        row.className = 'admin-row';
+        row.innerHTML = `
+          <div class="admin-player-info">
+            <div class="admin-player-name">${escapeHtml(player.name)}</div>
+            <div class="admin-player-metrics">
+              Streak: <strong style="color:var(--accent-gold);">${player.streak}</strong> | Score: <strong>${player.score}</strong>
+            </div>
+          </div>
+          <div class="admin-row-actions">
+            <button class="btn-admin-action btn-admin-edit" onclick="adminEditPlayer(${idx})">✏️ Edit</button>
+            <button class="btn-admin-action btn-admin-del" onclick="adminDeletePlayer(${idx})">🗑️ Del</button>
+          </div>
+        `;
+        list.appendChild(row);
+      });
+    }
+
+    function adminEditPlayer(idx) {
+      if (!isDevAdmin()) return;
+      const player = cloudPlayers[idx];
+
+      const newStreakInput = prompt(`Edit Streak for "${player.name}":`, player.streak);
+      if (newStreakInput === null) return;
+
+      const newScoreInput = prompt(`Edit Score for "${player.name}":`, player.score);
+      if (newScoreInput === null) return;
+
+      const newStreak = parseInt(newStreakInput, 10);
+      const newScore = parseInt(newScoreInput, 10);
+
+      if (!isNaN(newStreak)) player.streak = Math.max(0, newStreak);
+      if (!isNaN(newScore)) player.score = Math.max(0, newScore);
+
+      saveCloudLeaderboard();
+      renderLeaderboard();
+      renderAdminList();
+    }
+
+    function adminDeletePlayer(idx) {
+      if (!isDevAdmin()) return;
+      const player = cloudPlayers[idx];
+      if (confirm(`Are you sure you want to delete "${player.name}" from the leaderboard?`)) {
+        cloudPlayers.splice(idx, 1);
+        saveCloudLeaderboard();
+        renderLeaderboard();
+        renderAdminList();
+      }
+    }
+
+    function adminClearAll() {
+      if (!isDevAdmin()) return;
+      if (confirm("⚠️ WARNING: Wipe entire cloud leaderboard for all players?")) {
+        cloudPlayers = [];
+        saveCloudLeaderboard();
+        renderLeaderboard();
+        renderAdminList();
+      }
+    }
+
+    /* -------------------------------------------------------------
+       DRAWER INTERFACE (SHOW LEADERBOARD)
+    ------------------------------------------------------------- */
+    const leaderboardBox = document.getElementById('leaderboardBox');[cite: 1]
+    const mobileBackdrop = document.getElementById('mobileBackdrop');[cite: 1]
 
     function openLeaderboard() {
       if (window.innerWidth < 960) {
-        leaderboardBox.classList.add('mobile-open');
-        mobileBackdrop.classList.add('active');
+        leaderboardBox.classList.add('mobile-open');[cite: 1]
+        mobileBackdrop.classList.add('active');[cite: 1]
       } else {
-        leaderboardBox.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-        leaderboardBox.style.boxShadow = '0 0 25px rgba(255, 214, 10, 0.6)';
+        leaderboardBox.scrollIntoView({ behavior: 'smooth', block: 'nearest' });[cite: 1]
+        leaderboardBox.style.boxShadow = '0 0 25px rgba(255, 214, 10, 0.6)';[cite: 1]
         setTimeout(() => {
-          leaderboardBox.style.boxShadow = '0 10px 30px rgba(0, 0, 0, 0.4)';
-        }, 800);
+          leaderboardBox.style.boxShadow = '0 10px 30px rgba(0, 0, 0, 0.4)';[cite: 1]
+        }, 800);[cite: 1]
       }
-      fetchCloudLeaderboard(); // refresh latest immediately
+      fetchCloudLeaderboard();[cite: 1]
     }
 
     function closeLeaderboard() {
-      leaderboardBox.classList.remove('mobile-open');
-      mobileBackdrop.classList.remove('active');
+      leaderboardBox.classList.remove('mobile-open');[cite: 1]
+      mobileBackdrop.classList.remove('active');[cite: 1]
     }
 
     /* -------------------------------------------------------------
        INTRO & NAME SYSTEM
     ------------------------------------------------------------- */
-    const introOverlay = document.getElementById('introOverlay');
-    const playerNameInput = document.getElementById('playerNameInput');
-    const activePlayerTag = document.getElementById('activePlayerTag');
+    const introOverlay = document.getElementById('introOverlay');[cite: 1]
+    const playerNameInput = document.getElementById('playerNameInput');[cite: 1]
+    const activePlayerTag = document.getElementById('activePlayerTag');[cite: 1]
 
     function checkIntro() {
       if (!activePlayerName) {
-        introOverlay.classList.remove('hidden');
-        setTimeout(() => playerNameInput.focus(), 200);
+        introOverlay.classList.remove('hidden');[cite: 1]
+        setTimeout(() => playerNameInput.focus(), 200);[cite: 1]
       } else {
-        activePlayerTag.textContent = activePlayerName;
-        introOverlay.classList.add('hidden');
-        fetchCloudLeaderboard();
+        activePlayerTag.textContent = activePlayerName;[cite: 1]
+        introOverlay.classList.add('hidden');[cite: 1]
+        updateAdminVisibility();
+        fetchCloudLeaderboard();[cite: 1]
       }
     }
 
     function startGame(e) {
-      e.preventDefault();
-      const val = playerNameInput.value.trim();
-      if (!val) return;
+      e.preventDefault();[cite: 1]
+      const val = playerNameInput.value.trim();[cite: 1]
+      if (!val) return;[cite: 1]
 
-      activePlayerName = val;
-      localStorage.setItem(STORAGE_KEY_USER, activePlayerName);
-      activePlayerTag.textContent = activePlayerName;
+      activePlayerName = val;[cite: 1]
+      localStorage.setItem(STORAGE_KEY_USER, activePlayerName);[cite: 1]
+      activePlayerTag.textContent = activePlayerName;[cite: 1]
 
-      introOverlay.classList.add('hidden');
-      initAudio();
-      fetchCloudLeaderboard();
+      introOverlay.classList.add('hidden');[cite: 1]
+      initAudio();[cite: 1]
+      updateAdminVisibility();
+      fetchCloudLeaderboard();[cite: 1]
     }
 
     function openNamePrompt() {
-      playerNameInput.value = activePlayerName;
-      introOverlay.classList.remove('hidden');
-      setTimeout(() => playerNameInput.focus(), 200);
+      playerNameInput.value = activePlayerName;[cite: 1]
+      introOverlay.classList.remove('hidden');[cite: 1]
+      setTimeout(() => playerNameInput.focus(), 200);[cite: 1]
     }
 
     /* -------------------------------------------------------------
        GAMEPLAY LOGIC & PROCEDURAL AUDIO
     ------------------------------------------------------------- */
-    let score = 0;
-    let streak = 0;
-    let highStreak = 0;
-    let highScore = 0;
-    let soundEnabled = true;
-    let isMegaSpankActive = false;
+    let score = 0;[cite: 1]
+    let streak = 0;[cite: 1]
+    let highStreak = 0;[cite: 1]
+    let highScore = 0;[cite: 1]
+    let soundEnabled = true;[cite: 1]
+    let isMegaSpankActive = false;[cite: 1]
 
-    let clickTimestamps = [];
-    const STREAK_TIMEOUT_MS = 1400;
-    let streakDecayTimer = null;
-    let lastClickSide = 'left';
+    let clickTimestamps = [];[cite: 1]
+    const STREAK_TIMEOUT_MS = 1400;[cite: 1]
+    let streakDecayTimer = null;[cite: 1]
+    let lastClickSide = 'left';[cite: 1]
 
-    const valScore = document.getElementById('val-score');
-    const valCps = document.getElementById('val-cps');
-    const valStreak = document.getElementById('val-streak');
-    const valHighStreak = document.getElementById('val-high-streak');
-    const comboFill = document.getElementById('comboFill');
-    const comboRank = document.getElementById('comboRank');
-    const multiplierText = document.getElementById('multiplierText');
-    const target = document.getElementById('target');
-    const arena = document.getElementById('arena');
-    const screenFlash = document.getElementById('screenFlash');
-    const megaHandContainer = document.getElementById('megaHandContainer');
-    const megaBanner = document.getElementById('megaBanner');
-    const btnSound = document.getElementById('btnSound');
-    const btnTestMega = document.getElementById('btnTestMega');
+    const valScore = document.getElementById('val-score');[cite: 1]
+    const valCps = document.getElementById('val-cps');[cite: 1]
+    const valStreak = document.getElementById('val-streak');[cite: 1]
+    const valHighStreak = document.getElementById('val-high-streak');[cite: 1]
+    const comboFill = document.getElementById('comboFill');[cite: 1]
+    const comboRank = document.getElementById('comboRank');[cite: 1]
+    const multiplierText = document.getElementById('multiplierText');[cite: 1]
+    const target = document.getElementById('target');[cite: 1]
+    const arena = document.getElementById('arena');[cite: 1]
+    const screenFlash = document.getElementById('screenFlash');[cite: 1]
+    const megaHandContainer = document.getElementById('megaHandContainer');[cite: 1]
+    const megaBanner = document.getElementById('megaBanner');[cite: 1]
+    const btnSound = document.getElementById('btnSound');[cite: 1]
+    const btnTestMega = document.getElementById('btnTestMega');[cite: 1]
 
-    let audioCtx = null;
+    let audioCtx = null;[cite: 1]
     function initAudio() {
       if (!audioCtx) {
-        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();[cite: 1]
       }
       if (audioCtx.state === 'suspended') {
-        audioCtx.resume();
+        audioCtx.resume();[cite: 1]
       }
     }
 
     function playSlapSound(isCombo = false) {
-      if (!soundEnabled) return;
-      initAudio();
-      const now = audioCtx.currentTime;
+      if (!soundEnabled) return;[cite: 1]
+      initAudio();[cite: 1]
+      const now = audioCtx.currentTime;[cite: 1]
 
-      // Crack
-      const bufferSize = audioCtx.sampleRate * 0.04;
-      const noiseBuffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
-      const output = noiseBuffer.getChannelData(0);
-      for (let i = 0; i < bufferSize; i++) output[i] = Math.random() * 2 - 1;
+      const bufferSize = audioCtx.sampleRate * 0.04;[cite: 1]
+      const noiseBuffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);[cite: 1]
+      const output = noiseBuffer.getChannelData(0);[cite: 1]
+      for (let i = 0; i < bufferSize; i++) output[i] = Math.random() * 2 - 1;[cite: 1]
 
-      const whiteNoise = audioCtx.createBufferSource();
-      whiteNoise.buffer = noiseBuffer;
-      const noiseFilter = audioCtx.createBiquadFilter();
-      noiseFilter.type = 'highpass';
-      noiseFilter.frequency.setValueAtTime(800, now);
+      const whiteNoise = audioCtx.createBufferSource();[cite: 1]
+      whiteNoise.buffer = noiseBuffer;[cite: 1]
+      const noiseFilter = audioCtx.createBiquadFilter();[cite: 1]
+      noiseFilter.type = 'highpass';[cite: 1]
+      noiseFilter.frequency.setValueAtTime(800, now);[cite: 1]
 
-      const noiseGain = audioCtx.createGain();
-      noiseGain.gain.setValueAtTime(0.4, now);
-      noiseGain.gain.exponentialRampToValueAtTime(0.001, now + 0.04);
+      const noiseGain = audioCtx.createGain();[cite: 1]
+      noiseGain.gain.setValueAtTime(0.4, now);[cite: 1]
+      noiseGain.gain.exponentialRampToValueAtTime(0.001, now + 0.04);[cite: 1]
 
-      whiteNoise.connect(noiseFilter);
-      noiseFilter.connect(noiseGain);
-      noiseGain.connect(audioCtx.destination);
-      whiteNoise.start(now);
+      whiteNoise.connect(noiseFilter);[cite: 1]
+      noiseFilter.connect(noiseGain);[cite: 1]
+      noiseGain.connect(audioCtx.destination);[cite: 1]
+      whiteNoise.start(now);[cite: 1]
 
-      // Thump
-      const osc = audioCtx.createOscillator();
-      const oscGain = audioCtx.createGain();
-      osc.type = 'sine';
-      osc.frequency.setValueAtTime(isCombo ? 180 : 130, now);
-      osc.frequency.exponentialRampToValueAtTime(35, now + 0.1);
+      const osc = audioCtx.createOscillator();[cite: 1]
+      const oscGain = audioCtx.createGain();[cite: 1]
+      osc.type = 'sine';[cite: 1]
+      osc.frequency.setValueAtTime(isCombo ? 180 : 130, now);[cite: 1]
+      osc.frequency.exponentialRampToValueAtTime(35, now + 0.1);[cite: 1]
 
-      oscGain.gain.setValueAtTime(0.6, now);
-      oscGain.gain.exponentialRampToValueAtTime(0.001, now + 0.1);
+      oscGain.gain.setValueAtTime(0.6, now);[cite: 1]
+      oscGain.gain.exponentialRampToValueAtTime(0.001, now + 0.1);[cite: 1]
 
-      osc.connect(oscGain);
-      oscGain.connect(audioCtx.destination);
-      osc.start(now);
-      osc.stop(now + 0.11);
+      osc.connect(oscGain);[cite: 1]
+      oscGain.connect(audioCtx.destination);[cite: 1]
+      osc.start(now);[cite: 1]
+      osc.stop(now + 0.11);[cite: 1]
     }
 
     function playMegaExplosionSound() {
-      if (!soundEnabled) return;
-      initAudio();
-      const now = audioCtx.currentTime;
+      if (!soundEnabled) return;[cite: 1]
+      initAudio();[cite: 1]
+      const now = audioCtx.currentTime;[cite: 1]
 
-      const bufferSize = audioCtx.sampleRate * 0.9;
-      const noiseBuffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
-      const output = noiseBuffer.getChannelData(0);
-      for (let i = 0; i < bufferSize; i++) output[i] = Math.random() * 2 - 1;
+      const bufferSize = audioCtx.sampleRate * 0.9;[cite: 1]
+      const noiseBuffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);[cite: 1]
+      const output = noiseBuffer.getChannelData(0);[cite: 1]
+      for (let i = 0; i < bufferSize; i++) output[i] = Math.random() * 2 - 1;[cite: 1]
 
-      const noise = audioCtx.createBufferSource();
-      noise.buffer = noiseBuffer;
-      const filter = audioCtx.createBiquadFilter();
-      filter.type = 'lowpass';
-      filter.frequency.setValueAtTime(1400, now);
-      filter.frequency.linearRampToValueAtTime(70, now + 0.9);
+      const noise = audioCtx.createBufferSource();[cite: 1]
+      noise.buffer = noiseBuffer;[cite: 1]
+      const filter = audioCtx.createBiquadFilter();[cite: 1]
+      filter.type = 'lowpass';[cite: 1]
+      filter.frequency.setValueAtTime(1400, now);[cite: 1]
+      filter.frequency.linearRampToValueAtTime(70, now + 0.9);[cite: 1]
 
-      const noiseGain = audioCtx.createGain();
-      noiseGain.gain.setValueAtTime(1.0, now);
-      noiseGain.gain.exponentialRampToValueAtTime(0.01, now + 0.9);
+      const noiseGain = audioCtx.createGain();[cite: 1]
+      noiseGain.gain.setValueAtTime(1.0, now);[cite: 1]
+      noiseGain.gain.exponentialRampToValueAtTime(0.01, now + 0.9);[cite: 1]
 
-      noise.connect(filter);
-      filter.connect(noiseGain);
-      noiseGain.connect(audioCtx.destination);
-      noise.start(now);
+      noise.connect(filter);[cite: 1]
+      filter.connect(noiseGain);[cite: 1]
+      noiseGain.connect(audioCtx.destination);[cite: 1]
+      noise.start(now);[cite: 1]
 
-      const subOsc = audioCtx.createOscillator();
-      const subGain = audioCtx.createGain();
-      subOsc.type = 'sine';
-      subOsc.frequency.setValueAtTime(170, now);
-      subOsc.frequency.exponentialRampToValueAtTime(20, now + 0.7);
+      const subOsc = audioCtx.createOscillator();[cite: 1]
+      const subGain = audioCtx.createGain();[cite: 1]
+      subOsc.type = 'sine';[cite: 1]
+      subOsc.frequency.setValueAtTime(170, now);[cite: 1]
+      subOsc.frequency.exponentialRampToValueAtTime(20, now + 0.7);[cite: 1]
 
-      subGain.gain.setValueAtTime(1.0, now);
-      subGain.gain.exponentialRampToValueAtTime(0.001, now + 0.7);
+      subGain.gain.setValueAtTime(1.0, now);[cite: 1]
+      subGain.gain.exponentialRampToValueAtTime(0.001, now + 0.7);[cite: 1]
 
-      subOsc.connect(subGain);
-      subGain.connect(audioCtx.destination);
-      subOsc.start(now);
-      subOsc.stop(now + 0.72);
+      subOsc.connect(subGain);[cite: 1]
+      subGain.connect(audioCtx.destination);[cite: 1]
+      subOsc.start(now);[cite: 1]
+      subOsc.stop(now + 0.72);[cite: 1]
     }
 
     function updateCPS() {
-      const now = performance.now();
-      clickTimestamps = clickTimestamps.filter(t => now - t <= 1000);
-      valCps.textContent = clickTimestamps.length.toFixed(1);
+      const now = performance.now();[cite: 1]
+      clickTimestamps = clickTimestamps.filter(t => now - t <= 1000);[cite: 1]
+      valCps.textContent = clickTimestamps.length.toFixed(1);[cite: 1]
     }
-    setInterval(updateCPS, 100);
+    setInterval(updateCPS, 100);[cite: 1]
 
     function getMultiplier() {
-      if (streak >= 250) return 6.0;
-      if (streak >= 100) return 4.0;
-      if (streak >= 50)  return 3.0;
-      if (streak >= 25)  return 2.0;
-      if (streak >= 10)  return 1.5;
-      return 1.0;
+      if (streak >= 250) return 6.0;[cite: 1]
+      if (streak >= 100) return 4.0;[cite: 1]
+      if (streak >= 50)  return 3.0;[cite: 1]
+      if (streak >= 25)  return 2.0;[cite: 1]
+      if (streak >= 10)  return 1.5;[cite: 1]
+      return 1.0;[cite: 1]
     }
 
     function getRankName() {
-      if (streak >= 250) return '🔥 FIERY GOD OF SPANK!';
-      if (streak >= 100) return '⚡ Thunder Slapper!';
-      if (streak >= 50)  return '💨 Speed Demon!';
-      if (streak >= 25)  return '✨ Spicy Streak!';
-      if (streak >= 10)  return 'Warmup';
-      return 'Cold Warmup';
+      if (streak >= 250) return '🔥 FIERY GOD OF SPANK!';[cite: 1]
+      if (streak >= 100) return '⚡ Thunder Slapper!';[cite: 1]
+      if (streak >= 50)  return '💨 Speed Demon!';[cite: 1]
+      if (streak >= 25)  return '✨ Spicy Streak!';[cite: 1]
+      if (streak >= 10)  return 'Warmup';[cite: 1]
+      return 'Cold Warmup';[cite: 1]
     }
 
     function resetStreakDecay() {
-      if (isMegaSpankActive) return;
+      if (isMegaSpankActive) return;[cite: 1]
 
-      clearTimeout(streakDecayTimer);
-      comboFill.style.transition = 'none';
-      comboFill.style.width = '100%';
+      clearTimeout(streakDecayTimer);[cite: 1]
+      comboFill.style.transition = 'none';[cite: 1]
+      comboFill.style.width = '100%';[cite: 1]
 
       requestAnimationFrame(() => {
-        comboFill.style.transition = `width ${STREAK_TIMEOUT_MS}ms linear`;
-        comboFill.style.width = '0%';
-      });
+        comboFill.style.transition = `width ${STREAK_TIMEOUT_MS}ms linear`;[cite: 1]
+        comboFill.style.width = '0%';[cite: 1]
+      });[cite: 1]
 
       streakDecayTimer = setTimeout(() => {
         if (!isMegaSpankActive) {
-          streak = 0;
-          updateUI();
+          streak = 0;[cite: 1]
+          updateUI();[cite: 1]
         }
-      }, STREAK_TIMEOUT_MS);
+      }, STREAK_TIMEOUT_MS);[cite: 1]
     }
 
     function updateUI() {
-      valScore.textContent = score;
-      valStreak.textContent = streak;
-      valHighStreak.textContent = highStreak;
+      valScore.textContent = score;[cite: 1]
+      valStreak.textContent = streak;[cite: 1]
+      valHighStreak.textContent = highStreak;[cite: 1]
 
-      const mult = getMultiplier();
-      multiplierText.textContent = `${mult.toFixed(1)}x Multiplier`;
-      comboRank.textContent = getRankName();
+      const mult = getMultiplier();[cite: 1]
+      multiplierText.textContent = `${mult.toFixed(1)}x Multiplier`;[cite: 1]
+      comboRank.textContent = getRankName();[cite: 1]
 
       if (streak === 0) {
-        comboFill.style.width = '0%';
+        comboFill.style.width = '0%';[cite: 1]
       }
     }
 
-    const COMIC_PHRASES = ['SLAP!', 'SMACK!', 'POW!', 'CLAP!', 'THWACK!', 'BAM!'];
+    const COMIC_PHRASES = ['SLAP!', 'SMACK!', 'POW!', 'CLAP!', 'THWACK!', 'BAM!'];[cite: 1]
 
     function createHitEffect(x, y, mult) {
-      const floatEl = document.createElement('div');
-      floatEl.className = 'float-text';
-      const phrase = COMIC_PHRASES[Math.floor(Math.random() * COMIC_PHRASES.length)];
-      floatEl.textContent = mult > 1 ? `${phrase} +${mult}` : phrase;
-      floatEl.style.left = `${x}px`;
-      floatEl.style.top = `${y}px`;
+      const floatEl = document.createElement('div');[cite: 1]
+      floatEl.className = 'float-text';[cite: 1]
+      const phrase = COMIC_PHRASES[Math.floor(Math.random() * COMIC_PHRASES.length)];[cite: 1]
+      floatEl.textContent = mult > 1 ? `${phrase} +${mult}` : phrase;[cite: 1]
+      floatEl.style.left = `${x}px`;[cite: 1]
+      floatEl.style.top = `${y}px`;[cite: 1]
 
-      const colors = ['#ffd60a', '#ff2a85', '#00f0ff', '#ff9ebb', '#ffffff'];
-      floatEl.style.color = colors[Math.floor(Math.random() * colors.length)];
-      floatEl.style.setProperty('--rot', `${(Math.random() - 0.5) * 36}deg`);
+      const colors = ['#ffd60a', '#ff2a85', '#00f0ff', '#ff9ebb', '#ffffff'];[cite: 1]
+      floatEl.style.color = colors[Math.floor(Math.random() * colors.length)];[cite: 1]
+      floatEl.style.setProperty('--rot', `${(Math.random() - 0.5) * 36}deg`);[cite: 1]
 
-      arena.appendChild(floatEl);
-      setTimeout(() => floatEl.remove(), 650);
+      arena.appendChild(floatEl);[cite: 1]
+      setTimeout(() => floatEl.remove(), 650);[cite: 1]
 
-      const burstHand = document.createElement('div');
-      burstHand.className = 'hand-burst';
-      burstHand.style.left = `${x}px`;
-      burstHand.style.top = `${y}px`;
-      burstHand.style.setProperty('--hand-rot', `${(Math.random() - 0.5) * 50}deg`);
+      const burstHand = document.createElement('div');[cite: 1]
+      burstHand.className = 'hand-burst';[cite: 1]
+      burstHand.style.left = `${x}px`;[cite: 1]
+      burstHand.style.top = `${y}px`;[cite: 1]
+      burstHand.style.setProperty('--hand-rot', `${(Math.random() - 0.5) * 50}deg`);[cite: 1]
 
       burstHand.innerHTML = `
         <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -1317,174 +1609,173 @@
                 fill="#ffd166" stroke="#e09f3e" stroke-width="4" stroke-linejoin="round"/>
           <path d="M 40 45 L 42 65 M 55 42 L 56 65 M 70 45 L 69 65" stroke="#e09f3e" stroke-width="3" stroke-linecap="round"/>
         </svg>
-      `;
-      arena.appendChild(burstHand);
-      setTimeout(() => burstHand.remove(), 320);
+      `;[cite: 1]
+      arena.appendChild(burstHand);[cite: 1]
+      setTimeout(() => burstHand.remove(), 320);[cite: 1]
     }
 
     /* -------------------------------------------------------------
        CINEMATIC MEGA SPANK (250 STREAKS)
     ------------------------------------------------------------- */
     function triggerMegaSpank() {
-      if (isMegaSpankActive) return;
-      isMegaSpankActive = true;
+      if (isMegaSpankActive) return;[cite: 1]
+      isMegaSpankActive = true;[cite: 1]
 
-      clearTimeout(streakDecayTimer);
-      comboFill.style.transition = 'none';
-      comboFill.style.width = '100%';
+      clearTimeout(streakDecayTimer);[cite: 1]
+      comboFill.style.transition = 'none';[cite: 1]
+      comboFill.style.width = '100%';[cite: 1]
 
-      megaHandContainer.classList.remove('mega-hand-strike');
-      void megaHandContainer.offsetWidth;
-      megaHandContainer.classList.add('mega-hand-strike');
+      megaHandContainer.classList.remove('mega-hand-strike');[cite: 1]
+      void megaHandContainer.offsetWidth;[cite: 1]
+      megaHandContainer.classList.add('mega-hand-strike');[cite: 1]
 
       setTimeout(() => {
-        screenFlash.classList.add('flashing');
-        setTimeout(() => screenFlash.classList.remove('flashing'), 280);
+        screenFlash.classList.add('flashing');[cite: 1]
+        setTimeout(() => screenFlash.classList.remove('flashing'), 280);[cite: 1]
 
-        document.body.classList.remove('camera-shake');
-        void document.body.offsetWidth;
-        document.body.classList.add('camera-shake');
+        document.body.classList.remove('camera-shake');[cite: 1]
+        void document.body.offsetWidth;[cite: 1]
+        document.body.classList.add('camera-shake');[cite: 1]
 
-        playMegaExplosionSound();
+        playMegaExplosionSound();[cite: 1]
 
-        megaBanner.textContent = `💥 ${streak || 250} STREAK MEGA SPANK! 💥`;
-        megaBanner.classList.remove('show');
-        void megaBanner.offsetWidth;
-        megaBanner.classList.add('show');
+        megaBanner.textContent = `💥 ${streak || 250} STREAK MEGA SPANK! 💥`;[cite: 1]
+        megaBanner.classList.remove('show');[cite: 1]
+        void megaBanner.offsetWidth;[cite: 1]
+        megaBanner.classList.add('show');[cite: 1]
 
-        shatterBooty();
+        shatterBooty();[cite: 1]
 
         setTimeout(() => {
-          dropNewBooty();
+          dropNewBooty();[cite: 1]
           setTimeout(() => {
-            isMegaSpankActive = false;
-            resetStreakDecay();
-          }, 950);
-        }, 600);
+            isMegaSpankActive = false;[cite: 1]
+            resetStreakDecay();[cite: 1]
+          }, 950);[cite: 1]
+        }, 600);[cite: 1]
 
-      }, 880);
+      }, 880);[cite: 1]
     }
 
     function shatterBooty() {
-      target.style.opacity = '0';
-      target.classList.remove('jiggle-left', 'jiggle-right', 'target-drop-in');
+      target.style.opacity = '0';[cite: 1]
+      target.classList.remove('jiggle-left', 'jiggle-right', 'target-drop-in');[cite: 1]
 
-      const rect = target.getBoundingClientRect();
-      const arenaRect = arena.getBoundingClientRect();
-      const centerX = rect.left - arenaRect.left + rect.width / 2;
-      const centerY = rect.top - arenaRect.top + rect.height / 2;
+      const rect = target.getBoundingClientRect();[cite: 1]
+      const arenaRect = arena.getBoundingClientRect();[cite: 1]
+      const centerX = rect.left - arenaRect.left + rect.width / 2;[cite: 1]
+      const centerY = rect.top - arenaRect.top + rect.height / 2;[cite: 1]
 
-      const shardColors = ['#ff9ebb', '#ff4d79', '#c9184a', '#ffd60a', '#ffffff', '#ff5722'];
+      const shardColors = ['#ff9ebb', '#ff4d79', '#c9184a', '#ffd60a', '#ffffff', '#ff5722'];[cite: 1]
       for (let i = 0; i < 25; i++) {
-        const shard = document.createElement('div');
-        shard.className = 'shattered-shard';
+        const shard = document.createElement('div');[cite: 1]
+        shard.className = 'shattered-shard';[cite: 1]
 
-        const size = Math.floor(Math.random() * 30) + 16;
-        shard.style.width = `${size}px`;
-        shard.style.height = `${size}px`;
-        shard.style.left = `${centerX + (Math.random() - 0.5) * 80}px`;
-        shard.style.top = `${centerY + (Math.random() - 0.5) * 80}px`;
+        const size = Math.floor(Math.random() * 30) + 16;[cite: 1]
+        shard.style.width = `${size}px`;[cite: 1]
+        shard.style.height = `${size}px`;[cite: 1]
+        shard.style.left = `${centerX + (Math.random() - 0.5) * 80}px`;[cite: 1]
+        shard.style.top = `${centerY + (Math.random() - 0.5) * 80}px`;[cite: 1]
 
-        const angle = Math.random() * Math.PI * 2;
-        const dist = Math.random() * 260 + 100;
-        const destX = Math.cos(angle) * dist;
-        const destY = Math.sin(angle) * dist + 100;
-        const rot = (Math.random() - 0.5) * 900;
+        const angle = Math.random() * Math.PI * 2;[cite: 1]
+        const dist = Math.random() * 260 + 100;[cite: 1]
+        const destX = Math.cos(angle) * dist;[cite: 1]
+        const destY = Math.sin(angle) * dist + 100;[cite: 1]
+        const rot = (Math.random() - 0.5) * 900;[cite: 1]
 
-        shard.style.setProperty('--dest-x', `${destX}px`);
-        shard.style.setProperty('--dest-y', `${destY}px`);
-        shard.style.setProperty('--dest-rot', `${rot}deg`);
+        shard.style.setProperty('--dest-x', `${destX}px`);[cite: 1]
+        shard.style.setProperty('--dest-y', `${destY}px`);[cite: 1]
+        shard.style.setProperty('--dest-rot', `${rot}deg`);[cite: 1]
 
-        const color = shardColors[Math.floor(Math.random() * shardColors.length)];
+        const color = shardColors[Math.floor(Math.random() * shardColors.length)];[cite: 1]
         shard.innerHTML = `
           <svg viewBox="0 0 30 30" width="100%" height="100%">
             <polygon points="${Math.random()*10},${Math.random()*10} ${Math.random()*20+10},0 ${Math.random()*30},${Math.random()*20+10} 0,${Math.random()*20+10}" fill="${color}" stroke="#590d22" stroke-width="2.5"/>
           </svg>
-        `;
+        `;[cite: 1]
 
-        arena.appendChild(shard);
-        setTimeout(() => shard.remove(), 1400);
+        arena.appendChild(shard);[cite: 1]
+        setTimeout(() => shard.remove(), 1400);[cite: 1]
       }
     }
 
     function dropNewBooty() {
-      target.style.opacity = '1';
-      target.classList.remove('target-drop-in');
-      void target.offsetWidth;
-      target.classList.add('target-drop-in');
+      target.style.opacity = '1';[cite: 1]
+      target.classList.remove('target-drop-in');[cite: 1]
+      void target.offsetWidth;[cite: 1]
+      target.classList.add('target-drop-in');[cite: 1]
     }
 
     /* -------------------------------------------------------------
        TOUCH / CLICK CONTROLLER
     ------------------------------------------------------------- */
     function handleSpank(e) {
-      e.preventDefault();
-      if (isMegaSpankActive) return;
+      e.preventDefault();[cite: 1]
+      if (isMegaSpankActive) return;[cite: 1]
 
-      clickTimestamps.push(performance.now());
+      clickTimestamps.push(performance.now());[cite: 1]
 
-      streak++;
-      if (streak > highStreak) highStreak = streak;
+      streak++;[cite: 1]
+      if (streak > highStreak) highStreak = streak;[cite: 1]
 
-      const mult = getMultiplier();
-      score += Math.round(1 * mult);
-      if (score > highScore) highScore = score;
+      const mult = getMultiplier();[cite: 1]
+      score += Math.round(1 * mult);[cite: 1]
+      if (score > highScore) highScore = score;[cite: 1]
 
-      // Sync metrics live to Cloud JSON
-      recordPlayerMetrics(highStreak, highScore);
+      recordPlayerMetrics(highStreak, highScore);[cite: 1]
 
       if (streak > 0 && streak % 250 === 0) {
-        triggerMegaSpank();
+        triggerMegaSpank();[cite: 1]
       } else {
-        lastClickSide = lastClickSide === 'left' ? 'right' : 'left';
-        target.classList.remove('jiggle-left', 'jiggle-right', 'target-drop-in');
-        void target.offsetWidth;
-        target.classList.add(lastClickSide === 'left' ? 'jiggle-left' : 'jiggle-right');
+        lastClickSide = lastClickSide === 'left' ? 'right' : 'left';[cite: 1]
+        target.classList.remove('jiggle-left', 'jiggle-right', 'target-drop-in');[cite: 1]
+        void target.offsetWidth;[cite: 1]
+        target.classList.add(lastClickSide === 'left' ? 'jiggle-left' : 'jiggle-right');[cite: 1]
 
-        playSlapSound(mult > 1.5);
+        playSlapSound(mult > 1.5);[cite: 1]
 
-        const rect = arena.getBoundingClientRect();
-        let clientX = e.clientX;
-        let clientY = e.clientY;
+        const rect = arena.getBoundingClientRect();[cite: 1]
+        let clientX = e.clientX;[cite: 1]
+        let clientY = e.clientY;[cite: 1]
 
         if (e.touches && e.touches.length > 0) {
-          clientX = e.touches[0].clientX;
-          clientY = e.touches[0].clientY;
+          clientX = e.touches[0].clientX;[cite: 1]
+          clientY = e.touches[0].clientY;[cite: 1]
         } else if (!clientX) {
-          clientX = rect.left + rect.width / 2;
-          clientY = rect.top + rect.height / 2;
+          clientX = rect.left + rect.width / 2;[cite: 1]
+          clientY = rect.top + rect.height / 2;[cite: 1]
         }
 
-        const x = clientX - rect.left;
-        const y = clientY - rect.top;
-        createHitEffect(x, y, mult);
+        const x = clientX - rect.left;[cite: 1]
+        const y = clientY - rect.top;[cite: 1]
+        createHitEffect(x, y, mult);[cite: 1]
       }
 
-      resetStreakDecay();
-      updateUI();
+      resetStreakDecay();[cite: 1]
+      updateUI();[cite: 1]
     }
 
-    target.addEventListener('pointerdown', handleSpank);
+    target.addEventListener('pointerdown', handleSpank);[cite: 1]
 
     /* -------------------------------------------------------------
        CONTROLS
     ------------------------------------------------------------- */
     btnSound.addEventListener('click', () => {
-      soundEnabled = !soundEnabled;
-      btnSound.textContent = soundEnabled ? '🔊 Sound: ON' : '🔇 Sound: OFF';
-    });
+      soundEnabled = !soundEnabled;[cite: 1]
+      btnSound.textContent = soundEnabled ? '🔊 Sound: ON' : '🔇 Sound: OFF';[cite: 1]
+    });[cite: 1]
 
     btnTestMega.addEventListener('click', () => {
       if (!isMegaSpankActive) {
-        streak = Math.max(streak, 250);
-        updateUI();
-        triggerMegaSpank();
+        streak = Math.max(streak, 250);[cite: 1]
+        updateUI();[cite: 1]
+        triggerMegaSpank();[cite: 1]
       }
-    });
+    });[cite: 1]
 
-    // Start
-    checkIntro();
-    updateUI();
+    // Initialize
+    checkIntro();[cite: 1]
+    updateUI();[cite: 1]
   </script>
 </body>
 </html>
