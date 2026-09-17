@@ -1,0 +1,2011 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Spank Master CPS - GitHub Repository Sync</title>
+  <style>
+    :root {
+      --bg-dark: #0f0c1b;
+      --card-bg: rgba(26, 22, 45, 0.88);
+      --accent-pink: #ff2a85;
+      --accent-purple: #9d4edd;
+      --accent-cyan: #00f0ff;
+      --accent-gold: #ffd60a;
+      --accent-fire: #ff4500;
+      --accent-green: #00ff88;
+      --text-main: #f8f9fa;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+      -webkit-user-select: none;
+      touch-action: manipulation;
+    }
+
+    body {
+      min-height: 100vh;
+      background: radial-gradient(circle at 50% 30%, #25163f, var(--bg-dark));
+      color: var(--text-main);
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    body.camera-shake {
+      animation: screenRumble 0.5s cubic-bezier(.36,.07,.19,.97) both;
+    }
+
+    @keyframes screenRumble {
+      10%, 90% { transform: translate3d(-3px, 2px, 0); }
+      20%, 80% { transform: translate3d(5px, -4px, 0); }
+      30%, 50%, 70% { transform: translate3d(-6px, 6px, 0); }
+      40%, 60% { transform: translate3d(6px, -5px, 0); }
+    }
+
+    #screenFlash {
+      position: fixed;
+      inset: 0;
+      background: radial-gradient(circle, #ffffff 15%, #ff7700 70%, transparent 100%);
+      opacity: 0;
+      pointer-events: none;
+      z-index: 200;
+      transition: opacity 0.35s ease-out;
+    }
+    #screenFlash.flashing {
+      opacity: 0.95;
+      transition: none;
+    }
+
+    /* Intro Modal */
+    #introOverlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(10, 8, 20, 0.94);
+      backdrop-filter: blur(16px);
+      z-index: 300;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    #introOverlay.hidden {
+      display: none !important;
+    }
+
+    .intro-card {
+      background: var(--card-bg);
+      border: 1px solid rgba(255, 42, 133, 0.35);
+      border-radius: 20px;
+      padding: 28px 22px;
+      max-width: 420px;
+      width: 100%;
+      text-align: center;
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.7), 0 0 30px rgba(255, 42, 133, 0.25);
+    }
+
+    .intro-title {
+      font-size: 1.9rem;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      background: linear-gradient(90deg, var(--accent-pink), var(--accent-gold));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 6px;
+    }
+
+    .intro-desc {
+      font-size: 0.88rem;
+      color: #b3aeca;
+      margin-bottom: 20px;
+      line-height: 1.4;
+    }
+
+    .name-input-group {
+      margin-bottom: 14px;
+      text-align: left;
+    }
+
+    .name-input-group label {
+      font-size: 0.76rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      font-weight: 700;
+      color: var(--accent-cyan);
+      display: block;
+      margin-bottom: 6px;
+    }
+
+    .name-input {
+      width: 100%;
+      background: rgba(15, 12, 27, 0.95);
+      border: 2px solid rgba(255, 255, 255, 0.15);
+      border-radius: 12px;
+      padding: 12px 14px;
+      color: #fff;
+      font-size: 1rem;
+      font-weight: 700;
+      outline: none;
+      transition: all 0.2s ease;
+      user-select: auto;
+      -webkit-user-select: auto;
+    }
+
+    .name-input:focus {
+      border-color: var(--accent-pink);
+      box-shadow: 0 0 15px rgba(255, 42, 133, 0.4);
+    }
+
+    .dev-checkbox-container {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin: 14px 0;
+      padding: 10px 12px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 214, 10, 0.25);
+      border-radius: 10px;
+      cursor: pointer;
+    }
+
+    .dev-checkbox-container input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      accent-color: var(--accent-gold);
+      cursor: pointer;
+    }
+
+    .dev-checkbox-label {
+      font-size: 0.85rem;
+      font-weight: 800;
+      color: var(--accent-gold);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .dev-password-group {
+      display: none;
+      margin-bottom: 16px;
+      text-align: left;
+      animation: fadeIn 0.25s ease-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .btn-start {
+      width: 100%;
+      background: linear-gradient(90deg, var(--accent-pink), var(--accent-fire));
+      color: #fff;
+      border: none;
+      padding: 14px;
+      border-radius: 12px;
+      font-size: 1.05rem;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      cursor: pointer;
+      box-shadow: 0 6px 20px rgba(255, 42, 133, 0.4);
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+      margin-top: 4px;
+    }
+
+    .btn-start:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(255, 42, 133, 0.6);
+    }
+
+    /* Layout */
+    .app-layout {
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 16px;
+      position: relative;
+    }
+
+    @media (min-width: 960px) {
+      .app-layout {
+        flex-direction: row;
+        gap: 24px;
+        align-items: stretch;
+      }
+    }
+
+    .game-section {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: space-between;
+      min-width: 0;
+    }
+
+    .player-badge {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: rgba(255, 255, 255, 0.06);
+      padding: 6px 14px;
+      border-radius: 99px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      margin-bottom: 8px;
+      font-size: 0.85rem;
+    }
+
+    .player-badge strong {
+      color: var(--accent-cyan);
+    }
+
+    .btn-edit-name {
+      background: transparent;
+      border: none;
+      color: #a09cb0;
+      cursor: pointer;
+      font-size: 0.75rem;
+      text-decoration: underline;
+      padding: 0 4px;
+    }
+
+    .btn-admin-gear {
+      background: linear-gradient(90deg, #ff2a85, #ff4500);
+      color: #fff;
+      border: 1px solid #ffd60a;
+      border-radius: 99px;
+      padding: 3px 10px;
+      font-size: 0.75rem;
+      font-weight: 800;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      box-shadow: 0 0 10px rgba(255, 42, 133, 0.5);
+    }
+
+    header {
+      text-align: center;
+    }
+
+    h1 {
+      font-size: 2.1rem;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      background: linear-gradient(90deg, var(--accent-pink), var(--accent-gold), var(--accent-fire));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      text-shadow: 0 0 25px rgba(255, 69, 0, 0.4);
+    }
+
+    .subtitle {
+      font-size: 0.88rem;
+      color: #a09cb0;
+      margin-top: 4px;
+    }
+
+    .dashboard {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+      width: 100%;
+      max-width: 580px;
+      margin: 12px 0 6px 0;
+    }
+
+    .stat-card {
+      background: var(--card-bg);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      padding: 8px 4px;
+      text-align: center;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .stat-card::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--accent-pink), var(--accent-purple));
+    }
+
+    .stat-label {
+      font-size: 0.68rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: #9d96b8;
+      font-weight: 700;
+    }
+
+    .stat-value {
+      font-size: 1.4rem;
+      font-weight: 800;
+      margin-top: 2px;
+      color: #fff;
+    }
+
+    .stat-value.highlight {
+      color: var(--accent-gold);
+    }
+
+    .btn-show-leaderboard {
+      width: 100%;
+      max-width: 580px;
+      background: linear-gradient(90deg, rgba(255, 214, 10, 0.15), rgba(255, 42, 133, 0.15));
+      border: 1px solid rgba(255, 214, 10, 0.45);
+      color: var(--accent-gold);
+      padding: 10px 16px;
+      border-radius: 12px;
+      font-size: 0.88rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      cursor: pointer;
+      margin: 4px 0 10px 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      box-shadow: 0 4px 15px rgba(255, 214, 10, 0.15);
+      transition: all 0.2s ease;
+    }
+
+    .btn-show-leaderboard:hover {
+      background: linear-gradient(90deg, rgba(255, 214, 10, 0.25), rgba(255, 42, 133, 0.25));
+      border-color: var(--accent-gold);
+      transform: translateY(-1px);
+    }
+
+    .btn-show-leaderboard .pulse-dot {
+      width: 8px;
+      height: 8px;
+      background: var(--accent-green);
+      border-radius: 50%;
+      box-shadow: 0 0 8px var(--accent-green);
+      animation: pulse 1.5s infinite;
+    }
+
+    @keyframes pulse {
+      0% { opacity: 0.4; transform: scale(0.8); }
+      50% { opacity: 1; transform: scale(1.2); }
+      100% { opacity: 0.4; transform: scale(0.8); }
+    }
+
+    /* Arena */
+    .arena {
+      position: relative;
+      width: 100%;
+      max-width: 380px;
+      height: 320px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: auto 0;
+      overflow: visible;
+    }
+
+    .target-wrapper {
+      position: relative;
+      cursor: pointer;
+      transform-origin: center bottom;
+      transition: transform 0.05s ease;
+      z-index: 5;
+    }
+
+    .target-wrapper:active {
+      transform: scale(0.96);
+    }
+
+    .hand-burst {
+      position: absolute;
+      pointer-events: none;
+      width: 100px;
+      height: 100px;
+      z-index: 25;
+      opacity: 0;
+      animation: handBurstAnim 0.32s ease-out forwards;
+      filter: drop-shadow(0 0 12px var(--accent-pink));
+    }
+
+    @keyframes handBurstAnim {
+      0% { opacity: 1; transform: translate(-50%, -50%) scale(0.8) rotate(var(--hand-rot, 0deg)); }
+      35% { opacity: 1; transform: translate(-50%, -50%) scale(1.15) rotate(var(--hand-rot, 0deg)) translate(-6px, 6px); }
+      100% { opacity: 0; transform: translate(-50%, -50%) scale(1.5) rotate(var(--hand-rot, 0deg)) translate(0px, -20px); }
+    }
+
+    .float-text {
+      position: absolute;
+      font-weight: 900;
+      font-size: 1.25rem;
+      pointer-events: none;
+      animation: floatUp 0.65s cubic-bezier(0.18, 0.89, 0.32, 1.28) forwards;
+      z-index: 30;
+      text-shadow: 0 2px 8px rgba(0,0,0,0.8);
+    }
+
+    @keyframes floatUp {
+      0% { opacity: 1; transform: translate(-50%, 0) scale(0.8) rotate(var(--rot, 0deg)); }
+      100% { opacity: 0; transform: translate(-50%, -90px) scale(1.4) rotate(var(--rot, 0deg)); }
+    }
+
+    .jiggle-left { animation: jiggleL 0.2s ease-out; }
+    .jiggle-right { animation: jiggleR 0.2s ease-out; }
+
+    @keyframes jiggleL {
+      0% { transform: scale(1, 1); }
+      30% { transform: scale(1.18, 0.86) rotate(-5deg) translate(-8px, 4px); }
+      60% { transform: scale(0.92, 1.08) rotate(3deg) translate(4px, -2px); }
+      100% { transform: scale(1, 1) rotate(0deg); }
+    }
+    @keyframes jiggleR {
+      0% { transform: scale(1, 1); }
+      30% { transform: scale(1.18, 0.86) rotate(5deg) translate(8px, 4px); }
+      60% { transform: scale(0.92, 1.08) rotate(-3deg) translate(-4px, -2px); }
+      100% { transform: scale(1, 1) rotate(0deg); }
+    }
+
+    .mega-hand-container {
+      position: absolute;
+      top: -380px;
+      right: -320px;
+      width: 320px;
+      height: 320px;
+      pointer-events: none;
+      z-index: 80;
+      opacity: 0;
+      filter: drop-shadow(0 0 25px #ff2a00) drop-shadow(0 0 55px #ff9900) drop-shadow(0 0 90px #ff0055);
+      transform-origin: center center;
+    }
+
+    .mega-hand-strike {
+      animation: cinematicMegaStrike 1.15s cubic-bezier(0.25, 1, 0.3, 1) forwards;
+    }
+
+    @keyframes cinematicMegaStrike {
+      0% { opacity: 0; transform: translate(280px, -280px) rotate(65deg) scale(3.2); }
+      25% { opacity: 1; transform: translate(130px, -130px) rotate(42deg) scale(2.4); }
+      65% { opacity: 1; transform: translate(25px, -15px) rotate(22deg) scale(1.9); }
+      78% { opacity: 1; transform: translate(-170px, 145px) rotate(-14deg) scale(1.4); }
+      88% { opacity: 1; transform: translate(-195px, 165px) rotate(-20deg) scale(1.25); }
+      100% { opacity: 0; transform: translate(-240px, 195px) rotate(-25deg) scale(1.05); }
+    }
+
+    .shattered-shard {
+      position: absolute;
+      pointer-events: none;
+      z-index: 40;
+      animation: slowShardFly 1.4s cubic-bezier(0.12, 0.85, 0.28, 1) forwards;
+    }
+
+    @keyframes slowShardFly {
+      0% { opacity: 1; transform: translate(0, 0) scale(1.3) rotate(0deg); }
+      100% { opacity: 0; transform: translate(var(--dest-x), var(--dest-y)) scale(0.1) rotate(var(--dest-rot)); }
+    }
+
+    .target-drop-in {
+      animation: slowDropFromSky 0.95s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+    }
+
+    @keyframes slowDropFromSky {
+      0% { opacity: 0; transform: translateY(-500px) scale(0.5, 1.7); }
+      55% { opacity: 1; transform: translateY(28px) scale(1.45, 0.55); }
+      72% { transform: translateY(-16px) scale(0.9, 1.15); }
+      88% { transform: translateY(6px) scale(1.06, 0.95); }
+      100% { opacity: 1; transform: translateY(0px) scale(1, 1); }
+    }
+
+    .mega-banner {
+      position: absolute;
+      top: 38%;
+      left: 50%;
+      transform: translate(-50%, -50%) scale(0.4);
+      font-size: 2.1rem;
+      font-weight: 900;
+      color: #fff;
+      text-transform: uppercase;
+      letter-spacing: 3px;
+      text-align: center;
+      background: linear-gradient(180deg, #ffe600, #ff0055);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      text-shadow: 0 0 35px rgba(255, 69, 0, 0.95);
+      pointer-events: none;
+      z-index: 90;
+      opacity: 0;
+      white-space: nowrap;
+    }
+
+    .mega-banner.show {
+      animation: bannerPopup 1.8s cubic-bezier(0.18, 0.89, 0.32, 1.28) forwards;
+    }
+
+    @keyframes bannerPopup {
+      0% { opacity: 0; transform: translate(-50%, -50%) scale(0.3) rotate(-8deg); }
+      20% { opacity: 1; transform: translate(-50%, -50%) scale(1.2) rotate(3deg); }
+      40% { transform: translate(-50%, -50%) scale(1) rotate(0deg); }
+      80% { opacity: 1; transform: translate(-50%, -50%) scale(1.05); }
+      100% { opacity: 0; transform: translate(-50%, -90px) scale(0.7); }
+    }
+
+    .combo-bar-container {
+      width: 100%;
+      max-width: 420px;
+      margin-bottom: 12px;
+    }
+
+    .combo-header {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.82rem;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+
+    .combo-rank {
+      color: var(--accent-cyan);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .combo-track {
+      width: 100%;
+      height: 9px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 99px;
+      overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .combo-fill {
+      width: 0%;
+      height: 100%;
+      background: linear-gradient(90deg, var(--accent-purple), var(--accent-pink), var(--accent-gold));
+      box-shadow: 0 0 10px var(--accent-pink);
+      transition: width 0.08s linear;
+    }
+
+    .controls {
+      display: flex;
+      gap: 10px;
+      margin-top: 6px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    button.btn-pill {
+      background: rgba(255, 255, 255, 0.08);
+      color: #fff;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      padding: 9px 16px;
+      border-radius: 10px;
+      font-weight: 700;
+      font-size: 0.82rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      letter-spacing: 0.5px;
+    }
+
+    button.btn-pill:hover {
+      background: rgba(255, 255, 255, 0.18);
+      border-color: rgba(255, 255, 255, 0.3);
+      transform: translateY(-1px);
+    }
+
+    .btn-test {
+      background: linear-gradient(90deg, #ff4500, #ff2a85) !important;
+      border-color: #ffd60a !important;
+    }
+
+    /* Leaderboard Drawer */
+    .leaderboard-container {
+      background: var(--card-bg);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 18px;
+      padding: 18px;
+      backdrop-filter: blur(12px);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+      display: flex;
+      flex-direction: column;
+    }
+
+    @media (min-width: 960px) {
+      .leaderboard-container {
+        width: 350px;
+        min-height: 540px;
+      }
+      .lb-close-btn {
+        display: none !important;
+      }
+    }
+
+    @media (max-width: 959px) {
+      .leaderboard-container {
+        position: fixed;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        max-height: 85vh;
+        z-index: 250;
+        border-bottom-left-radius: 0;
+        border-bottom-right-radius: 0;
+        box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.8);
+        border: 1px solid rgba(255, 42, 133, 0.4);
+        transform: translateY(110%);
+        transition: transform 0.3s cubic-bezier(0.1, 0.9, 0.2, 1);
+      }
+
+      .leaderboard-container.mobile-open {
+        transform: translateY(0%);
+      }
+
+      .mobile-backdrop {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.7);
+        backdrop-filter: blur(4px);
+        z-index: 240;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.3s ease;
+      }
+
+      .mobile-backdrop.active {
+        opacity: 1;
+        pointer-events: auto;
+      }
+    }
+
+    .lb-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      padding-bottom: 12px;
+      margin-bottom: 12px;
+      gap: 6px;
+    }
+
+    .lb-title {
+      font-size: 1.05rem;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--accent-gold);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .lb-sync-badge {
+      font-size: 0.7rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      background: rgba(0, 255, 136, 0.12);
+      color: var(--accent-green);
+      border-radius: 99px;
+      padding: 3px 8px;
+      font-weight: 700;
+      border: 1px solid rgba(0, 255, 136, 0.3);
+    }
+
+    .lb-close-btn {
+      background: rgba(255, 255, 255, 0.1);
+      border: none;
+      color: #fff;
+      padding: 6px 12px;
+      border-radius: 8px;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    .lb-list {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      max-height: 480px;
+      overflow-y: auto;
+      padding-right: 4px;
+    }
+
+    .lb-empty {
+      text-align: center;
+      padding: 35px 10px;
+      color: #8c889f;
+      font-size: 0.88rem;
+      line-height: 1.6;
+    }
+
+    .lb-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 12px;
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      font-size: 0.85rem;
+      transition: all 0.2s ease;
+    }
+
+    .lb-row.active-user {
+      background: rgba(255, 42, 133, 0.18);
+      border-color: var(--accent-pink);
+      box-shadow: 0 0 10px rgba(255, 42, 133, 0.3);
+    }
+
+    .lb-rank {
+      width: 24px;
+      font-weight: 900;
+      color: #9d96b8;
+    }
+
+    .lb-rank.rank-1 { color: #ffd700; font-size: 1.05rem; }
+    .lb-rank.rank-2 { color: #e0e0e0; font-size: 1rem; }
+    .lb-rank.rank-3 { color: #cd7f32; font-size: 0.95rem; }
+
+    .lb-name {
+      flex: 1;
+      font-weight: 700;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      margin: 0 8px;
+      color: #f1f1f1;
+    }
+
+    .lb-stats {
+      text-align: right;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+    }
+
+    .lb-streak {
+      color: var(--accent-gold);
+      font-weight: 800;
+      font-size: 0.85rem;
+    }
+
+    .lb-subscore {
+      font-size: 0.68rem;
+      color: #8c889f;
+    }
+
+    /* Admin Panel Modal */
+    #adminOverlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(10, 8, 20, 0.94);
+      backdrop-filter: blur(14px);
+      z-index: 350;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+
+    #adminOverlay.hidden {
+      display: none !important;
+    }
+
+    .admin-card {
+      background: var(--card-bg);
+      border: 1px solid var(--accent-pink);
+      border-radius: 18px;
+      padding: 20px 18px;
+      max-width: 480px;
+      width: 100%;
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.8), 0 0 25px rgba(255, 42, 133, 0.4);
+      display: flex;
+      flex-direction: column;
+      max-height: 88vh;
+    }
+
+    .admin-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      padding-bottom: 8px;
+    }
+
+    .admin-header h3 {
+      color: var(--accent-gold);
+      font-size: 1.15rem;
+      font-weight: 900;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      text-transform: uppercase;
+    }
+
+    .admin-close {
+      background: rgba(255, 255, 255, 0.1);
+      color: #fff;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 8px;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    .admin-tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .admin-tab-btn {
+      flex: 1;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: #ddd;
+      padding: 8px;
+      border-radius: 8px;
+      font-weight: 800;
+      font-size: 0.78rem;
+      cursor: pointer;
+    }
+
+    .admin-tab-btn.active {
+      background: var(--accent-pink);
+      color: #fff;
+      border-color: var(--accent-pink);
+    }
+
+    .admin-player-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      overflow-y: auto;
+      margin-bottom: 12px;
+      padding-right: 4px;
+    }
+
+    .admin-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 10px;
+      padding: 8px 12px;
+      gap: 8px;
+    }
+
+    .admin-player-info {
+      flex: 1;
+      overflow: hidden;
+    }
+
+    .admin-player-name {
+      font-weight: 800;
+      font-size: 0.88rem;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      overflow: hidden;
+      color: #fff;
+    }
+
+    .admin-player-metrics {
+      font-size: 0.72rem;
+      color: #9d96b8;
+    }
+
+    .admin-row-actions {
+      display: flex;
+      gap: 6px;
+    }
+
+    .btn-admin-action {
+      border: none;
+      border-radius: 6px;
+      padding: 6px 10px;
+      font-size: 0.75rem;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    .btn-admin-edit {
+      background: var(--accent-cyan);
+      color: #000;
+    }
+
+    .btn-admin-del {
+      background: #441824;
+      color: #ff4d6d;
+      border: 1px solid #ff4d6d;
+    }
+
+    .repo-config-group {
+      display: none;
+      flex-direction: column;
+      gap: 10px;
+      overflow-y: auto;
+      margin-bottom: 12px;
+      text-align: left;
+    }
+
+    .repo-field label {
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--accent-cyan);
+      text-transform: uppercase;
+      display: block;
+      margin-bottom: 4px;
+    }
+
+    .repo-field input {
+      width: 100%;
+      background: rgba(0, 0, 0, 0.4);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 8px;
+      padding: 10px;
+      color: #fff;
+      font-size: 0.85rem;
+      outline: none;
+    }
+
+    .btn-wipe-all {
+      width: 100%;
+      background: linear-gradient(90deg, #880022, #d80032);
+      border: 1px solid #ff4d6d;
+      color: #fff;
+      padding: 10px;
+      border-radius: 10px;
+      font-weight: 900;
+      font-size: 0.82rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      cursor: pointer;
+      margin-top: 4px;
+    }
+  </style>
+</head>
+<body>
+
+  <div id="screenFlash"></div>
+  <div class="mobile-backdrop" id="mobileBackdrop" onclick="closeLeaderboard()"></div>
+
+  <!-- INTRO POPUP -->
+  <div id="introOverlay">
+    <div class="intro-card">
+      <div class="intro-title">Spank Master CPS</div>
+      <p class="intro-desc">Enter your Spanker tag to begin. Leaderboard scores sync directly with the repository JSON file.</p>
+      
+      <form id="introForm" onsubmit="startGame(event)">
+        <div class="name-input-group">
+          <label for="playerNameInput">Spanker Tag / Name</label>
+          <input 
+            type="text" 
+            id="playerNameInput" 
+            class="name-input" 
+            placeholder="e.g. ThunderCheeks" 
+            maxlength="14" 
+            required 
+            autocomplete="off" 
+          />
+        </div>
+
+        <!-- Developer Checkbox -->
+        <label class="dev-checkbox-container" for="devCheckbox">
+          <input type="checkbox" id="devCheckbox" onchange="toggleDevPasswordField()" />
+          <span class="dev-checkbox-label">Developer</span>
+        </label>
+
+        <!-- Developer Password (Revealed on checkbox click) -->
+        <div class="name-input-group dev-password-group" id="devPasswordGroup">
+          <label for="devPasswordInput" style="color:var(--accent-gold);">Developer Passkey</label>
+          <input 
+            type="password" 
+            id="devPasswordInput" 
+            class="name-input" 
+            placeholder="Enter passkey..." 
+            autocomplete="off" 
+          />
+        </div>
+
+        <button type="submit" class="btn-start">⚡ Enter the Arena</button>
+      </form>
+    </div>
+  </div>
+
+  <div class="app-layout">
+    
+    <!-- MAIN GAME SECTION -->
+    <main class="game-section">
+      
+      <div class="player-badge">
+        <span>Player: <strong id="activePlayerTag">Guest</strong></span>
+        <button class="btn-edit-name" onclick="openNamePrompt()">[Change Name]</button>
+        <!-- Gear icon exclusive to authenticated developers -->
+        <button class="btn-admin-gear" id="adminGearBtn" style="display:none;" onclick="openAdminPanel()">⚙️ Admin</button>
+      </div>
+
+      <header>
+        <h1>Spank Master CPS</h1>
+        <div class="subtitle">Reach a 250-streak for the cinematic Mega Spank!</div>
+      </header>
+
+      <!-- 4 Score Tabs -->
+      <div class="dashboard">
+        <div class="stat-card">
+          <div class="stat-label">Score</div>
+          <div class="stat-value" id="val-score">0</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">SPS (CPS)</div>
+          <div class="stat-value highlight" id="val-cps">0.0</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Streak</div>
+          <div class="stat-value" id="val-streak">0</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Best Streak</div>
+          <div class="stat-value highlight" id="val-high-streak">0</div>
+        </div>
+      </div>
+
+      <!-- SHOW LEADERBOARD BUTTON -->
+      <button class="btn-show-leaderboard" id="btnShowLeaderboard" onclick="openLeaderboard()">
+        <span class="pulse-dot"></span>
+        🏆 Show Leaderboard (Top 10)
+      </button>
+
+      <!-- Arena -->
+      <div class="arena" id="arena">
+        <div class="target-wrapper" id="target">
+          <svg width="250" height="230" viewBox="0 0 260 240" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <radialGradient id="buttGrad" cx="50%" cy="40%" r="65%">
+                <stop offset="0%" stop-color="#ff9ebb" />
+                <stop offset="55%" stop-color="#ff4d79" />
+                <stop offset="100%" stop-color="#c9184a" />
+              </radialGradient>
+              <filter id="softGlow" x="-20%" y="-20%" width="140%" height="140%">
+                <feDropShadow dx="0" dy="8" stdDeviation="12" flood-color="#ff2a85" flood-opacity="0.35"/>
+              </filter>
+            </defs>
+
+            <g filter="url(#softGlow)">
+              <path d="M 130 50 C 90 20, 20 50, 20 120 C 20 185, 75 225, 128 220 C 130 180, 130 110, 130 50 Z" 
+                    fill="url(#buttGrad)" stroke="#590d22" stroke-width="4" stroke-linejoin="round" />
+              <path d="M 130 50 C 170 20, 240 50, 240 120 C 240 185, 185 225, 132 220 C 130 180, 130 110, 130 50 Z" 
+                    fill="url(#buttGrad)" stroke="#590d22" stroke-width="4" stroke-linejoin="round" />
+              <path d="M 130 75 C 130 125, 130 175, 130 215" stroke="#590d22" stroke-width="4" stroke-linecap="round" opacity="0.6"/>
+              <ellipse cx="75" cy="115" rx="30" ry="18" transform="rotate(-30 75 115)" fill="#ffffff" opacity="0.32" />
+              <ellipse cx="185" cy="115" rx="30" ry="18" transform="rotate(30 185 115)" fill="#ffffff" opacity="0.32" />
+              <path d="M 40 70 C 95 90, 165 90, 220 70" stroke="#ffd60a" stroke-width="6" stroke-linecap="round" opacity="0.85"/>
+            </g>
+          </svg>
+        </div>
+
+        <!-- Mega Hand -->
+        <div class="mega-hand-container" id="megaHandContainer">
+          <svg viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:100%; height:100%;">
+            <defs>
+              <linearGradient id="fireGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#ffffff" />
+                <stop offset="25%" stop-color="#ffee55" />
+                <stop offset="60%" stop-color="#ff4400" />
+                <stop offset="100%" stop-color="#880000" />
+              </linearGradient>
+            </defs>
+            <path d="M 40 140 C 15 120, -10 80, 10 50 C 20 70, 30 70, 35 40 C 45 65, 55 50, 60 25 C 75 55, 85 45, 95 15 C 110 50, 125 40, 135 25 C 145 55, 165 60, 185 40 C 180 75, 195 95, 175 130 C 190 150, 180 180, 150 185 C 130 190, 70 190, 40 140 Z" fill="url(#fireGrad)" opacity="0.85" />
+            <path d="M 50 135 C 35 120, 35 90, 60 75 C 70 68, 85 72, 90 82 C 93 66, 112 66, 117 80 C 123 68, 140 74, 140 89 C 146 80, 158 89, 154 107 C 146 142, 105 165, 75 158 Z" fill="#ffe8a3" stroke="#d84a00" stroke-width="5" stroke-linejoin="round"/>
+            <path d="M 68 100 L 71 130 M 90 95 L 92 130 M 114 100 L 112 130" stroke="#d84a00" stroke-width="4" stroke-linecap="round"/>
+          </svg>
+        </div>
+
+        <div class="mega-banner" id="megaBanner">💥 250 STREAK MEGA SPANK! 💥</div>
+      </div>
+
+      <!-- Combo Bar -->
+      <div class="combo-bar-container">
+        <div class="combo-header">
+          <span class="combo-rank" id="comboRank">Cold Warmup</span>
+          <span id="multiplierText">1.0x Multiplier</span>
+        </div>
+        <div class="combo-track">
+          <div class="combo-fill" id="comboFill"></div>
+        </div>
+      </div>
+
+      <!-- Controls -->
+      <div class="controls">
+        <button id="btnSound" class="btn-pill">🔊 Sound: ON</button>
+        <button id="btnTestMega" class="btn-pill btn-test">🔥 Test Mega</button>
+      </div>
+    </main>
+
+    <!-- LEADERBOARD ASIDE -->
+    <aside class="leaderboard-container" id="leaderboardBox">
+      <div class="lb-header">
+        <div class="lb-title">🏆 Top 10 Spankers</div>
+        <div class="lb-sync-badge" id="syncBadge">● Repo Sync</div>
+        <button class="btn-admin-gear" id="lbAdminBtn" style="display:none;" onclick="openAdminPanel()">⚙️</button>
+        <button class="lb-close-btn" onclick="closeLeaderboard()">✖ Close</button>
+      </div>
+
+      <div class="lb-list" id="lbList"></div>
+    </aside>
+
+  </div>
+
+  <!-- ADMIN MANAGEMENT MODAL -->
+  <div id="adminOverlay" class="hidden">
+    <div class="admin-card">
+      <div class="admin-header">
+        <h3>⚙️ Developer Panel</h3>
+        <button class="admin-close" onclick="closeAdminPanel()">✖</button>
+      </div>
+
+      <div class="admin-tabs">
+        <button class="admin-tab-btn active" id="tabPlayersBtn" onclick="switchAdminTab('players')">Manage Players</button>
+        <button class="admin-tab-btn" id="tabRepoBtn" onclick="switchAdminTab('repo')">Repo JSON Setup</button>
+      </div>
+
+      <!-- Tab 1: Players -->
+      <div id="adminPlayersView">
+        <div class="admin-player-list" id="adminPlayerList"></div>
+        <button class="btn-wipe-all" onclick="adminClearAll()">🗑️ Wipe Entire Leaderboard</button>
+      </div>
+
+      <!-- Tab 2: GitHub Repository Connection Config -->
+      <div id="adminRepoView" class="repo-config-group">
+        <div class="repo-field">
+          <label>GitHub Username (Owner)</label>
+          <input type="text" id="repoOwnerInput" placeholder="e.g. your-github-user" />
+        </div>
+        <div class="repo-field">
+          <label>Repository Name</label>
+          <input type="text" id="repoNameInput" placeholder="e.g. spank-master-game" />
+        </div>
+        <div class="repo-field">
+          <label>File Path (Default: leaderboard.json)</label>
+          <input type="text" id="repoPathInput" placeholder="leaderboard.json" value="leaderboard.json" />
+        </div>
+        <div class="repo-field">
+          <label>Branch</label>
+          <input type="text" id="repoBranchInput" placeholder="main" value="main" />
+        </div>
+        <div class="repo-field">
+          <label>GitHub Personal Access Token (PAT)</label>
+          <input type="password" id="repoTokenInput" placeholder="ghp_xxxxxxxxxxxx" />
+          <small style="color:#888; font-size:0.7rem; margin-top:2px; display:block;">Requires 'Contents: Read and write' permission to commit directly.</small>
+        </div>
+        <button class="btn-start" style="padding:10px;" onclick="saveRepoConfig()">💾 Save & Connect Repo</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    /* -------------------------------------------------------------
+       GITHUB REPO CONFIGURATION & CLOUD FALLBACK
+    ------------------------------------------------------------- */
+    const DEV_PASSKEY = "yy950271";
+    const STORAGE_KEY_USER = 'spank_master_active_user';
+    const STORAGE_KEY_DEV = 'spank_master_is_dev';
+    const STORAGE_KEY_REPO_CFG = 'spank_master_repo_config';
+    const STORAGE_KEY_LOCAL_LB = 'spank_master_local_fallback';
+
+    // Default Repo Settings (Can be updated via the Developer Panel UI)
+    let repoConfig = {
+      owner: '',
+      repo: '',
+      path: 'leaderboard.json',
+      branch: 'main',
+      token: ''
+    };
+
+    try {
+      const savedCfg = localStorage.getItem(STORAGE_KEY_REPO_CFG);
+      if (savedCfg) repoConfig = Object.assign(repoConfig, JSON.parse(savedCfg));
+    } catch(e) {}
+
+    let activePlayerName = '';
+    let isDeveloper = false;
+    let cloudPlayers = [];
+    let repoFileSha = null;
+    let saveDebounceTimer = null;
+
+    try {
+      activePlayerName = localStorage.getItem(STORAGE_KEY_USER) || '';
+      isDeveloper = localStorage.getItem(STORAGE_KEY_DEV) === 'true';
+    } catch (e) {}
+
+    function updateAdminVisibility() {
+      const gearBtn = document.getElementById('adminGearBtn');
+      const lbGearBtn = document.getElementById('lbAdminBtn');
+      if (gearBtn) gearBtn.style.display = isDeveloper ? 'inline-flex' : 'none';
+      if (lbGearBtn) lbGearBtn.style.display = isDeveloper ? 'inline-flex' : 'none';
+    }
+
+    function toggleDevPasswordField() {
+      const chk = document.getElementById('devCheckbox');
+      const pwdGroup = document.getElementById('devPasswordGroup');
+      if (chk.checked) {
+        pwdGroup.style.display = 'block';
+        document.getElementById('devPasswordInput').focus();
+      } else {
+        pwdGroup.style.display = 'none';
+      }
+    }
+
+    /* -------------------------------------------------------------
+       FETCH FROM / COMMIT TO GITHUB REPOSITORY JSON
+    ------------------------------------------------------------- */
+    async function fetchRepoLeaderboard() {
+      // 1. If configured with GitHub repo:
+      if (repoConfig.owner && repoConfig.repo) {
+        const url = `https://api.github.com/repos/${repoConfig.owner}/${repoConfig.repo}/contents/${repoConfig.path}?ref=${repoConfig.branch}`;
+        const headers = { 'Accept': 'application/vnd.github.v3+json' };
+        if (repoConfig.token) headers['Authorization'] = `token ${repoConfig.token}`;
+
+        try {
+          const res = await fetch(url, { headers });
+          if (res.ok) {
+            const data = await res.json();
+            repoFileSha = data.sha;
+            // Decode GitHub base64 file content
+            const decodedJson = decodeURIComponent(escape(atob(data.content.replace(/\s/g, ''))));
+            const parsed = JSON.parse(decodedJson);
+            if (parsed && Array.isArray(parsed.players)) {
+              cloudPlayers = parsed.players;
+              renderLeaderboard();
+              updateSyncStatus("● Repo Synced", "#00ff88");
+              syncMyLocalScores();
+              return;
+            }
+          }
+        } catch (err) {
+          console.warn('GitHub API fetch error:', err);
+        }
+      }
+
+      // 2. Fallback to LocalStorage cache if repo is not configured yet
+      try {
+        const local = localStorage.getItem(STORAGE_KEY_LOCAL_LB);
+        if (local) cloudPlayers = JSON.parse(local);
+      } catch(e) {}
+      renderLeaderboard();
+      updateSyncStatus(repoConfig.owner ? "● Repo Disconnected" : "● Setup Repo", "#ffd60a");
+    }
+
+    async function saveRepoLeaderboard() {
+      // Save local backup
+      try {
+        localStorage.setItem(STORAGE_KEY_LOCAL_LB, JSON.stringify(cloudPlayers));
+      } catch(e) {}
+
+      // If GitHub Repo is configured:
+      if (repoConfig.owner && repoConfig.repo && repoConfig.token) {
+        updateSyncStatus("● Committing...", "#00f0ff");
+        const url = `https://api.github.com/repos/${repoConfig.owner}/${repoConfig.repo}/contents/${repoConfig.path}`;
+        const contentStr = JSON.stringify({ players: cloudPlayers }, null, 2);
+        const encodedContent = btoa(unescape(encodeURIComponent(contentStr)));
+
+        const payload = {
+          message: `Update leaderboard [by ${activePlayerName}]`,
+          content: encodedContent,
+          branch: repoConfig.branch
+        };
+        if (repoFileSha) payload.sha = repoFileSha;
+
+        try {
+          const res = await fetch(url, {
+            method: 'PUT',
+            headers: {
+              'Authorization': `token ${repoConfig.token}`,
+              'Content-Type': 'application/json',
+              'Accept': 'application/vnd.github.v3+json'
+            },
+            body: JSON.stringify(payload)
+          });
+          if (res.ok) {
+            const result = await res.json();
+            repoFileSha = result.content.sha;
+            updateSyncStatus("● Repo Synced", "#00ff88");
+          } else {
+            updateSyncStatus("● Commit Failed", "#ff4500");
+          }
+        } catch (e) {
+          updateSyncStatus("● Repo Offline", "#ff4500");
+        }
+      }
+    }
+
+    function syncMyLocalScores() {
+      const me = cloudPlayers.find(p => p.name.toLowerCase() === activePlayerName.toLowerCase());
+      if (me) {
+        highStreak = Math.max(highStreak, me.streak || 0);
+        highScore = Math.max(highScore, me.score || 0);
+        updateUI();
+      }
+    }
+
+    function updateSyncStatus(text, color) {
+      const badge = document.getElementById('syncBadge');
+      if (badge) {
+        badge.textContent = text;
+        badge.style.color = color;
+        badge.style.borderColor = color;
+      }
+    }
+
+    function recordPlayerMetrics(currentStreak, currentScore) {
+      if (!activePlayerName) return;
+
+      let existing = cloudPlayers.find(p => p.name.toLowerCase() === activePlayerName.toLowerCase());
+      let modified = false;
+
+      if (existing) {
+        if (currentStreak > existing.streak) {
+          existing.streak = currentStreak;
+          modified = true;
+        }
+        if (currentScore > existing.score) {
+          existing.score = currentScore;
+          modified = true;
+        }
+      } else {
+        cloudPlayers.push({
+          name: activePlayerName,
+          streak: currentStreak,
+          score: currentScore
+        });
+        modified = true;
+      }
+
+      if (modified) {
+        renderLeaderboard();
+        clearTimeout(saveDebounceTimer);
+        saveDebounceTimer = setTimeout(saveRepoLeaderboard, 800);
+      }
+    }
+
+    function renderLeaderboard() {
+      cloudPlayers.sort((a, b) => b.streak - a.streak || b.score - a.score);
+
+      const listEl = document.getElementById('lbList');
+      if (!listEl) return;
+      listEl.innerHTML = '';
+
+      const top10 = cloudPlayers.slice(0, 10);
+
+      if (top10.length === 0) {
+        listEl.innerHTML = `
+          <div class="lb-empty">
+            No spankers on the board yet.<br>
+            Start slapping to claim <strong>#1</strong>!
+          </div>
+        `;
+        return;
+      }
+
+      top10.forEach((player, idx) => {
+        const row = document.createElement('div');
+        const isCurrent = (player.name.toLowerCase() === activePlayerName.toLowerCase());
+        row.className = `lb-row ${isCurrent ? 'active-user' : ''}`;
+
+        const rankDisplay = idx === 0 ? '🥇' : idx === 1 ? '🥈' : idx === 2 ? '🥉' : `#${idx + 1}`;
+
+        row.innerHTML = `
+          <span class="lb-rank rank-${idx + 1}">${rankDisplay}</span>
+          <span class="lb-name" title="${escapeHtml(player.name)}">${escapeHtml(player.name)}</span>
+          <div class="lb-stats">
+            <span class="lb-streak">${player.streak} <small>streak</small></span>
+            <span class="lb-subscore">${player.score} pts</span>
+          </div>
+        `;
+        listEl.appendChild(row);
+      });
+    }
+
+    function escapeHtml(str) {
+      return String(str).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    }
+
+    /* -------------------------------------------------------------
+       ADMIN ACTIONS (DEV ONLY)
+    ------------------------------------------------------------- */
+    function openAdminPanel() {
+      if (!isDeveloper) {
+        alert("Developer access required.");
+        return;
+      }
+      renderAdminList();
+      populateRepoInputs();
+      const overlay = document.getElementById('adminOverlay');
+      overlay.classList.remove('hidden');
+    }
+
+    function closeAdminPanel() {
+      document.getElementById('adminOverlay').classList.add('hidden');
+    }
+
+    function switchAdminTab(tab) {
+      const playersView = document.getElementById('adminPlayersView');
+      const repoView = document.getElementById('adminRepoView');
+      const tabPlayersBtn = document.getElementById('tabPlayersBtn');
+      const tabRepoBtn = document.getElementById('tabRepoBtn');
+
+      if (tab === 'players') {
+        playersView.style.display = 'block';
+        repoView.style.display = 'none';
+        tabPlayersBtn.classList.add('active');
+        tabRepoBtn.classList.remove('active');
+        renderAdminList();
+      } else {
+        playersView.style.display = 'none';
+        repoView.style.display = 'flex';
+        tabPlayersBtn.classList.remove('active');
+        tabRepoBtn.classList.add('active');
+        populateRepoInputs();
+      }
+    }
+
+    function populateRepoInputs() {
+      document.getElementById('repoOwnerInput').value = repoConfig.owner || '';
+      document.getElementById('repoNameInput').value = repoConfig.repo || '';
+      document.getElementById('repoPathInput').value = repoConfig.path || 'leaderboard.json';
+      document.getElementById('repoBranchInput').value = repoConfig.branch || 'main';
+      document.getElementById('repoTokenInput').value = repoConfig.token || '';
+    }
+
+    function saveRepoConfig() {
+      repoConfig.owner = document.getElementById('repoOwnerInput').value.trim();
+      repoConfig.repo = document.getElementById('repoNameInput').value.trim();
+      repoConfig.path = document.getElementById('repoPathInput').value.trim() || 'leaderboard.json';
+      repoConfig.branch = document.getElementById('repoBranchInput').value.trim() || 'main';
+      repoConfig.token = document.getElementById('repoTokenInput').value.trim();
+
+      try {
+        localStorage.setItem(STORAGE_KEY_REPO_CFG, JSON.stringify(repoConfig));
+      } catch(e) {}
+
+      alert("Repository configuration saved! Syncing now...");
+      fetchRepoLeaderboard();
+      switchAdminTab('players');
+    }
+
+    function renderAdminList() {
+      const list = document.getElementById('adminPlayerList');
+      if (!list) return;
+      list.innerHTML = '';
+
+      if (cloudPlayers.length === 0) {
+        list.innerHTML = '<div style="text-align:center; color:#888; padding:20px;">No players in database.</div>';
+        return;
+      }
+
+      cloudPlayers.forEach((player, idx) => {
+        const row = document.createElement('div');
+        row.className = 'admin-row';
+        row.innerHTML = `
+          <div class="admin-player-info">
+            <div class="admin-player-name">${escapeHtml(player.name)}</div>
+            <div class="admin-player-metrics">
+              Streak: <strong style="color:var(--accent-gold);">${player.streak}</strong> | Score: <strong>${player.score}</strong>
+            </div>
+          </div>
+          <div class="admin-row-actions">
+            <button class="btn-admin-action btn-admin-edit" onclick="adminEditPlayer(${idx})">✏️ Edit</button>
+            <button class="btn-admin-action btn-admin-del" onclick="adminDeletePlayer(${idx})">🗑️ Del</button>
+          </div>
+        `;
+        list.appendChild(row);
+      });
+    }
+
+    function adminEditPlayer(idx) {
+      if (!isDeveloper) return;
+      const player = cloudPlayers[idx];
+
+      const newStreakInput = prompt(`Edit Highest Streak for "${player.name}":`, player.streak);
+      if (newStreakInput === null) return;
+
+      const newScoreInput = prompt(`Edit Score for "${player.name}":`, player.score);
+      if (newScoreInput === null) return;
+
+      const newStreak = parseInt(newStreakInput, 10);
+      const newScore = parseInt(newScoreInput, 10);
+
+      if (!isNaN(newStreak)) player.streak = Math.max(0, newStreak);
+      if (!isNaN(newScore)) player.score = Math.max(0, newScore);
+
+      saveRepoLeaderboard();
+      renderLeaderboard();
+      renderAdminList();
+    }
+
+    function adminDeletePlayer(idx) {
+      if (!isDeveloper) return;
+      const player = cloudPlayers[idx];
+      if (confirm(`Are you sure you want to delete "${player.name}" from leaderboard.json?`)) {
+        cloudPlayers.splice(idx, 1);
+        saveRepoLeaderboard();
+        renderLeaderboard();
+        renderAdminList();
+      }
+    }
+
+    function adminClearAll() {
+      if (!isDeveloper) return;
+      if (confirm("⚠️ Wipe all players from the leaderboard JSON file?")) {
+        cloudPlayers = [];
+        saveRepoLeaderboard();
+        renderLeaderboard();
+        renderAdminList();
+      }
+    }
+
+    /* -------------------------------------------------------------
+       DRAWER & MODAL TOGGLE
+    ------------------------------------------------------------- */
+    const leaderboardBox = document.getElementById('leaderboardBox');
+    const mobileBackdrop = document.getElementById('mobileBackdrop');
+
+    function openLeaderboard() {
+      if (window.innerWidth < 960) {
+        leaderboardBox.classList.add('mobile-open');
+        mobileBackdrop.classList.add('active');
+      } else {
+        leaderboardBox.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }
+      fetchRepoLeaderboard();
+    }
+
+    function closeLeaderboard() {
+      leaderboardBox.classList.remove('mobile-open');
+      mobileBackdrop.classList.remove('active');
+    }
+
+    /* -------------------------------------------------------------
+       NAME PROMPT & LOGIN / DEV VALIDATION
+    ------------------------------------------------------------- */
+    const introOverlay = document.getElementById('introOverlay');
+    const playerNameInput = document.getElementById('playerNameInput');
+    const activePlayerTag = document.getElementById('activePlayerTag');
+
+    function checkIntro() {
+      if (!activePlayerName) {
+        introOverlay.classList.remove('hidden');
+        setTimeout(() => playerNameInput.focus(), 200);
+      } else {
+        activePlayerTag.textContent = activePlayerName;
+        introOverlay.classList.add('hidden');
+        updateAdminVisibility();
+        fetchRepoLeaderboard();
+      }
+    }
+
+    function startGame(e) {
+      if (e) e.preventDefault();
+      const nameVal = playerNameInput.value.trim();
+      if (!nameVal) return;
+
+      const isDevChecked = document.getElementById('devCheckbox').checked;
+      const pwdVal = document.getElementById('devPasswordInput').value;
+
+      if (isDevChecked) {
+        if (pwdVal === DEV_PASSKEY) {
+          isDeveloper = true;
+          alert("Developer Mode Unlocked! Admin powers granted.");
+        } else {
+          alert("Incorrect Developer Passkey! Entering as standard player.");
+          isDeveloper = false;
+        }
+      } else {
+        isDeveloper = false;
+      }
+
+      activePlayerName = nameVal;
+      try {
+        localStorage.setItem(STORAGE_KEY_USER, activePlayerName);
+        localStorage.setItem(STORAGE_KEY_DEV, isDeveloper ? 'true' : 'false');
+      } catch (err) {}
+
+      activePlayerTag.textContent = activePlayerName;
+      introOverlay.classList.add('hidden');
+
+      initAudio();
+      updateAdminVisibility();
+      fetchRepoLeaderboard();
+    }
+
+    function openNamePrompt() {
+      playerNameInput.value = activePlayerName;
+      document.getElementById('devCheckbox').checked = false;
+      document.getElementById('devPasswordGroup').style.display = 'none';
+      document.getElementById('devPasswordInput').value = '';
+      introOverlay.classList.remove('hidden');
+      setTimeout(() => playerNameInput.focus(), 200);
+    }
+
+    /* -------------------------------------------------------------
+       GAMEPLAY LOGIC & PROCEDURAL AUDIO
+    ------------------------------------------------------------- */
+    let score = 0;
+    let streak = 0;
+    let highStreak = 0;
+    let highScore = 0;
+    let soundEnabled = true;
+    let isMegaSpankActive = false;
+
+    let clickTimestamps = [];
+    const STREAK_TIMEOUT_MS = 1400;
+    let streakDecayTimer = null;
+    let lastClickSide = 'left';
+
+    const valScore = document.getElementById('val-score');
+    const valCps = document.getElementById('val-cps');
+    const valStreak = document.getElementById('val-streak');
+    const valHighStreak = document.getElementById('val-high-streak');
+    const comboFill = document.getElementById('comboFill');
+    const comboRank = document.getElementById('comboRank');
+    const multiplierText = document.getElementById('multiplierText');
+    const target = document.getElementById('target');
+    const arena = document.getElementById('arena');
+    const screenFlash = document.getElementById('screenFlash');
+    const megaHandContainer = document.getElementById('megaHandContainer');
+    const megaBanner = document.getElementById('megaBanner');
+    const btnSound = document.getElementById('btnSound');
+    const btnTestMega = document.getElementById('btnTestMega');
+
+    let audioCtx = null;
+    function initAudio() {
+      if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      }
+      if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+    }
+
+    function playSlapSound(isCombo = false) {
+      if (!soundEnabled) return;
+      initAudio();
+      const now = audioCtx.currentTime;
+
+      const bufferSize = audioCtx.sampleRate * 0.04;
+      const noiseBuffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+      const output = noiseBuffer.getChannelData(0);
+      for (let i = 0; i < bufferSize; i++) output[i] = Math.random() * 2 - 1;
+
+      const whiteNoise = audioCtx.createBufferSource();
+      whiteNoise.buffer = noiseBuffer;
+      const noiseFilter = audioCtx.createBiquadFilter();
+      noiseFilter.type = 'highpass';
+      noiseFilter.frequency.setValueAtTime(800, now);
+
+      const noiseGain = audioCtx.createGain();
+      noiseGain.gain.setValueAtTime(0.4, now);
+      noiseGain.gain.exponentialRampToValueAtTime(0.001, now + 0.04);
+
+      whiteNoise.connect(noiseFilter);
+      noiseFilter.connect(noiseGain);
+      noiseGain.connect(audioCtx.destination);
+      whiteNoise.start(now);
+
+      const osc = audioCtx.createOscillator();
+      const oscGain = audioCtx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(isCombo ? 180 : 130, now);
+      osc.frequency.exponentialRampToValueAtTime(35, now + 0.1);
+
+      oscGain.gain.setValueAtTime(0.6, now);
+      oscGain.gain.exponentialRampToValueAtTime(0.001, now + 0.1);
+
+      osc.connect(oscGain);
+      oscGain.connect(audioCtx.destination);
+      osc.start(now);
+      osc.stop(now + 0.11);
+    }
+
+    function playMegaExplosionSound() {
+      if (!soundEnabled) return;
+      initAudio();
+      const now = audioCtx.currentTime;
+
+      const bufferSize = audioCtx.sampleRate * 0.9;
+      const noiseBuffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+      const output = noiseBuffer.getChannelData(0);
+      for (let i = 0; i < bufferSize; i++) output[i] = Math.random() * 2 - 1;
+
+      const noise = audioCtx.createBufferSource();
+      noise.buffer = noiseBuffer;
+      const filter = audioCtx.createBiquadFilter();
+      filter.type = 'lowpass';
+      filter.frequency.setValueAtTime(1400, now);
+      filter.frequency.linearRampToValueAtTime(70, now + 0.9);
+
+      const noiseGain = audioCtx.createGain();
+      noiseGain.gain.setValueAtTime(1.0, now);
+      noiseGain.gain.exponentialRampToValueAtTime(0.01, now + 0.9);
+
+      noise.connect(filter);
+      filter.connect(noiseGain);
+      noiseGain.connect(audioCtx.destination);
+      noise.start(now);
+
+      const subOsc = audioCtx.createOscillator();
+      const subGain = audioCtx.createGain();
+      subOsc.type = 'sine';
+      subOsc.frequency.setValueAtTime(170, now);
+      subOsc.frequency.exponentialRampToValueAtTime(20, now + 0.7);
+
+      subGain.gain.setValueAtTime(1.0, now);
+      subGain.gain.exponentialRampToValueAtTime(0.001, now + 0.7);
+
+      subOsc.connect(subGain);
+      subGain.connect(audioCtx.destination);
+      subOsc.start(now);
+      subOsc.stop(now + 0.72);
+    }
+
+    function updateCPS() {
+      const now = performance.now();
+      clickTimestamps = clickTimestamps.filter(t => now - t <= 1000);
+      valCps.textContent = clickTimestamps.length.toFixed(1);
+    }
+    setInterval(updateCPS, 100);
+
+    function getMultiplier() {
+      if (streak >= 250) return 6.0;
+      if (streak >= 100) return 4.0;
+      if (streak >= 50)  return 3.0;
+      if (streak >= 25)  return 2.0;
+      if (streak >= 10)  return 1.5;
+      return 1.0;
+    }
+
+    function getRankName() {
+      if (streak >= 250) return '🔥 FIERY GOD OF SPANK!';
+      if (streak >= 100) return '⚡ Thunder Slapper!';
+      if (streak >= 50)  return '💨 Speed Demon!';
+      if (streak >= 25)  return '✨ Spicy Streak!';
+      if (streak >= 10)  return 'Warmup';
+      return 'Cold Warmup';
+    }
+
+    function resetStreakDecay() {
+      if (isMegaSpankActive) return;
+
+      clearTimeout(streakDecayTimer);
+      comboFill.style.transition = 'none';
+      comboFill.style.width = '100%';
+
+      requestAnimationFrame(() => {
+        comboFill.style.transition = `width ${STREAK_TIMEOUT_MS}ms linear`;
+        comboFill.style.width = '0%';
+      });
+
+      streakDecayTimer = setTimeout(() => {
+        if (!isMegaSpankActive) {
+          streak = 0;
+          updateUI();
+        }
+      }, STREAK_TIMEOUT_MS);
+    }
+
+    function updateUI() {
+      valScore.textContent = score;
+      valStreak.textContent = streak;
+      valHighStreak.textContent = highStreak;
+
+      const mult = getMultiplier();
+      multiplierText.textContent = `${mult.toFixed(1)}x Multiplier`;
+      comboRank.textContent = getRankName();
+
+      if (streak === 0) {
+        comboFill.style.width = '0%';
+      }
+    }
+
+    const COMIC_PHRASES = ['SLAP!', 'SMACK!', 'POW!', 'CLAP!', 'THWACK!', 'BAM!'];
+
+    function createHitEffect(x, y, mult) {
+      const floatEl = document.createElement('div');
+      floatEl.className = 'float-text';
+      const phrase = COMIC_PHRASES[Math.floor(Math.random() * COMIC_PHRASES.length)];
+      floatEl.textContent = mult > 1 ? `${phrase} +${mult}` : phrase;
+      floatEl.style.left = `${x}px`;
+      floatEl.style.top = `${y}px`;
+
+      const colors = ['#ffd60a', '#ff2a85', '#00f0ff', '#ff9ebb', '#ffffff'];
+      floatEl.style.color = colors[Math.floor(Math.random() * colors.length)];
+      floatEl.style.setProperty('--rot', `${(Math.random() - 0.5) * 36}deg`);
+
+      arena.appendChild(floatEl);
+      setTimeout(() => floatEl.remove(), 650);
+
+      const burstHand = document.createElement('div');
+      burstHand.className = 'hand-burst';
+      burstHand.style.left = `${x}px`;
+      burstHand.style.top = `${y}px`;
+      burstHand.style.setProperty('--hand-rot', `${(Math.random() - 0.5) * 50}deg`);
+
+      burstHand.innerHTML = `
+        <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M 30 70 C 20 60, 20 40, 35 30 C 42 25, 52 28, 55 35 C 57 24, 70 24, 73 34 C 77 26, 88 30, 88 40 C 92 34, 100 40, 97 52 C 92 75, 65 90, 45 85 Z" 
+                fill="#ffd166" stroke="#e09f3e" stroke-width="4" stroke-linejoin="round"/>
+          <path d="M 40 45 L 42 65 M 55 42 L 56 65 M 70 45 L 69 65" stroke="#e09f3e" stroke-width="3" stroke-linecap="round"/>
+        </svg>
+      `;
+      arena.appendChild(burstHand);
+      setTimeout(() => burstHand.remove(), 320);
+    }
+
+    function triggerMegaSpank() {
+      if (isMegaSpankActive) return;
+      isMegaSpankActive = true;
+
+      clearTimeout(streakDecayTimer);
+      comboFill.style.transition = 'none';
+      comboFill.style.width = '100%';
+
+      megaHandContainer.classList.remove('mega-hand-strike');
+      void megaHandContainer.offsetWidth;
+      megaHandContainer.classList.add('mega-hand-strike');
+
+      setTimeout(() => {
+        screenFlash.classList.add('flashing');
+        setTimeout(() => screenFlash.classList.remove('flashing'), 280);
+
+        document.body.classList.remove('camera-shake');
+        void document.body.offsetWidth;
+        document.body.classList.add('camera-shake');
+
+        playMegaExplosionSound();
+
+        megaBanner.textContent = `💥 ${streak || 250} STREAK MEGA SPANK! 💥`;
+        megaBanner.classList.remove('show');
+        void megaBanner.offsetWidth;
+        megaBanner.classList.add('show');
+
+        shatterBooty();
+
+        setTimeout(() => {
+          dropNewBooty();
+          setTimeout(() => {
+            isMegaSpankActive = false;
+            resetStreakDecay();
+          }, 950);
+        }, 600);
+
+      }, 880);
+    }
+
+    function shatterBooty() {
+      target.style.opacity = '0';
+      target.classList.remove('jiggle-left', 'jiggle-right', 'target-drop-in');
+
+      const rect = target.getBoundingClientRect();
+      const arenaRect = arena.getBoundingClientRect();
+      const centerX = rect.left - arenaRect.left + rect.width / 2;
+      const centerY = rect.top - arenaRect.top + rect.height / 2;
+
+      const shardColors = ['#ff9ebb', '#ff4d79', '#c9184a', '#ffd60a', '#ffffff', '#ff5722'];
+      for (let i = 0; i < 25; i++) {
+        const shard = document.createElement('div');
+        shard.className = 'shattered-shard';
+
+        const size = Math.floor(Math.random() * 30) + 16;
+        shard.style.width = `${size}px`;
+        shard.style.height = `${size}px`;
+        shard.style.left = `${centerX + (Math.random() - 0.5) * 80}px`;
+        shard.style.top = `${centerY + (Math.random() - 0.5) * 80}px`;
+
+        const angle = Math.random() * Math.PI * 2;
+        const dist = Math.random() * 260 + 100;
+        const destX = Math.cos(angle) * dist;
+        const destY = Math.sin(angle) * dist + 100;
+        const rot = (Math.random() - 0.5) * 900;
+
+        shard.style.setProperty('--dest-x', `${destX}px`);
+        shard.style.setProperty('--dest-y', `${destY}px`);
+        shard.style.setProperty('--dest-rot', `${rot}deg`);
+
+        const color = shardColors[Math.floor(Math.random() * shardColors.length)];
+        shard.innerHTML = `
+          <svg viewBox="0 0 30 30" width="100%" height="100%">
+            <polygon points="${Math.random()*10},${Math.random()*10} ${Math.random()*20+10},0 ${Math.random()*30},${Math.random()*20+10} 0,${Math.random()*20+10}" fill="${color}" stroke="#590d22" stroke-width="2.5"/>
+          </svg>
+        `;
+
+        arena.appendChild(shard);
+        setTimeout(() => shard.remove(), 1400);
+      }
+    }
+
+    function dropNewBooty() {
+      target.style.opacity = '1';
+      target.classList.remove('target-drop-in');
+      void target.offsetWidth;
+      target.classList.add('target-drop-in');
+    }
+
+    function handleSpank(e) {
+      e.preventDefault();
+      if (isMegaSpankActive) return;
+
+      clickTimestamps.push(performance.now());
+
+      streak++;
+      if (streak > highStreak) highStreak = streak;
+
+      const mult = getMultiplier();
+      score += Math.round(1 * mult);
+      if (score > highScore) highScore = score;
+
+      recordPlayerMetrics(highStreak, highScore);
+
+      if (streak > 0 && streak % 250 === 0) {
+        triggerMegaSpank();
+      } else {
+        lastClickSide = lastClickSide === 'left' ? 'right' : 'left';
+        target.classList.remove('jiggle-left', 'jiggle-right', 'target-drop-in');
+        void target.offsetWidth;
+        target.classList.add(lastClickSide === 'left' ? 'jiggle-left' : 'jiggle-right');
+
+        playSlapSound(mult > 1.5);
+
+        const rect = arena.getBoundingClientRect();
+        let clientX = e.clientX;
+        let clientY = e.clientY;
+
+        if (e.touches && e.touches.length > 0) {
+          clientX = e.touches[0].clientX;
+          clientY = e.touches[0].clientY;
+        } else if (!clientX) {
+          clientX = rect.left + rect.width / 2;
+          clientY = rect.top + rect.height / 2;
+        }
+
+        const x = clientX - rect.left;
+        const y = clientY - rect.top;
+        createHitEffect(x, y, mult);
+      }
+
+      resetStreakDecay();
+      updateUI();
+    }
+
+    target.addEventListener('pointerdown', handleSpank);
+
+    btnSound.addEventListener('click', () => {
+      soundEnabled = !soundEnabled;
+      btnSound.textContent = soundEnabled ? '🔊 Sound: ON' : '🔇 Sound: OFF';
+    });
+
+    btnTestMega.addEventListener('click', () => {
+      if (!isMegaSpankActive) {
+        streak = Math.max(streak, 250);
+        updateUI();
+        triggerMegaSpank();
+      }
+    });
+
+    // Initialize
+    checkIntro();
+    updateUI();
+  </script>
+</body>
+</html>
