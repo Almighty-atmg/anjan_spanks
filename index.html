@@ -525,6 +525,7 @@
       100% { transform: scale(1, 1) rotate(0deg); }
     }
 
+    /* Mega Spank FX */
     .mega-hand-container {
       position: absolute;
       top: -380px;
@@ -1231,6 +1232,12 @@
       }, 500);
     }
 
+    /* Security Token Generator for Anti-Console Spoofing */
+    function generateAntiTamperToken(name, streak, score) {
+      const rawStr = encodeURIComponent(name + "_" + score + "_spank_" + streak);
+      return btoa(rawStr);
+    }
+
     /* Server Communication */
     async function fetchServerLeaderboard() {
       try {
@@ -1269,7 +1276,8 @@
             name: activePlayerName,
             streak,
             score,
-            cps: parseFloat(cps) || 0
+            cps: parseFloat(cps) || 0,
+            token: generateAntiTamperToken(activePlayerName, streak, score)
           })
         });
         if (res.ok) {
@@ -1505,14 +1513,12 @@
       const rawName = playerNameInput.value.trim();
       const nameVal = rawName.replace(/[<>"'/\\`]/g, '').slice(0, 14);
 
-      // Check 1: Minimum length of 4
       if (nameVal.length < 4) {
         alert("Player tag must be at least 4 characters long!");
         playerNameInput.focus();
         return;
       }
 
-      // Check 2: Cannot be numbers only
       if (/^\d+$/.test(nameVal)) {
         alert("Player tag cannot be numbers only! It must include letters.");
         playerNameInput.focus();
