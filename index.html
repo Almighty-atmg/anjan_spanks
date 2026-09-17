@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>Spank Master CPS - Live Cloud Leaderboard</title>
+  <title>Spank Master CPS - GitHub Repository Sync</title>
   <style>
     :root {
       --bg-dark: #0f0c1b;
@@ -35,7 +35,6 @@
       position: relative;
     }
 
-    /* Screen Shake on Mega Spank */
     body.camera-shake {
       animation: screenRumble 0.5s cubic-bezier(.36,.07,.19,.97) both;
     }
@@ -47,7 +46,6 @@
       40%, 60% { transform: translate3d(6px, -5px, 0); }
     }
 
-    /* Flash Overlay */
     #screenFlash {
       position: fixed;
       inset: 0;
@@ -62,9 +60,7 @@
       transition: none;
     }
 
-    /* ============================================================
-       INTRO MODAL OVERLAY
-    ============================================================ */
+    /* Intro Modal */
     #introOverlay {
       position: fixed;
       inset: 0;
@@ -75,13 +71,9 @@
       align-items: center;
       justify-content: center;
       padding: 20px;
-      transition: opacity 0.35s ease, visibility 0.35s;
     }
 
     #introOverlay.hidden {
-      opacity: 0;
-      visibility: hidden;
-      pointer-events: none;
       display: none !important;
     }
 
@@ -89,7 +81,7 @@
       background: var(--card-bg);
       border: 1px solid rgba(255, 42, 133, 0.35);
       border-radius: 20px;
-      padding: 30px 24px;
+      padding: 28px 22px;
       max-width: 420px;
       width: 100%;
       text-align: center;
@@ -97,36 +89,36 @@
     }
 
     .intro-title {
-      font-size: 2rem;
+      font-size: 1.9rem;
       font-weight: 900;
       text-transform: uppercase;
       letter-spacing: 2px;
       background: linear-gradient(90deg, var(--accent-pink), var(--accent-gold));
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
-      margin-bottom: 8px;
+      margin-bottom: 6px;
     }
 
     .intro-desc {
-      font-size: 0.9rem;
+      font-size: 0.88rem;
       color: #b3aeca;
-      margin-bottom: 24px;
+      margin-bottom: 20px;
       line-height: 1.4;
     }
 
     .name-input-group {
-      margin-bottom: 20px;
+      margin-bottom: 14px;
       text-align: left;
     }
 
     .name-input-group label {
-      font-size: 0.78rem;
+      font-size: 0.76rem;
       text-transform: uppercase;
       letter-spacing: 1px;
       font-weight: 700;
       color: var(--accent-cyan);
       display: block;
-      margin-bottom: 8px;
+      margin-bottom: 6px;
     }
 
     .name-input {
@@ -134,9 +126,9 @@
       background: rgba(15, 12, 27, 0.95);
       border: 2px solid rgba(255, 255, 255, 0.15);
       border-radius: 12px;
-      padding: 14px 16px;
+      padding: 12px 14px;
       color: #fff;
-      font-size: 1.1rem;
+      font-size: 1rem;
       font-weight: 700;
       outline: none;
       transition: all 0.2s ease;
@@ -149,6 +141,45 @@
       box-shadow: 0 0 15px rgba(255, 42, 133, 0.4);
     }
 
+    .dev-checkbox-container {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin: 14px 0;
+      padding: 10px 12px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 214, 10, 0.25);
+      border-radius: 10px;
+      cursor: pointer;
+    }
+
+    .dev-checkbox-container input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      accent-color: var(--accent-gold);
+      cursor: pointer;
+    }
+
+    .dev-checkbox-label {
+      font-size: 0.85rem;
+      font-weight: 800;
+      color: var(--accent-gold);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .dev-password-group {
+      display: none;
+      margin-bottom: 16px;
+      text-align: left;
+      animation: fadeIn 0.25s ease-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
     .btn-start {
       width: 100%;
       background: linear-gradient(90deg, var(--accent-pink), var(--accent-fire));
@@ -156,13 +187,14 @@
       border: none;
       padding: 14px;
       border-radius: 12px;
-      font-size: 1.1rem;
+      font-size: 1.05rem;
       font-weight: 900;
       text-transform: uppercase;
       letter-spacing: 1px;
       cursor: pointer;
       box-shadow: 0 6px 20px rgba(255, 42, 133, 0.4);
       transition: transform 0.15s ease, box-shadow 0.15s ease;
+      margin-top: 4px;
     }
 
     .btn-start:hover {
@@ -170,9 +202,7 @@
       box-shadow: 0 8px 25px rgba(255, 42, 133, 0.6);
     }
 
-    /* ============================================================
-       APP LAYOUT
-    ============================================================ */
+    /* Layout */
     .app-layout {
       display: flex;
       flex-direction: column;
@@ -239,13 +269,6 @@
       align-items: center;
       gap: 4px;
       box-shadow: 0 0 10px rgba(255, 42, 133, 0.5);
-      animation: gearPulse 2s infinite;
-    }
-
-    @keyframes gearPulse {
-      0% { transform: scale(1); }
-      50% { transform: scale(1.05); }
-      100% { transform: scale(1); }
     }
 
     header {
@@ -269,7 +292,6 @@
       margin-top: 4px;
     }
 
-    /* Dashboard */
     .dashboard {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
@@ -319,7 +341,6 @@
       color: var(--accent-gold);
     }
 
-    /* Show Leaderboard Button */
     .btn-show-leaderboard {
       width: 100%;
       max-width: 580px;
@@ -388,7 +409,6 @@
       transform: scale(0.96);
     }
 
-    /* Hand Burst */
     .hand-burst {
       position: absolute;
       pointer-events: none;
@@ -437,7 +457,6 @@
       100% { transform: scale(1, 1) rotate(0deg); }
     }
 
-    /* Mega Spank Hand */
     .mega-hand-container {
       position: absolute;
       top: -380px;
@@ -521,7 +540,6 @@
       100% { opacity: 0; transform: translate(-50%, -90px) scale(0.7); }
     }
 
-    /* Combo Bar */
     .combo-bar-container {
       width: 100%;
       max-width: 420px;
@@ -559,7 +577,6 @@
       transition: width 0.08s linear;
     }
 
-    /* Controls */
     .controls {
       display: flex;
       gap: 10px;
@@ -592,9 +609,7 @@
       border-color: #ffd60a !important;
     }
 
-    /* ============================================================
-       TOP 10 LEADERBOARD
-    ============================================================ */
+    /* Leaderboard Drawer */
     .leaderboard-container {
       background: var(--card-bg);
       border: 1px solid rgba(255, 255, 255, 0.12);
@@ -770,26 +785,20 @@
       color: #8c889f;
     }
 
-    /* ============================================================
-       ADMIN MODAL
-    ============================================================ */
+    /* Admin Panel Modal */
     #adminOverlay {
       position: fixed;
       inset: 0;
-      background: rgba(10, 8, 20, 0.92);
+      background: rgba(10, 8, 20, 0.94);
       backdrop-filter: blur(14px);
       z-index: 350;
       display: flex;
       align-items: center;
       justify-content: center;
       padding: 16px;
-      transition: opacity 0.3s ease, visibility 0.3s;
     }
 
     #adminOverlay.hidden {
-      opacity: 0;
-      visibility: hidden;
-      pointer-events: none;
       display: none !important;
     }
 
@@ -797,8 +806,8 @@
       background: var(--card-bg);
       border: 1px solid var(--accent-pink);
       border-radius: 18px;
-      padding: 22px 18px;
-      max-width: 460px;
+      padding: 20px 18px;
+      max-width: 480px;
       width: 100%;
       box-shadow: 0 12px 40px rgba(0, 0, 0, 0.8), 0 0 25px rgba(255, 42, 133, 0.4);
       display: flex;
@@ -810,9 +819,9 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 14px;
+      margin-bottom: 12px;
       border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-      padding-bottom: 10px;
+      padding-bottom: 8px;
     }
 
     .admin-header h3 {
@@ -835,12 +844,36 @@
       cursor: pointer;
     }
 
+    .admin-tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .admin-tab-btn {
+      flex: 1;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: #ddd;
+      padding: 8px;
+      border-radius: 8px;
+      font-weight: 800;
+      font-size: 0.78rem;
+      cursor: pointer;
+    }
+
+    .admin-tab-btn.active {
+      background: var(--accent-pink);
+      color: #fff;
+      border-color: var(--accent-pink);
+    }
+
     .admin-player-list {
       display: flex;
       flex-direction: column;
       gap: 8px;
       overflow-y: auto;
-      margin-bottom: 16px;
+      margin-bottom: 12px;
       padding-right: 4px;
     }
 
@@ -862,7 +895,7 @@
 
     .admin-player-name {
       font-weight: 800;
-      font-size: 0.9rem;
+      font-size: 0.88rem;
       white-space: nowrap;
       text-overflow: ellipsis;
       overflow: hidden;
@@ -886,9 +919,6 @@
       font-size: 0.75rem;
       font-weight: 800;
       cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: 2px;
     }
 
     .btn-admin-edit {
@@ -902,18 +932,48 @@
       border: 1px solid #ff4d6d;
     }
 
+    .repo-config-group {
+      display: none;
+      flex-direction: column;
+      gap: 10px;
+      overflow-y: auto;
+      margin-bottom: 12px;
+      text-align: left;
+    }
+
+    .repo-field label {
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--accent-cyan);
+      text-transform: uppercase;
+      display: block;
+      margin-bottom: 4px;
+    }
+
+    .repo-field input {
+      width: 100%;
+      background: rgba(0, 0, 0, 0.4);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 8px;
+      padding: 10px;
+      color: #fff;
+      font-size: 0.85rem;
+      outline: none;
+    }
+
     .btn-wipe-all {
       width: 100%;
       background: linear-gradient(90deg, #880022, #d80032);
       border: 1px solid #ff4d6d;
       color: #fff;
-      padding: 12px;
-      border-radius: 12px;
+      padding: 10px;
+      border-radius: 10px;
       font-weight: 900;
-      font-size: 0.85rem;
+      font-size: 0.82rem;
       text-transform: uppercase;
       letter-spacing: 1px;
       cursor: pointer;
+      margin-top: 4px;
     }
   </style>
 </head>
@@ -926,7 +986,7 @@
   <div id="introOverlay">
     <div class="intro-card">
       <div class="intro-title">Spank Master CPS</div>
-      <p class="intro-desc">Enter your Spanker tag to sync with the real-time Cloud Leaderboard across mobile and laptop.</p>
+      <p class="intro-desc">Enter your Spanker tag to begin. Leaderboard scores sync directly with the repository JSON file.</p>
       
       <form id="introForm" onsubmit="startGame(event)">
         <div class="name-input-group">
@@ -935,13 +995,32 @@
             type="text" 
             id="playerNameInput" 
             class="name-input" 
-            placeholder="e.g. udi pudi" 
+            placeholder="e.g. ThunderCheeks" 
             maxlength="14" 
             required 
             autocomplete="off" 
           />
         </div>
-        <button type="submit" class="btn-start" onclick="startGame(event)">⚡ Enter the Arena</button>
+
+        <!-- Developer Checkbox -->
+        <label class="dev-checkbox-container" for="devCheckbox">
+          <input type="checkbox" id="devCheckbox" onchange="toggleDevPasswordField()" />
+          <span class="dev-checkbox-label">Developer</span>
+        </label>
+
+        <!-- Developer Password (Revealed on checkbox click) -->
+        <div class="name-input-group dev-password-group" id="devPasswordGroup">
+          <label for="devPasswordInput" style="color:var(--accent-gold);">Developer Passkey</label>
+          <input 
+            type="password" 
+            id="devPasswordInput" 
+            class="name-input" 
+            placeholder="Enter passkey..." 
+            autocomplete="off" 
+          />
+        </div>
+
+        <button type="submit" class="btn-start">⚡ Enter the Arena</button>
       </form>
     </div>
   </div>
@@ -954,7 +1033,7 @@
       <div class="player-badge">
         <span>Player: <strong id="activePlayerTag">Guest</strong></span>
         <button class="btn-edit-name" onclick="openNamePrompt()">[Change Name]</button>
-        <!-- Gear icon exclusive to dev -->
+        <!-- Gear icon exclusive to authenticated developers -->
         <button class="btn-admin-gear" id="adminGearBtn" style="display:none;" onclick="openAdminPanel()">⚙️ Admin</button>
       </div>
 
@@ -1017,7 +1096,7 @@
           </svg>
         </div>
 
-        <!-- Fiery Mega Hand -->
+        <!-- Mega Hand -->
         <div class="mega-hand-container" id="megaHandContainer">
           <svg viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:100%; height:100%;">
             <defs>
@@ -1059,7 +1138,7 @@
     <aside class="leaderboard-container" id="leaderboardBox">
       <div class="lb-header">
         <div class="lb-title">🏆 Top 10 Spankers</div>
-        <div class="lb-sync-badge" id="syncBadge">● Cloud Synced</div>
+        <div class="lb-sync-badge" id="syncBadge">● Repo Sync</div>
         <button class="btn-admin-gear" id="lbAdminBtn" style="display:none;" onclick="openAdminPanel()">⚙️</button>
         <button class="lb-close-btn" onclick="closeLeaderboard()">✖ Close</button>
       </div>
@@ -1073,89 +1152,191 @@
   <div id="adminOverlay" class="hidden">
     <div class="admin-card">
       <div class="admin-header">
-        <h3>⚙️ Admin Panel (dev)</h3>
+        <h3>⚙️ Developer Panel</h3>
         <button class="admin-close" onclick="closeAdminPanel()">✖</button>
       </div>
 
-      <div class="admin-player-list" id="adminPlayerList"></div>
+      <div class="admin-tabs">
+        <button class="admin-tab-btn active" id="tabPlayersBtn" onclick="switchAdminTab('players')">Manage Players</button>
+        <button class="admin-tab-btn" id="tabRepoBtn" onclick="switchAdminTab('repo')">Repo JSON Setup</button>
+      </div>
 
-      <button class="btn-wipe-all" onclick="adminClearAll()">
-        🗑️ Wipe Entire Leaderboard
-      </button>
+      <!-- Tab 1: Players -->
+      <div id="adminPlayersView">
+        <div class="admin-player-list" id="adminPlayerList"></div>
+        <button class="btn-wipe-all" onclick="adminClearAll()">🗑️ Wipe Entire Leaderboard</button>
+      </div>
+
+      <!-- Tab 2: GitHub Repository Connection Config -->
+      <div id="adminRepoView" class="repo-config-group">
+        <div class="repo-field">
+          <label>GitHub Username (Owner)</label>
+          <input type="text" id="repoOwnerInput" placeholder="e.g. your-github-user" />
+        </div>
+        <div class="repo-field">
+          <label>Repository Name</label>
+          <input type="text" id="repoNameInput" placeholder="e.g. spank-master-game" />
+        </div>
+        <div class="repo-field">
+          <label>File Path (Default: leaderboard.json)</label>
+          <input type="text" id="repoPathInput" placeholder="leaderboard.json" value="leaderboard.json" />
+        </div>
+        <div class="repo-field">
+          <label>Branch</label>
+          <input type="text" id="repoBranchInput" placeholder="main" value="main" />
+        </div>
+        <div class="repo-field">
+          <label>GitHub Personal Access Token (PAT)</label>
+          <input type="password" id="repoTokenInput" placeholder="ghp_xxxxxxxxxxxx" />
+          <small style="color:#888; font-size:0.7rem; margin-top:2px; display:block;">Requires 'Contents: Read and write' permission to commit directly.</small>
+        </div>
+        <button class="btn-start" style="padding:10px;" onclick="saveRepoConfig()">💾 Save & Connect Repo</button>
+      </div>
     </div>
   </div>
 
   <script>
     /* -------------------------------------------------------------
-       ONLINE CLOUD JSON STORAGE
+       GITHUB REPO CONFIGURATION & CLOUD FALLBACK
     ------------------------------------------------------------- */
+    const DEV_PASSKEY = "yy950271";
     const STORAGE_KEY_USER = 'spank_master_active_user';
-    const CLOUD_JSON_URL = 'https://mantledb.sh/v2/spank-master-cps-v2/leaderboard';
+    const STORAGE_KEY_DEV = 'spank_master_is_dev';
+    const STORAGE_KEY_REPO_CFG = 'spank_master_repo_config';
+    const STORAGE_KEY_LOCAL_LB = 'spank_master_local_fallback';
+
+    // Default Repo Settings (Can be updated via the Developer Panel UI)
+    let repoConfig = {
+      owner: '',
+      repo: '',
+      path: 'leaderboard.json',
+      branch: 'main',
+      token: ''
+    };
+
+    try {
+      const savedCfg = localStorage.getItem(STORAGE_KEY_REPO_CFG);
+      if (savedCfg) repoConfig = Object.assign(repoConfig, JSON.parse(savedCfg));
+    } catch(e) {}
 
     let activePlayerName = '';
-    try {
-      activePlayerName = localStorage.getItem(STORAGE_KEY_USER) || '';
-    } catch (e) {
-      activePlayerName = '';
-    }
-
+    let isDeveloper = false;
     let cloudPlayers = [];
+    let repoFileSha = null;
     let saveDebounceTimer = null;
 
-    function isDevAdmin() {
-      return activePlayerName && activePlayerName.trim().toLowerCase() === 'dev';
-    }
+    try {
+      activePlayerName = localStorage.getItem(STORAGE_KEY_USER) || '';
+      isDeveloper = localStorage.getItem(STORAGE_KEY_DEV) === 'true';
+    } catch (e) {}
 
     function updateAdminVisibility() {
-      const isDev = isDevAdmin();
       const gearBtn = document.getElementById('adminGearBtn');
       const lbGearBtn = document.getElementById('lbAdminBtn');
-      if (gearBtn) gearBtn.style.display = isDev ? 'inline-flex' : 'none';
-      if (lbGearBtn) lbGearBtn.style.display = isDev ? 'inline-flex' : 'none';
+      if (gearBtn) gearBtn.style.display = isDeveloper ? 'inline-flex' : 'none';
+      if (lbGearBtn) lbGearBtn.style.display = isDeveloper ? 'inline-flex' : 'none';
     }
 
-    async function fetchCloudLeaderboard() {
-      try {
-        const response = await fetch(CLOUD_JSON_URL, {
-          headers: { 'Accept': 'application/json' }
-        });
-        if (response.ok) {
-          const data = await response.json();
-          if (data && Array.isArray(data.players)) {
-            cloudPlayers = data.players;
-            renderLeaderboard();
-            const overlay = document.getElementById('adminOverlay');
-            if (overlay && !overlay.classList.contains('hidden')) {
-              renderAdminList();
-            }
-            updateSyncStatus("● Cloud Synced", "#00ff88");
-
-            const me = cloudPlayers.find(p => p.name.toLowerCase() === activePlayerName.toLowerCase());
-            if (me) {
-              highStreak = Math.max(highStreak, me.streak || 0);
-              highScore = Math.max(highScore, me.score || 0);
-              updateUI();
-            }
-          }
-        }
-      } catch (err) {
-        updateSyncStatus("● Offline Cache", "#ffd60a");
+    function toggleDevPasswordField() {
+      const chk = document.getElementById('devCheckbox');
+      const pwdGroup = document.getElementById('devPasswordGroup');
+      if (chk.checked) {
+        pwdGroup.style.display = 'block';
+        document.getElementById('devPasswordInput').focus();
+      } else {
+        pwdGroup.style.display = 'none';
       }
     }
 
-    async function saveCloudLeaderboard() {
-      try {
-        updateSyncStatus("● Syncing...", "#00f0ff");
-        const response = await fetch(CLOUD_JSON_URL, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ players: cloudPlayers })
-        });
-        if (response.ok) {
-          updateSyncStatus("● Cloud Synced", "#00ff88");
+    /* -------------------------------------------------------------
+       FETCH FROM / COMMIT TO GITHUB REPOSITORY JSON
+    ------------------------------------------------------------- */
+    async function fetchRepoLeaderboard() {
+      // 1. If configured with GitHub repo:
+      if (repoConfig.owner && repoConfig.repo) {
+        const url = `https://api.github.com/repos/${repoConfig.owner}/${repoConfig.repo}/contents/${repoConfig.path}?ref=${repoConfig.branch}`;
+        const headers = { 'Accept': 'application/vnd.github.v3+json' };
+        if (repoConfig.token) headers['Authorization'] = `token ${repoConfig.token}`;
+
+        try {
+          const res = await fetch(url, { headers });
+          if (res.ok) {
+            const data = await res.json();
+            repoFileSha = data.sha;
+            // Decode GitHub base64 file content
+            const decodedJson = decodeURIComponent(escape(atob(data.content.replace(/\s/g, ''))));
+            const parsed = JSON.parse(decodedJson);
+            if (parsed && Array.isArray(parsed.players)) {
+              cloudPlayers = parsed.players;
+              renderLeaderboard();
+              updateSyncStatus("● Repo Synced", "#00ff88");
+              syncMyLocalScores();
+              return;
+            }
+          }
+        } catch (err) {
+          console.warn('GitHub API fetch error:', err);
         }
-      } catch (err) {
-        updateSyncStatus("● Sync Pending", "#ff4500");
+      }
+
+      // 2. Fallback to LocalStorage cache if repo is not configured yet
+      try {
+        const local = localStorage.getItem(STORAGE_KEY_LOCAL_LB);
+        if (local) cloudPlayers = JSON.parse(local);
+      } catch(e) {}
+      renderLeaderboard();
+      updateSyncStatus(repoConfig.owner ? "● Repo Disconnected" : "● Setup Repo", "#ffd60a");
+    }
+
+    async function saveRepoLeaderboard() {
+      // Save local backup
+      try {
+        localStorage.setItem(STORAGE_KEY_LOCAL_LB, JSON.stringify(cloudPlayers));
+      } catch(e) {}
+
+      // If GitHub Repo is configured:
+      if (repoConfig.owner && repoConfig.repo && repoConfig.token) {
+        updateSyncStatus("● Committing...", "#00f0ff");
+        const url = `https://api.github.com/repos/${repoConfig.owner}/${repoConfig.repo}/contents/${repoConfig.path}`;
+        const contentStr = JSON.stringify({ players: cloudPlayers }, null, 2);
+        const encodedContent = btoa(unescape(encodeURIComponent(contentStr)));
+
+        const payload = {
+          message: `Update leaderboard [by ${activePlayerName}]`,
+          content: encodedContent,
+          branch: repoConfig.branch
+        };
+        if (repoFileSha) payload.sha = repoFileSha;
+
+        try {
+          const res = await fetch(url, {
+            method: 'PUT',
+            headers: {
+              'Authorization': `token ${repoConfig.token}`,
+              'Content-Type': 'application/json',
+              'Accept': 'application/vnd.github.v3+json'
+            },
+            body: JSON.stringify(payload)
+          });
+          if (res.ok) {
+            const result = await res.json();
+            repoFileSha = result.content.sha;
+            updateSyncStatus("● Repo Synced", "#00ff88");
+          } else {
+            updateSyncStatus("● Commit Failed", "#ff4500");
+          }
+        } catch (e) {
+          updateSyncStatus("● Repo Offline", "#ff4500");
+        }
+      }
+    }
+
+    function syncMyLocalScores() {
+      const me = cloudPlayers.find(p => p.name.toLowerCase() === activePlayerName.toLowerCase());
+      if (me) {
+        highStreak = Math.max(highStreak, me.streak || 0);
+        highScore = Math.max(highScore, me.score || 0);
+        updateUI();
       }
     }
 
@@ -1195,7 +1376,7 @@
       if (modified) {
         renderLeaderboard();
         clearTimeout(saveDebounceTimer);
-        saveDebounceTimer = setTimeout(saveCloudLeaderboard, 500);
+        saveDebounceTimer = setTimeout(saveRepoLeaderboard, 800);
       }
     }
 
@@ -1241,27 +1422,67 @@
       return String(str).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
     }
 
-    setInterval(fetchCloudLeaderboard, 4000);
-    window.addEventListener('focus', fetchCloudLeaderboard);
-
     /* -------------------------------------------------------------
-       ADMIN CONTROLS (DEV ONLY)
+       ADMIN ACTIONS (DEV ONLY)
     ------------------------------------------------------------- */
     function openAdminPanel() {
-      if (!isDevAdmin()) {
-        alert("Access Denied: Only 'dev' has admin access.");
+      if (!isDeveloper) {
+        alert("Developer access required.");
         return;
       }
       renderAdminList();
+      populateRepoInputs();
       const overlay = document.getElementById('adminOverlay');
       overlay.classList.remove('hidden');
-      overlay.style.display = 'flex';
     }
 
     function closeAdminPanel() {
-      const overlay = document.getElementById('adminOverlay');
-      overlay.classList.add('hidden');
-      overlay.style.display = 'none';
+      document.getElementById('adminOverlay').classList.add('hidden');
+    }
+
+    function switchAdminTab(tab) {
+      const playersView = document.getElementById('adminPlayersView');
+      const repoView = document.getElementById('adminRepoView');
+      const tabPlayersBtn = document.getElementById('tabPlayersBtn');
+      const tabRepoBtn = document.getElementById('tabRepoBtn');
+
+      if (tab === 'players') {
+        playersView.style.display = 'block';
+        repoView.style.display = 'none';
+        tabPlayersBtn.classList.add('active');
+        tabRepoBtn.classList.remove('active');
+        renderAdminList();
+      } else {
+        playersView.style.display = 'none';
+        repoView.style.display = 'flex';
+        tabPlayersBtn.classList.remove('active');
+        tabRepoBtn.classList.add('active');
+        populateRepoInputs();
+      }
+    }
+
+    function populateRepoInputs() {
+      document.getElementById('repoOwnerInput').value = repoConfig.owner || '';
+      document.getElementById('repoNameInput').value = repoConfig.repo || '';
+      document.getElementById('repoPathInput').value = repoConfig.path || 'leaderboard.json';
+      document.getElementById('repoBranchInput').value = repoConfig.branch || 'main';
+      document.getElementById('repoTokenInput').value = repoConfig.token || '';
+    }
+
+    function saveRepoConfig() {
+      repoConfig.owner = document.getElementById('repoOwnerInput').value.trim();
+      repoConfig.repo = document.getElementById('repoNameInput').value.trim();
+      repoConfig.path = document.getElementById('repoPathInput').value.trim() || 'leaderboard.json';
+      repoConfig.branch = document.getElementById('repoBranchInput').value.trim() || 'main';
+      repoConfig.token = document.getElementById('repoTokenInput').value.trim();
+
+      try {
+        localStorage.setItem(STORAGE_KEY_REPO_CFG, JSON.stringify(repoConfig));
+      } catch(e) {}
+
+      alert("Repository configuration saved! Syncing now...");
+      fetchRepoLeaderboard();
+      switchAdminTab('players');
     }
 
     function renderAdminList() {
@@ -1294,10 +1515,10 @@
     }
 
     function adminEditPlayer(idx) {
-      if (!isDevAdmin()) return;
+      if (!isDeveloper) return;
       const player = cloudPlayers[idx];
 
-      const newStreakInput = prompt(`Edit Streak for "${player.name}":`, player.streak);
+      const newStreakInput = prompt(`Edit Highest Streak for "${player.name}":`, player.streak);
       if (newStreakInput === null) return;
 
       const newScoreInput = prompt(`Edit Score for "${player.name}":`, player.score);
@@ -1309,34 +1530,34 @@
       if (!isNaN(newStreak)) player.streak = Math.max(0, newStreak);
       if (!isNaN(newScore)) player.score = Math.max(0, newScore);
 
-      saveCloudLeaderboard();
+      saveRepoLeaderboard();
       renderLeaderboard();
       renderAdminList();
     }
 
     function adminDeletePlayer(idx) {
-      if (!isDevAdmin()) return;
+      if (!isDeveloper) return;
       const player = cloudPlayers[idx];
-      if (confirm(`Delete "${player.name}" from leaderboard?`)) {
+      if (confirm(`Are you sure you want to delete "${player.name}" from leaderboard.json?`)) {
         cloudPlayers.splice(idx, 1);
-        saveCloudLeaderboard();
+        saveRepoLeaderboard();
         renderLeaderboard();
         renderAdminList();
       }
     }
 
     function adminClearAll() {
-      if (!isDevAdmin()) return;
-      if (confirm("⚠️ Wipe entire cloud leaderboard?")) {
+      if (!isDeveloper) return;
+      if (confirm("⚠️ Wipe all players from the leaderboard JSON file?")) {
         cloudPlayers = [];
-        saveCloudLeaderboard();
+        saveRepoLeaderboard();
         renderLeaderboard();
         renderAdminList();
       }
     }
 
     /* -------------------------------------------------------------
-       DRAWER INTERFACE
+       DRAWER & MODAL TOGGLE
     ------------------------------------------------------------- */
     const leaderboardBox = document.getElementById('leaderboardBox');
     const mobileBackdrop = document.getElementById('mobileBackdrop');
@@ -1347,12 +1568,8 @@
         mobileBackdrop.classList.add('active');
       } else {
         leaderboardBox.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-        leaderboardBox.style.boxShadow = '0 0 25px rgba(255, 214, 10, 0.6)';
-        setTimeout(() => {
-          leaderboardBox.style.boxShadow = '0 10px 30px rgba(0, 0, 0, 0.4)';
-        }, 800);
       }
-      fetchCloudLeaderboard();
+      fetchRepoLeaderboard();
     }
 
     function closeLeaderboard() {
@@ -1361,7 +1578,7 @@
     }
 
     /* -------------------------------------------------------------
-       INTRO & START GAME HANDLER
+       NAME PROMPT & LOGIN / DEV VALIDATION
     ------------------------------------------------------------- */
     const introOverlay = document.getElementById('introOverlay');
     const playerNameInput = document.getElementById('playerNameInput');
@@ -1370,42 +1587,55 @@
     function checkIntro() {
       if (!activePlayerName) {
         introOverlay.classList.remove('hidden');
-        introOverlay.style.display = 'flex';
         setTimeout(() => playerNameInput.focus(), 200);
       } else {
         activePlayerTag.textContent = activePlayerName;
         introOverlay.classList.add('hidden');
-        introOverlay.style.display = 'none';
         updateAdminVisibility();
-        fetchCloudLeaderboard();
+        fetchRepoLeaderboard();
       }
     }
 
     function startGame(e) {
       if (e) e.preventDefault();
-      const val = playerNameInput.value.trim();
-      if (!val) return;
+      const nameVal = playerNameInput.value.trim();
+      if (!nameVal) return;
 
-      activePlayerName = val;
+      const isDevChecked = document.getElementById('devCheckbox').checked;
+      const pwdVal = document.getElementById('devPasswordInput').value;
+
+      if (isDevChecked) {
+        if (pwdVal === DEV_PASSKEY) {
+          isDeveloper = true;
+          alert("Developer Mode Unlocked! Admin powers granted.");
+        } else {
+          alert("Incorrect Developer Passkey! Entering as standard player.");
+          isDeveloper = false;
+        }
+      } else {
+        isDeveloper = false;
+      }
+
+      activePlayerName = nameVal;
       try {
         localStorage.setItem(STORAGE_KEY_USER, activePlayerName);
+        localStorage.setItem(STORAGE_KEY_DEV, isDeveloper ? 'true' : 'false');
       } catch (err) {}
 
       activePlayerTag.textContent = activePlayerName;
-
-      // Close modal immediately
       introOverlay.classList.add('hidden');
-      introOverlay.style.display = 'none';
 
       initAudio();
       updateAdminVisibility();
-      fetchCloudLeaderboard();
+      fetchRepoLeaderboard();
     }
 
     function openNamePrompt() {
       playerNameInput.value = activePlayerName;
+      document.getElementById('devCheckbox').checked = false;
+      document.getElementById('devPasswordGroup').style.display = 'none';
+      document.getElementById('devPasswordInput').value = '';
       introOverlay.classList.remove('hidden');
-      introOverlay.style.display = 'flex';
       setTimeout(() => playerNameInput.focus(), 200);
     }
 
@@ -1623,9 +1853,6 @@
       setTimeout(() => burstHand.remove(), 320);
     }
 
-    /* -------------------------------------------------------------
-       CINEMATIC MEGA SPANK (250 STREAKS)
-    ------------------------------------------------------------- */
     function triggerMegaSpank() {
       if (isMegaSpankActive) return;
       isMegaSpankActive = true;
@@ -1715,9 +1942,6 @@
       target.classList.add('target-drop-in');
     }
 
-    /* -------------------------------------------------------------
-       TOUCH / CLICK HANDLER
-    ------------------------------------------------------------- */
     function handleSpank(e) {
       e.preventDefault();
       if (isMegaSpankActive) return;
@@ -1766,9 +1990,6 @@
 
     target.addEventListener('pointerdown', handleSpank);
 
-    /* -------------------------------------------------------------
-       BUTTONS
-    ------------------------------------------------------------- */
     btnSound.addEventListener('click', () => {
       soundEnabled = !soundEnabled;
       btnSound.textContent = soundEnabled ? '🔊 Sound: ON' : '🔇 Sound: OFF';
@@ -1782,6 +2003,7 @@
       }
     });
 
+    // Initialize
     checkIntro();
     updateUI();
   </script>
