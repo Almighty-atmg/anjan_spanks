@@ -525,7 +525,6 @@
       100% { transform: scale(1, 1) rotate(0deg); }
     }
 
-    /* Mega Spank FX */
     .mega-hand-container {
       position: absolute;
       top: -380px;
@@ -1018,12 +1017,13 @@
       
       <form id="introForm" onsubmit="startGame(event)">
         <div class="name-input-group">
-          <label for="playerNameInput">Spanker Tag / Name</label>
+          <label for="playerNameInput">Spanker Tag / Name (Min. 4 Chars)</label>
           <input 
             type="text" 
             id="playerNameInput" 
             class="name-input" 
             placeholder="e.g. ThunderCheeks" 
+            minlength="4"
             maxlength="14" 
             required 
             autocomplete="off" 
@@ -1275,7 +1275,9 @@
         if (res.ok) {
           updateSyncStatus("● Supabase Synced", "#00ff88");
         } else {
-          updateSyncStatus("● Rejected", "#ff4500");
+          const errData = await res.json().catch(() => ({}));
+          const reason = errData.error || `HTTP ${res.status}`;
+          updateSyncStatus(`● Rejected (${reason.slice(0, 18)})`, "#ff4500");
         }
       } catch (err) {
         updateSyncStatus("● Sync Error", "#ff4500");
@@ -1345,7 +1347,7 @@
     setInterval(fetchServerLeaderboard, 3500);
     window.addEventListener('focus', fetchServerLeaderboard);
 
-    /* Admin Operations (Index based to prevent syntax breakage) */
+    /* Admin Operations */
     function openAdminPanel() {
       if (!adminToken) {
         alert("Developer verification required.");
@@ -1480,7 +1482,7 @@
       mobileBackdrop.classList.remove('active');
     }
 
-    /* Intro & Auth */
+    /* Intro & Auth with 4-character and pure number checks */
     const introOverlay = document.getElementById('introOverlay');
     const playerNameInput = document.getElementById('playerNameInput');
     const activePlayerTag = document.getElementById('activePlayerTag');
@@ -1499,12 +1501,21 @@
 
     async function startGame(e) {
       if (e) e.preventDefault();
-      // Sanitize input to block XSS and malicious characters
+
       const rawName = playerNameInput.value.trim();
       const nameVal = rawName.replace(/[<>"'/\\`]/g, '').slice(0, 14);
 
-      if (!nameVal) {
-        alert("Please enter a valid alphanumeric player tag.");
+      // Check 1: Minimum length of 4
+      if (nameVal.length < 4) {
+        alert("Player tag must be at least 4 characters long!");
+        playerNameInput.focus();
+        return;
+      }
+
+      // Check 2: Cannot be numbers only
+      if (/^\d+$/.test(nameVal)) {
+        alert("Player tag cannot be numbers only! It must include letters.");
+        playerNameInput.focus();
         return;
       }
 
@@ -1690,7 +1701,6 @@
       const currentCps = clickTimestamps.length;
       valCps.textContent = currentCps.toFixed(1);
 
-      // Autoclicker detection threshold
       if (currentCps > 20 && !isCheaterBlocked) {
         triggerCheatWarning();
       }
