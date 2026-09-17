@@ -1256,7 +1256,7 @@
       if (repoConfig.owner && repoConfig.repo) {
         const url = `https://api.github.com/repos/${repoConfig.owner}/${repoConfig.repo}/contents/${repoConfig.path}?ref=${repoConfig.branch}`;
         const headers = { 'Accept': 'application/vnd.github.v3+json' };
-        if (repoConfig.token) headers['Authorization'] = `token ${repoConfig.token}`;
+        if (repoConfig.token) headers['Authorization'] = `Bearer ${repoConfig.token}`;
 
         try {
           const res = await fetch(url, { headers });
