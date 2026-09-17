@@ -99,7 +99,7 @@ export default async function handler(req, res) {
         if (updateErr) return res.status(500).json({ error: `DB Update Error: ${updateErr.message}` });
       } else {
         // 3. Prevent massive starting scores for brand new players
-        if (parsedStreak > 500) {
+        if (parsedStreak > 2500) {
            return res.status(403).json({ error: `Anti-cheat: Starting score too high.` });
         }
 
