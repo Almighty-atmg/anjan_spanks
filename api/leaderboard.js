@@ -1,43 +1,4 @@
-import { createClient } from '@supabase/supabase-js';
-
-export default async function handler(req, res) {
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-
-  if (req.method === 'OPTIONS') return res.status(200).end();
-
-  const supabaseUrl = process.env.SUPABASE_URL;
-  const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-
-  // 1. Diagnose Missing Environment Variables
-  if (!supabaseUrl || !supabaseKey) {
-    return res.status(500).json({
-      error: `Missing Vercel Env Vars: URL=${Boolean(supabaseUrl)}, KEY=${Boolean(supabaseKey)}. Did you redeploy?`
-    });
-  }
-
-  let supabase;
-  try {
-    supabase = createClient(supabaseUrl, supabaseKey);
-  } catch (initErr) {
-    return res.status(500).json({ error: `Supabase Init Failed: ${initErr.message}` });
-  }
-
-  // GET: Fetch Top 10
-  if (req.method === 'GET') {
-    const { data, error } = await supabase
-      .from('leaderboard')
-      .select('name, streak, score')
-      .order('streak', { ascending: false })
-      .order('score', { ascending: false })
-      .limit(10);
-
-    if (error) return res.status(500).json({ error: `DB Read Error: ${error.message}` });
-    return res.status(200).json({ players: data || [] });
-  }
-
-  // POST: Record High Score
+// POST: Record High Score
   if (req.method === 'POST') {
     const { name, streak, score, cps } = req.body || {};
 
@@ -45,11 +6,23 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: 'Valid player tag required.' });
     }
 
+    // Strip special characters and trim
+    const cleanName = name.replace(/[<>"'/\\`]/g, '').trim().slice(0, 14);
+
+    // 1. Length check: Minimum 4 characters
+    if (cleanName.length < 4) {
+      return res.status(400).json({ error: 'Name must be at least 4 characters long.' });
+    }
+
+    // 2. Number check: Cannot be purely numbers
+    if (/^\d+$/.test(cleanName)) {
+      return res.status(400).json({ error: 'Name cannot be numbers only.' });
+    }
+
     if (cps && Number(cps) > 40) {
       return res.status(403).json({ error: 'CPS limit exceeded.' });
     }
 
-    const cleanName = name.replace(/[<>"'/\\`]/g, '').trim().slice(0, 14);
     const parsedStreak = Math.max(0, parseInt(streak, 10) || 0);
     const parsedScore = Math.max(0, parseInt(score, 10) || 0);
 
@@ -91,6 +64,3 @@ export default async function handler(req, res) {
       return res.status(500).json({ error: `Server Exception: ${dbErr.message}` });
     }
   }
-
-  res.status(405).json({ error: 'Method not allowed' });
-}
