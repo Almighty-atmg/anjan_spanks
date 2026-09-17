@@ -6,9 +6,10 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY
 );
 
-const DEV_PASSKEY = process.env.DEV_PASSKEY || 'yy950271';
+const DEV_PASSKEY = process.env.DEV_PASSKEY;
 
 function generateSessionToken() {
+  if (!DEV_PASSKEY) return null;
   return crypto.createHmac('sha256', DEV_PASSKEY).update('spank-dev-auth').digest('hex');
 }
 
