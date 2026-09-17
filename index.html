@@ -1133,7 +1133,7 @@
           if (data && Array.isArray(data.players)) {
             cloudPlayers = data.players;
             renderLeaderboard();
-            updateSyncStatus("● Supabase Synced", "#00ff88");
+            updateSyncStatus("● Diddy Synced", "#00ff88");
 
             const me = cloudPlayers.find(p => p.name.toLowerCase() === activePlayerName.toLowerCase());
             if (me) {
@@ -1162,7 +1162,7 @@
           })
         });
         if (res.ok) {
-          updateSyncStatus("● Supabase Synced", "#00ff88");
+          updateSyncStatus("● Diddy Synced", "#00ff88");
         } else {
           updateSyncStatus("● Rejected", "#ff4500");
         }
