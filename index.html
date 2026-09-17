@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>Spank Master CPS - GitHub Repository Sync</title>
+  <title>Spank Master CPS - Auto Cloud Sync</title>
   <style>
     :root {
       --bg-dark: #0f0c1b;
@@ -844,30 +844,6 @@
       cursor: pointer;
     }
 
-    .admin-tabs {
-      display: flex;
-      gap: 8px;
-      margin-bottom: 12px;
-    }
-
-    .admin-tab-btn {
-      flex: 1;
-      background: rgba(255, 255, 255, 0.06);
-      border: 1px solid rgba(255, 255, 255, 0.15);
-      color: #ddd;
-      padding: 8px;
-      border-radius: 8px;
-      font-weight: 800;
-      font-size: 0.78rem;
-      cursor: pointer;
-    }
-
-    .admin-tab-btn.active {
-      background: var(--accent-pink);
-      color: #fff;
-      border-color: var(--accent-pink);
-    }
-
     .admin-player-list {
       display: flex;
       flex-direction: column;
@@ -932,35 +908,6 @@
       border: 1px solid #ff4d6d;
     }
 
-    .repo-config-group {
-      display: none;
-      flex-direction: column;
-      gap: 10px;
-      overflow-y: auto;
-      margin-bottom: 12px;
-      text-align: left;
-    }
-
-    .repo-field label {
-      font-size: 0.75rem;
-      font-weight: 700;
-      color: var(--accent-cyan);
-      text-transform: uppercase;
-      display: block;
-      margin-bottom: 4px;
-    }
-
-    .repo-field input {
-      width: 100%;
-      background: rgba(0, 0, 0, 0.4);
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      border-radius: 8px;
-      padding: 10px;
-      color: #fff;
-      font-size: 0.85rem;
-      outline: none;
-    }
-
     .btn-wipe-all {
       width: 100%;
       background: linear-gradient(90deg, #880022, #d80032);
@@ -986,7 +933,7 @@
   <div id="introOverlay">
     <div class="intro-card">
       <div class="intro-title">Spank Master CPS</div>
-      <p class="intro-desc">Enter your Spanker tag to begin. Leaderboard scores sync directly with the repository JSON file.</p>
+      <p class="intro-desc">Enter your Spanker tag to play. Scores automatically sync in real-time across your phone and laptop!</p>
       
       <form id="introForm" onsubmit="startGame(event)">
         <div class="name-input-group">
@@ -1008,7 +955,7 @@
           <span class="dev-checkbox-label">Developer</span>
         </label>
 
-        <!-- Developer Password (Revealed on checkbox click) -->
+        <!-- Developer Password -->
         <div class="name-input-group dev-password-group" id="devPasswordGroup">
           <label for="devPasswordInput" style="color:var(--accent-gold);">Developer Passkey</label>
           <input 
@@ -1033,7 +980,7 @@
       <div class="player-badge">
         <span>Player: <strong id="activePlayerTag">Guest</strong></span>
         <button class="btn-edit-name" onclick="openNamePrompt()">[Change Name]</button>
-        <!-- Gear icon exclusive to authenticated developers -->
+        <!-- Gear icon for developer mode -->
         <button class="btn-admin-gear" id="adminGearBtn" style="display:none;" onclick="openAdminPanel()">⚙️ Admin</button>
       </div>
 
@@ -1138,7 +1085,7 @@
     <aside class="leaderboard-container" id="leaderboardBox">
       <div class="lb-header">
         <div class="lb-title">🏆 Top 10 Spankers</div>
-        <div class="lb-sync-badge" id="syncBadge">● Repo Sync</div>
+        <div class="lb-sync-badge" id="syncBadge">● Live Synced</div>
         <button class="btn-admin-gear" id="lbAdminBtn" style="display:none;" onclick="openAdminPanel()">⚙️</button>
         <button class="lb-close-btn" onclick="closeLeaderboard()">✖ Close</button>
       </div>
@@ -1152,77 +1099,32 @@
   <div id="adminOverlay" class="hidden">
     <div class="admin-card">
       <div class="admin-header">
-        <h3>⚙️ Developer Panel</h3>
+        <h3>⚙️ Developer Controls</h3>
         <button class="admin-close" onclick="closeAdminPanel()">✖</button>
       </div>
 
-      <div class="admin-tabs">
-        <button class="admin-tab-btn active" id="tabPlayersBtn" onclick="switchAdminTab('players')">Manage Players</button>
-        <button class="admin-tab-btn" id="tabRepoBtn" onclick="switchAdminTab('repo')">Repo JSON Setup</button>
-      </div>
+      <div class="admin-player-list" id="adminPlayerList"></div>
 
-      <!-- Tab 1: Players -->
-      <div id="adminPlayersView">
-        <div class="admin-player-list" id="adminPlayerList"></div>
-        <button class="btn-wipe-all" onclick="adminClearAll()">🗑️ Wipe Entire Leaderboard</button>
-      </div>
-
-      <!-- Tab 2: GitHub Repository Connection Config -->
-      <div id="adminRepoView" class="repo-config-group">
-        <div class="repo-field">
-          <label>GitHub Username (Owner)</label>
-          <input type="text" id="repoOwnerInput" placeholder="e.g. your-github-user" />
-        </div>
-        <div class="repo-field">
-          <label>Repository Name</label>
-          <input type="text" id="repoNameInput" placeholder="e.g. spank-master-game" />
-        </div>
-        <div class="repo-field">
-          <label>File Path (Default: leaderboard.json)</label>
-          <input type="text" id="repoPathInput" placeholder="leaderboard.json" value="leaderboard.json" />
-        </div>
-        <div class="repo-field">
-          <label>Branch</label>
-          <input type="text" id="repoBranchInput" placeholder="main" value="main" />
-        </div>
-        <div class="repo-field">
-          <label>GitHub Personal Access Token (PAT)</label>
-          <input type="password" id="repoTokenInput" placeholder="ghp_xxxxxxxxxxxx" />
-          <small style="color:#888; font-size:0.7rem; margin-top:2px; display:block;">Requires 'Contents: Read and write' permission to commit directly.</small>
-        </div>
-        <button class="btn-start" style="padding:10px;" onclick="saveRepoConfig()">💾 Save & Connect Repo</button>
-      </div>
+      <button class="btn-wipe-all" onclick="adminClearAll()">
+        🗑️ Wipe Entire Leaderboard
+      </button>
     </div>
   </div>
 
   <script>
     /* -------------------------------------------------------------
-       GITHUB REPO CONFIGURATION & CLOUD FALLBACK
+       ZERO-CONFIG CLOUD JSON DATABASE (REAL-TIME AUTO-SYNC)
     ------------------------------------------------------------- */
     const DEV_PASSKEY = "yy950271";
     const STORAGE_KEY_USER = 'spank_master_active_user';
     const STORAGE_KEY_DEV = 'spank_master_is_dev';
-    const STORAGE_KEY_REPO_CFG = 'spank_master_repo_config';
-    const STORAGE_KEY_LOCAL_LB = 'spank_master_local_fallback';
-
-    // Default Repo Settings (Can be updated via the Developer Panel UI)
-    let repoConfig = {
-      owner: '',
-      repo: '',
-      path: 'leaderboard.json',
-      branch: 'main',
-      token: ''
-    };
-
-    try {
-      const savedCfg = localStorage.getItem(STORAGE_KEY_REPO_CFG);
-      if (savedCfg) repoConfig = Object.assign(repoConfig, JSON.parse(savedCfg));
-    } catch(e) {}
+    
+    // Dedicated live JSON endpoint (Shared automatically by all players)
+    const AUTO_CLOUD_URL = 'https://mantledb.sh/v2/spank-master-live-v3/scores';
 
     let activePlayerName = '';
     let isDeveloper = false;
     let cloudPlayers = [];
-    let repoFileSha = null;
     let saveDebounceTimer = null;
 
     try {
@@ -1249,94 +1151,50 @@
     }
 
     /* -------------------------------------------------------------
-       FETCH FROM / COMMIT TO GITHUB REPOSITORY JSON
+       AUTOMATIC CLOUD FETCH & COMMIT
     ------------------------------------------------------------- */
-    async function fetchRepoLeaderboard() {
-      // 1. If configured with GitHub repo:
-      if (repoConfig.owner && repoConfig.repo) {
-        const url = `https://api.github.com/repos/${repoConfig.owner}/${repoConfig.repo}/contents/${repoConfig.path}?ref=${repoConfig.branch}`;
-        const headers = { 'Accept': 'application/vnd.github.v3+json' };
-        if (repoConfig.token) headers['Authorization'] = `Bearer ${repoConfig.token}`;
+    async function fetchLeaderboard() {
+      try {
+        const res = await fetch(AUTO_CLOUD_URL, {
+          headers: { 'Accept': 'application/json' }
+        });
+        if (res.ok) {
+          const data = await res.json();
+          if (data && Array.isArray(data.players)) {
+            cloudPlayers = data.players;
+            renderLeaderboard();
+            const overlay = document.getElementById('adminOverlay');
+            if (overlay && !overlay.classList.contains('hidden')) {
+              renderAdminList();
+            }
+            updateSyncStatus("● Live Synced", "#00ff88");
 
-        try {
-          const res = await fetch(url, { headers });
-          if (res.ok) {
-            const data = await res.json();
-            repoFileSha = data.sha;
-            // Decode GitHub base64 file content
-            const decodedJson = decodeURIComponent(escape(atob(data.content.replace(/\s/g, ''))));
-            const parsed = JSON.parse(decodedJson);
-            if (parsed && Array.isArray(parsed.players)) {
-              cloudPlayers = parsed.players;
-              renderLeaderboard();
-              updateSyncStatus("● Repo Synced", "#00ff88");
-              syncMyLocalScores();
-              return;
+            const me = cloudPlayers.find(p => p.name.toLowerCase() === activePlayerName.toLowerCase());
+            if (me) {
+              highStreak = Math.max(highStreak, me.streak || 0);
+              highScore = Math.max(highScore, me.score || 0);
+              updateUI();
             }
           }
-        } catch (err) {
-          console.warn('GitHub API fetch error:', err);
         }
-      }
-
-      // 2. Fallback to LocalStorage cache if repo is not configured yet
-      try {
-        const local = localStorage.getItem(STORAGE_KEY_LOCAL_LB);
-        if (local) cloudPlayers = JSON.parse(local);
-      } catch(e) {}
-      renderLeaderboard();
-      updateSyncStatus(repoConfig.owner ? "● Repo Disconnected" : "● Setup Repo", "#ffd60a");
-    }
-
-    async function saveRepoLeaderboard() {
-      // Save local backup
-      try {
-        localStorage.setItem(STORAGE_KEY_LOCAL_LB, JSON.stringify(cloudPlayers));
-      } catch(e) {}
-
-      // If GitHub Repo is configured:
-      if (repoConfig.owner && repoConfig.repo && repoConfig.token) {
-        updateSyncStatus("● Committing...", "#00f0ff");
-        const url = `https://api.github.com/repos/${repoConfig.owner}/${repoConfig.repo}/contents/${repoConfig.path}`;
-        const contentStr = JSON.stringify({ players: cloudPlayers }, null, 2);
-        const encodedContent = btoa(unescape(encodeURIComponent(contentStr)));
-
-        const payload = {
-          message: `Update leaderboard [by ${activePlayerName}]`,
-          content: encodedContent,
-          branch: repoConfig.branch
-        };
-        if (repoFileSha) payload.sha = repoFileSha;
-
-        try {
-          const res = await fetch(url, {
-            method: 'PUT',
-            headers: {
-              'Authorization': `token ${repoConfig.token}`,
-              'Content-Type': 'application/json',
-              'Accept': 'application/vnd.github.v3+json'
-            },
-            body: JSON.stringify(payload)
-          });
-          if (res.ok) {
-            const result = await res.json();
-            repoFileSha = result.content.sha;
-            updateSyncStatus("● Repo Synced", "#00ff88");
-          } else {
-            updateSyncStatus("● Commit Failed", "#ff4500");
-          }
-        } catch (e) {
-          updateSyncStatus("● Repo Offline", "#ff4500");
-        }
+      } catch (err) {
+        updateSyncStatus("● Local Offline", "#ffd60a");
       }
     }
 
-    function syncMyLocalScores() {
-      const me = cloudPlayers.find(p => p.name.toLowerCase() === activePlayerName.toLowerCase());
-      if (me) {
-        highStreak = Math.max(highStreak, me.streak || 0);
-        highScore = Math.max(highScore, me.score || 0);
-        updateUI();
+    async function saveLeaderboard() {
+      try {
+        updateSyncStatus("● Saving...", "#00f0ff");
+        const res = await fetch(AUTO_CLOUD_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ players: cloudPlayers })
+        });
+        if (res.ok) {
+          updateSyncStatus("● Live Synced", "#00ff88");
+        }
+      } catch (err) {
+        updateSyncStatus("● Sync Pending", "#ff4500");
       }
     }
 
@@ -1376,7 +1234,7 @@
       if (modified) {
         renderLeaderboard();
         clearTimeout(saveDebounceTimer);
-        saveDebounceTimer = setTimeout(saveRepoLeaderboard, 800);
+        saveDebounceTimer = setTimeout(saveLeaderboard, 450);
       }
     }
 
@@ -1422,67 +1280,23 @@
       return String(str).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
     }
 
+    setInterval(fetchLeaderboard, 3500);
+    window.addEventListener('focus', fetchLeaderboard);
+
     /* -------------------------------------------------------------
-       ADMIN ACTIONS (DEV ONLY)
+       ADMIN MODAL LOGIC (PASSWORD PROTECTED)
     ------------------------------------------------------------- */
     function openAdminPanel() {
       if (!isDeveloper) {
-        alert("Developer access required.");
+        alert("Developer mode not authorized.");
         return;
       }
       renderAdminList();
-      populateRepoInputs();
-      const overlay = document.getElementById('adminOverlay');
-      overlay.classList.remove('hidden');
+      document.getElementById('adminOverlay').classList.remove('hidden');
     }
 
     function closeAdminPanel() {
       document.getElementById('adminOverlay').classList.add('hidden');
-    }
-
-    function switchAdminTab(tab) {
-      const playersView = document.getElementById('adminPlayersView');
-      const repoView = document.getElementById('adminRepoView');
-      const tabPlayersBtn = document.getElementById('tabPlayersBtn');
-      const tabRepoBtn = document.getElementById('tabRepoBtn');
-
-      if (tab === 'players') {
-        playersView.style.display = 'block';
-        repoView.style.display = 'none';
-        tabPlayersBtn.classList.add('active');
-        tabRepoBtn.classList.remove('active');
-        renderAdminList();
-      } else {
-        playersView.style.display = 'none';
-        repoView.style.display = 'flex';
-        tabPlayersBtn.classList.remove('active');
-        tabRepoBtn.classList.add('active');
-        populateRepoInputs();
-      }
-    }
-
-    function populateRepoInputs() {
-      document.getElementById('repoOwnerInput').value = repoConfig.owner || '';
-      document.getElementById('repoNameInput').value = repoConfig.repo || '';
-      document.getElementById('repoPathInput').value = repoConfig.path || 'leaderboard.json';
-      document.getElementById('repoBranchInput').value = repoConfig.branch || 'main';
-      document.getElementById('repoTokenInput').value = repoConfig.token || '';
-    }
-
-    function saveRepoConfig() {
-      repoConfig.owner = document.getElementById('repoOwnerInput').value.trim();
-      repoConfig.repo = document.getElementById('repoNameInput').value.trim();
-      repoConfig.path = document.getElementById('repoPathInput').value.trim() || 'leaderboard.json';
-      repoConfig.branch = document.getElementById('repoBranchInput').value.trim() || 'main';
-      repoConfig.token = document.getElementById('repoTokenInput').value.trim();
-
-      try {
-        localStorage.setItem(STORAGE_KEY_REPO_CFG, JSON.stringify(repoConfig));
-      } catch(e) {}
-
-      alert("Repository configuration saved! Syncing now...");
-      fetchRepoLeaderboard();
-      switchAdminTab('players');
     }
 
     function renderAdminList() {
@@ -1530,7 +1344,7 @@
       if (!isNaN(newStreak)) player.streak = Math.max(0, newStreak);
       if (!isNaN(newScore)) player.score = Math.max(0, newScore);
 
-      saveRepoLeaderboard();
+      saveLeaderboard();
       renderLeaderboard();
       renderAdminList();
     }
@@ -1538,9 +1352,9 @@
     function adminDeletePlayer(idx) {
       if (!isDeveloper) return;
       const player = cloudPlayers[idx];
-      if (confirm(`Are you sure you want to delete "${player.name}" from leaderboard.json?`)) {
+      if (confirm(`Are you sure you want to delete "${player.name}" from the leaderboard?`)) {
         cloudPlayers.splice(idx, 1);
-        saveRepoLeaderboard();
+        saveLeaderboard();
         renderLeaderboard();
         renderAdminList();
       }
@@ -1548,16 +1362,16 @@
 
     function adminClearAll() {
       if (!isDeveloper) return;
-      if (confirm("⚠️ Wipe all players from the leaderboard JSON file?")) {
+      if (confirm("⚠️ Wipe all scores from the live database?")) {
         cloudPlayers = [];
-        saveRepoLeaderboard();
+        saveLeaderboard();
         renderLeaderboard();
         renderAdminList();
       }
     }
 
     /* -------------------------------------------------------------
-       DRAWER & MODAL TOGGLE
+       DRAWER INTERFACE
     ------------------------------------------------------------- */
     const leaderboardBox = document.getElementById('leaderboardBox');
     const mobileBackdrop = document.getElementById('mobileBackdrop');
@@ -1569,7 +1383,7 @@
       } else {
         leaderboardBox.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
       }
-      fetchRepoLeaderboard();
+      fetchLeaderboard();
     }
 
     function closeLeaderboard() {
@@ -1578,7 +1392,7 @@
     }
 
     /* -------------------------------------------------------------
-       NAME PROMPT & LOGIN / DEV VALIDATION
+       INTRO & AUTHENTICATION HANDLER
     ------------------------------------------------------------- */
     const introOverlay = document.getElementById('introOverlay');
     const playerNameInput = document.getElementById('playerNameInput');
@@ -1592,7 +1406,7 @@
         activePlayerTag.textContent = activePlayerName;
         introOverlay.classList.add('hidden');
         updateAdminVisibility();
-        fetchRepoLeaderboard();
+        fetchLeaderboard();
       }
     }
 
@@ -1607,9 +1421,9 @@
       if (isDevChecked) {
         if (pwdVal === DEV_PASSKEY) {
           isDeveloper = true;
-          alert("Developer Mode Unlocked! Admin powers granted.");
+          alert("Developer Authenticated! Admin controls unlocked.");
         } else {
-          alert("Incorrect Developer Passkey! Entering as standard player.");
+          alert("Incorrect Developer Passkey! Entering as normal player.");
           isDeveloper = false;
         }
       } else {
@@ -1627,7 +1441,7 @@
 
       initAudio();
       updateAdminVisibility();
-      fetchRepoLeaderboard();
+      fetchLeaderboard();
     }
 
     function openNamePrompt() {
@@ -2003,7 +1817,6 @@
       }
     });
 
-    // Initialize
     checkIntro();
     updateUI();
   </script>
