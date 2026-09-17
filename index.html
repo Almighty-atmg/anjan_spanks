@@ -1180,35 +1180,30 @@
   </div>
 
   <script>
-
     /* -------------------------------------------------------------
-       ANTI-INSPECT & DEVTOOLS FREEZE TRAP
+       ANTI-INSPECT & DEVTOOLS BREAKPOINT TRAP
     ------------------------------------------------------------- */
-    // 1. Disable Right Click (Inspect Element)
     document.addEventListener('contextmenu', (e) => e.preventDefault());
 
-    // 2. Block DevTools Keyboard Shortcuts (F12, Ctrl+Shift+I/J/C, Ctrl+U)
     document.addEventListener('keydown', (e) => {
       if (
         e.key === 'F12' ||
         (e.ctrlKey && e.shiftKey && ['I', 'J', 'C'].includes(e.key.toUpperCase())) ||
         (e.ctrlKey && ['U', 'S'].includes(e.key.toUpperCase())) ||
-        (e.metaKey && e.altKey && ['I', 'J', 'C'].includes(e.key.toUpperCase())) || // Mac
-        (e.metaKey && e.key.toUpperCase() === 'U') // Mac
+        (e.metaKey && e.altKey && ['I', 'J', 'C'].includes(e.key.toUpperCase())) ||
+        (e.metaKey && e.key.toUpperCase() === 'U')
       ) {
         e.preventDefault();
         return false;
       }
     });
 
-    // 3. Debugger Infinite Loop Trap
-    // If someone manages to open DevTools, this freezes their console immediately
     setInterval(() => {
       (function() {
         return false;
       }['constructor']('debugger')['call']());
-    }, 100);
-    
+    }, 150);
+
     /* -------------------------------------------------------------
        CLIENT CONTROLLER
     ------------------------------------------------------------- */
@@ -1245,7 +1240,7 @@
       }
     }
 
-    /* Anti-Cheat Warning Modal */
+    /* Anti-Autoclicker Cheat Modal */
     function triggerCheatWarning() {
       isCheaterBlocked = true;
       streak = 0;
@@ -1309,6 +1304,7 @@
             token: generateAntiTamperToken(activePlayerName, streak, score)
           })
         });
+
         if (res.ok) {
           updateSyncStatus("● Supabase Synced", "#00ff88");
         } else {
@@ -1369,7 +1365,12 @@
     }
 
     function escapeHtml(str) {
-      return String(str).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+      return String(str)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
     }
 
     function updateSyncStatus(text, color) {
@@ -1519,7 +1520,7 @@
       mobileBackdrop.classList.remove('active');
     }
 
-    /* Intro & Auth with 4-character and pure number checks */
+    /* Intro & Auth with Fresh Player Reset */
     const introOverlay = document.getElementById('introOverlay');
     const playerNameInput = document.getElementById('playerNameInput');
     const activePlayerTag = document.getElementById('activePlayerTag');
@@ -1593,6 +1594,14 @@
       try {
         localStorage.setItem(STORAGE_KEY_USER, activePlayerName);
       } catch (err) {}
+
+      // RESET GAME STATE ON NAME CHANGE TO PREVENT ANTI-CHEAT FALSE POSITIVES
+      score = 0;
+      streak = 0;
+      highStreak = 0;
+      highScore = 0;
+      clickTimestamps = [];
+      updateUI();
 
       activePlayerTag.textContent = activePlayerName;
       introOverlay.classList.add('hidden');
