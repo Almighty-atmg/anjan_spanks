@@ -60,6 +60,83 @@
       transition: none;
     }
 
+    /* Anti-Autoclicker Cheat Modal */
+    #cheatOverlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(10, 5, 15, 0.96);
+      backdrop-filter: blur(20px);
+      z-index: 400;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.25s ease;
+    }
+
+    #cheatOverlay.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .cheat-card {
+      background: #180a18;
+      border: 2px solid var(--accent-fire);
+      border-radius: 20px;
+      padding: 26px 20px;
+      max-width: 420px;
+      width: 100%;
+      text-align: center;
+      box-shadow: 0 0 40px rgba(255, 69, 0, 0.6);
+      animation: cheatPop 0.3s cubic-bezier(0.18, 0.89, 0.32, 1.28) forwards;
+    }
+
+    @keyframes cheatPop {
+      from { transform: scale(0.8); }
+      to { transform: scale(1); }
+    }
+
+    .cheat-icon {
+      font-size: 3rem;
+      margin-bottom: 8px;
+    }
+
+    .cheat-title {
+      font-size: 1.5rem;
+      font-weight: 900;
+      text-transform: uppercase;
+      color: var(--accent-fire);
+      letter-spacing: 1px;
+      margin-bottom: 12px;
+    }
+
+    .cheat-message {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: #fff;
+      line-height: 1.5;
+      margin-bottom: 20px;
+      padding: 12px;
+      background: rgba(255, 69, 0, 0.12);
+      border-radius: 10px;
+      border: 1px dashed var(--accent-fire);
+    }
+
+    .btn-cheat-close {
+      width: 100%;
+      background: linear-gradient(90deg, var(--accent-fire), var(--accent-pink));
+      color: #fff;
+      border: none;
+      padding: 12px;
+      border-radius: 12px;
+      font-size: 0.95rem;
+      font-weight: 900;
+      text-transform: uppercase;
+      cursor: pointer;
+    }
+
     /* Intro Overlay */
     #introOverlay {
       position: fixed;
@@ -777,7 +854,7 @@
       color: #8c889f;
     }
 
-    /* Admin Panel Modal */
+    /* Admin Modal */
     #adminOverlay {
       position: fixed;
       inset: 0;
@@ -920,6 +997,18 @@
 
   <div id="screenFlash"></div>
   <div class="mobile-backdrop" id="mobileBackdrop" onclick="closeLeaderboard()"></div>
+
+  <!-- Anti-Autoclicker Cheat Modal -->
+  <div id="cheatOverlay">
+    <div class="cheat-card">
+      <div class="cheat-icon">🚨</div>
+      <div class="cheat-title">Autoclicker Detected</div>
+      <div class="cheat-message">
+        You cheater using autoclick, dont u have manners u bitch, bro its a spanky game plz pla it wisely
+      </div>
+      <button class="btn-cheat-close" onclick="dismissCheatWarning()">I'm Sorry, I Will Play Fair</button>
+    </div>
+  </div>
 
   <!-- Intro Dialog -->
   <div id="introOverlay">
@@ -1100,6 +1189,7 @@
     let adminToken = '';
     let cloudPlayers = [];
     let saveDebounceTimer = null;
+    let isCheaterBlocked = false;
 
     try {
       activePlayerName = localStorage.getItem(STORAGE_KEY_USER) || '';
@@ -1125,6 +1215,23 @@
       }
     }
 
+    /* Anti-Cheat Warning Modal */
+    function triggerCheatWarning() {
+      isCheaterBlocked = true;
+      streak = 0; // Punish streak
+      updateUI();
+      document.getElementById('cheatOverlay').classList.add('active');
+    }
+
+    function dismissCheatWarning() {
+      document.getElementById('cheatOverlay').classList.remove('active');
+      setTimeout(() => {
+        isCheaterBlocked = false;
+        clickTimestamps = [];
+      }, 500);
+    }
+
+    /* Server Communication */
     async function fetchServerLeaderboard() {
       try {
         const res = await fetch('/api/leaderboard');
@@ -1172,7 +1279,7 @@
     }
 
     function recordPlayerMetrics(currentStreak, currentScore) {
-      if (!activePlayerName) return;
+      if (!activePlayerName || isCheaterBlocked) return;
 
       clearTimeout(saveDebounceTimer);
       saveDebounceTimer = setTimeout(() => {
@@ -1234,6 +1341,7 @@
     setInterval(fetchServerLeaderboard, 3500);
     window.addEventListener('focus', fetchServerLeaderboard);
 
+    /* Admin Operations */
     function openAdminPanel() {
       if (!adminToken) {
         alert("Developer verification required.");
@@ -1343,6 +1451,7 @@
       }
     }
 
+    /* Drawer Toggle */
     const leaderboardBox = document.getElementById('leaderboardBox');
     const mobileBackdrop = document.getElementById('mobileBackdrop');
 
@@ -1361,6 +1470,7 @@
       mobileBackdrop.classList.remove('active');
     }
 
+    /* Intro & Auth */
     const introOverlay = document.getElementById('introOverlay');
     const playerNameInput = document.getElementById('playerNameInput');
     const activePlayerTag = document.getElementById('activePlayerTag');
@@ -1561,7 +1671,13 @@
     function updateCPS() {
       const now = performance.now();
       clickTimestamps = clickTimestamps.filter(t => now - t <= 1000);
-      valCps.textContent = clickTimestamps.length.toFixed(1);
+      const currentCps = clickTimestamps.length;
+      valCps.textContent = currentCps.toFixed(1);
+
+      // Autoclicker detection: > 20 clicks in the last 1000ms window
+      if (currentCps > 20 && !isCheaterBlocked) {
+        triggerCheatWarning();
+      }
     }
     setInterval(updateCPS, 100);
 
@@ -1584,7 +1700,7 @@
     }
 
     function resetStreakDecay() {
-      if (isMegaSpankActive) return;
+      if (isMegaSpankActive || isCheaterBlocked) return;
 
       clearTimeout(streakDecayTimer);
       comboFill.style.transition = 'none';
@@ -1652,7 +1768,7 @@
     }
 
     function triggerMegaSpank() {
-      if (isMegaSpankActive) return;
+      if (isMegaSpankActive || isCheaterBlocked) return;
       isMegaSpankActive = true;
 
       clearTimeout(streakDecayTimer);
@@ -1742,9 +1858,17 @@
 
     function handleSpank(e) {
       e.preventDefault();
-      if (isMegaSpankActive) return;
+      if (isMegaSpankActive || isCheaterBlocked) return;
 
-      clickTimestamps.push(performance.now());
+      const now = performance.now();
+      clickTimestamps.push(now);
+
+      // Instant autoclicker check before scoring
+      const recentClicks = clickTimestamps.filter(t => now - t <= 1000).length;
+      if (recentClicks > 20) {
+        triggerCheatWarning();
+        return;
+      }
 
       streak++;
       if (streak > highStreak) highStreak = streak;
@@ -1794,7 +1918,7 @@
     });
 
     btnTestMega.addEventListener('click', () => {
-      if (!isMegaSpankActive) {
+      if (!isMegaSpankActive && !isCheaterBlocked) {
         streak = Math.max(streak, 250);
         updateUI();
         triggerMegaSpank();
