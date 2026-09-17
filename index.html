@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>Spank Master CPS - Server Edition</title>
+  <title>Spank Master CPS</title>
   <style>
     :root {
       --bg-dark: #0f0c1b;
@@ -60,11 +60,11 @@
       transition: none;
     }
 
-    /* Intro Modal */
+    /* Intro Overlay */
     #introOverlay {
       position: fixed;
       inset: 0;
-      background: rgba(10, 8, 20, 0.94);
+      background: rgba(10, 8, 20, 0.95);
       backdrop-filter: blur(16px);
       z-index: 300;
       display: flex;
@@ -89,7 +89,7 @@
     }
 
     .intro-title {
-      font-size: 1.9rem;
+      font-size: 2rem;
       font-weight: 900;
       text-transform: uppercase;
       letter-spacing: 2px;
@@ -132,8 +132,6 @@
       font-weight: 700;
       outline: none;
       transition: all 0.2s ease;
-      user-select: auto;
-      -webkit-user-select: auto;
     }
 
     .name-input:focus {
@@ -172,12 +170,6 @@
       display: none;
       margin-bottom: 16px;
       text-align: left;
-      animation: fadeIn 0.25s ease-out;
-    }
-
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(-6px); }
-      to { opacity: 1; transform: translateY(0); }
     }
 
     .btn-start {
@@ -193,13 +185,12 @@
       letter-spacing: 1px;
       cursor: pointer;
       box-shadow: 0 6px 20px rgba(255, 42, 133, 0.4);
-      transition: transform 0.15s ease, box-shadow 0.15s ease;
+      transition: transform 0.15s ease;
       margin-top: 4px;
     }
 
     .btn-start:hover {
       transform: translateY(-2px);
-      box-shadow: 0 8px 25px rgba(255, 42, 133, 0.6);
     }
 
     /* Layout */
@@ -384,7 +375,7 @@
       100% { opacity: 0.4; transform: scale(0.8); }
     }
 
-    /* Arena */
+    /* Target Arena */
     .arena {
       position: relative;
       width: 100%;
@@ -457,6 +448,7 @@
       100% { transform: scale(1, 1) rotate(0deg); }
     }
 
+    /* Mega Spank FX */
     .mega-hand-container {
       position: absolute;
       top: -380px;
@@ -785,7 +777,7 @@
       color: #8c889f;
     }
 
-    /* Admin Modal */
+    /* Admin Panel Modal */
     #adminOverlay {
       position: fixed;
       inset: 0;
@@ -929,11 +921,11 @@
   <div id="screenFlash"></div>
   <div class="mobile-backdrop" id="mobileBackdrop" onclick="closeLeaderboard()"></div>
 
-  <!-- INTRO POPUP -->
+  <!-- Intro Dialog -->
   <div id="introOverlay">
     <div class="intro-card">
       <div class="intro-title">Spank Master CPS</div>
-      <p class="intro-desc">Enter your Spanker tag to begin. Scores sync automatically to the server database.</p>
+      <p class="intro-desc">Enter your Spanker tag to play. Scores are permanently saved to Supabase.</p>
       
       <form id="introForm" onsubmit="startGame(event)">
         <div class="name-input-group">
@@ -971,7 +963,6 @@
   </div>
 
   <div class="app-layout">
-    
     <main class="game-section">
       <div class="player-badge">
         <span>Player: <strong id="activePlayerTag">Guest</strong></span>
@@ -1073,21 +1064,20 @@
     <aside class="leaderboard-container" id="leaderboardBox">
       <div class="lb-header">
         <div class="lb-title">🏆 Top 10 Spankers</div>
-        <div class="lb-sync-badge" id="syncBadge">● Server DB</div>
+        <div class="lb-sync-badge" id="syncBadge">● Supabase</div>
         <button class="btn-admin-gear" id="lbAdminBtn" style="display:none;" onclick="openAdminPanel()">⚙️</button>
         <button class="lb-close-btn" onclick="closeLeaderboard()">✖ Close</button>
       </div>
 
       <div class="lb-list" id="lbList"></div>
     </aside>
-
   </div>
 
   <!-- Admin Modal -->
   <div id="adminOverlay" class="hidden">
     <div class="admin-card">
       <div class="admin-header">
-        <h3>⚙️ Server Admin Controls</h3>
+        <h3>⚙️ Developer Controls</h3>
         <button class="admin-close" onclick="closeAdminPanel()">✖</button>
       </div>
 
@@ -1101,7 +1091,7 @@
 
   <script>
     /* -------------------------------------------------------------
-       CLIENT-SIDE CONTROLLER (COMMUNICATES WITH SERVER ENDPOINTS)
+       CLIENT CONTROLLER
     ------------------------------------------------------------- */
     const STORAGE_KEY_USER = 'spank_master_active_user';
     const STORAGE_KEY_ADMIN_TOKEN = 'spank_master_admin_token';
@@ -1135,9 +1125,6 @@
       }
     }
 
-    /* -------------------------------------------------------------
-       SERVER API CALLS
-    ------------------------------------------------------------- */
     async function fetchServerLeaderboard() {
       try {
         const res = await fetch('/api/leaderboard');
@@ -1146,7 +1133,7 @@
           if (data && Array.isArray(data.players)) {
             cloudPlayers = data.players;
             renderLeaderboard();
-            updateSyncStatus("● Server Synced", "#00ff88");
+            updateSyncStatus("● Supabase Synced", "#00ff88");
 
             const me = cloudPlayers.find(p => p.name.toLowerCase() === activePlayerName.toLowerCase());
             if (me) {
@@ -1164,7 +1151,7 @@
     async function sendScoreToServer(streak, score, cps) {
       try {
         updateSyncStatus("● Syncing...", "#00f0ff");
-        const res = await fetch('/api/score', {
+        const res = await fetch('/api/leaderboard', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -1175,7 +1162,7 @@
           })
         });
         if (res.ok) {
-          updateSyncStatus("● Server Synced", "#00ff88");
+          updateSyncStatus("● Supabase Synced", "#00ff88");
         } else {
           updateSyncStatus("● Rejected", "#ff4500");
         }
@@ -1247,12 +1234,9 @@
     setInterval(fetchServerLeaderboard, 3500);
     window.addEventListener('focus', fetchServerLeaderboard);
 
-    /* -------------------------------------------------------------
-       ADMIN MODAL LOGIC (SERVER AUTHENTICATED)
-    ------------------------------------------------------------- */
     function openAdminPanel() {
       if (!adminToken) {
-        alert("Developer session required.");
+        alert("Developer verification required.");
         return;
       }
       renderAdminList();
@@ -1269,7 +1253,7 @@
       list.innerHTML = '';
 
       if (cloudPlayers.length === 0) {
-        list.innerHTML = '<div style="text-align:center; color:#888; padding:20px;">No players in database.</div>';
+        list.innerHTML = '<div style="text-align:center; color:#888; padding:20px;">No players in Supabase.</div>';
         return;
       }
 
@@ -1299,13 +1283,14 @@
       const newScore = prompt(`Edit Score for "${name}":`, oldScore);
       if (newScore === null) return;
 
-      const res = await fetch('/api/admin/edit', {
+      const res = await fetch('/api/admin', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'x-admin-token': adminToken
         },
         body: JSON.stringify({
+          action: 'edit',
           name,
           streak: parseInt(newStreak, 10) || 0,
           score: parseInt(newScore, 10) || 0
@@ -1316,20 +1301,20 @@
         await fetchServerLeaderboard();
         renderAdminList();
       } else {
-        alert("Server rejected edit (Session expired or unauthorized).");
+        alert("Server rejected action.");
       }
     }
 
     async function adminDeletePlayer(name) {
-      if (!confirm(`Delete "${name}" from server leaderboard.json?`)) return;
+      if (!confirm(`Delete "${name}" from Supabase?`)) return;
 
-      const res = await fetch('/api/admin/delete', {
+      const res = await fetch('/api/admin', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'x-admin-token': adminToken
         },
-        body: JSON.stringify({ name })
+        body: JSON.stringify({ action: 'delete', name })
       });
 
       if (res.ok) {
@@ -1341,13 +1326,15 @@
     }
 
     async function adminClearAll() {
-      if (!confirm("⚠️ Completely wipe the server database?")) return;
+      if (!confirm("⚠️ Completely wipe all records in Supabase?")) return;
 
-      const res = await fetch('/api/admin/wipe', {
+      const res = await fetch('/api/admin', {
         method: 'POST',
         headers: {
+          'Content-Type': 'application/json',
           'x-admin-token': adminToken
-        }
+        },
+        body: JSON.stringify({ action: 'wipe' })
       });
 
       if (res.ok) {
@@ -1356,9 +1343,6 @@
       }
     }
 
-    /* -------------------------------------------------------------
-       DRAWER INTERFACE
-    ------------------------------------------------------------- */
     const leaderboardBox = document.getElementById('leaderboardBox');
     const mobileBackdrop = document.getElementById('mobileBackdrop');
 
@@ -1377,9 +1361,6 @@
       mobileBackdrop.classList.remove('active');
     }
 
-    /* -------------------------------------------------------------
-       INTRO & AUTHENTICATION HANDLER
-    ------------------------------------------------------------- */
     const introOverlay = document.getElementById('introOverlay');
     const playerNameInput = document.getElementById('playerNameInput');
     const activePlayerTag = document.getElementById('activePlayerTag');
@@ -1406,10 +1387,10 @@
 
       if (isDevChecked) {
         try {
-          const authRes = await fetch('/api/admin/login', {
+          const authRes = await fetch('/api/admin', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ password: pwdVal })
+            body: JSON.stringify({ action: 'login', password: pwdVal })
           });
 
           if (authRes.ok) {
@@ -1418,7 +1399,7 @@
             try {
               localStorage.setItem(STORAGE_KEY_ADMIN_TOKEN, adminToken);
             } catch (err) {}
-            alert("Developer Verified! Admin controls unlocked on the server.");
+            alert("Developer Verified! Admin controls unlocked.");
           } else {
             alert("Incorrect Developer Passkey! Entering as standard player.");
             adminToken = '';
@@ -1458,9 +1439,7 @@
       setTimeout(() => playerNameInput.focus(), 200);
     }
 
-    /* -------------------------------------------------------------
-       GAMEPLAY LOGIC & PROCEDURAL AUDIO
-    ------------------------------------------------------------- */
+    /* Gameplay Mechanics */
     let score = 0;
     let streak = 0;
     let highStreak = 0;
