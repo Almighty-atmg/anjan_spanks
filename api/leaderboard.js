@@ -33,6 +33,16 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: 'Valid player name required.' });
     }
 
+    // Replace the cleanName line in api/leaderboard.js:
+const cleanName = name
+  .replace(/[<>"'/\\`]/g, '') // Strip script tags and breaking quotes
+  .trim()
+  .slice(0, 14);
+
+if (!cleanName) {
+  return res.status(400).json({ error: 'Valid alphanumeric player tag required.' });
+    }
+    
     // Anti-cheat: Block automated scripts (> 35 CPS)
     if (cps && Number(cps) > 35) {
       return res.status(403).json({ error: 'Click rate anomaly detected.' });
