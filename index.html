@@ -1218,7 +1218,7 @@
     /* Anti-Cheat Warning Modal */
     function triggerCheatWarning() {
       isCheaterBlocked = true;
-      streak = 0; // Punish streak
+      streak = 0;
       updateUI();
       document.getElementById('cheatOverlay').classList.add('active');
     }
@@ -1240,7 +1240,11 @@
           if (data && Array.isArray(data.players)) {
             cloudPlayers = data.players;
             renderLeaderboard();
-            updateSyncStatus("● Diddy Synced", "#00ff88");
+            const overlay = document.getElementById('adminOverlay');
+            if (overlay && !overlay.classList.contains('hidden')) {
+              renderAdminList();
+            }
+            updateSyncStatus("● Supabase Synced", "#00ff88");
 
             const me = cloudPlayers.find(p => p.name.toLowerCase() === activePlayerName.toLowerCase());
             if (me) {
@@ -1269,7 +1273,7 @@
           })
         });
         if (res.ok) {
-          updateSyncStatus("● Diddy Synced", "#00ff88");
+          updateSyncStatus("● Supabase Synced", "#00ff88");
         } else {
           updateSyncStatus("● Rejected", "#ff4500");
         }
@@ -1326,7 +1330,7 @@
     }
 
     function escapeHtml(str) {
-      return String(str).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+      return String(str).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
     }
 
     function updateSyncStatus(text, color) {
@@ -1341,7 +1345,7 @@
     setInterval(fetchServerLeaderboard, 3500);
     window.addEventListener('focus', fetchServerLeaderboard);
 
-    /* Admin Operations */
+    /* Admin Operations (Index based to prevent syntax breakage) */
     function openAdminPanel() {
       if (!adminToken) {
         alert("Developer verification required.");
@@ -1365,30 +1369,33 @@
         return;
       }
 
-      cloudPlayers.forEach((player) => {
+      cloudPlayers.forEach((player, idx) => {
         const row = document.createElement('div');
         row.className = 'admin-row';
         row.innerHTML = `
           <div class="admin-player-info">
             <div class="admin-player-name">${escapeHtml(player.name)}</div>
             <div class="admin-player-metrics">
-              Streak: <strong style="color:var(--accent-gold);">${player.streak}</strong> | Score: <strong>${player.score}</strong>
+              Streak: <strong style="color:var(--accent-gold);">${player.streak}</strong> \vert{} Score: <strong>${player.score}</strong>
             </div>
           </div>
           <div class="admin-row-actions">
-            <button class="btn-admin-action btn-admin-edit" onclick="adminEditPlayer('${escapeHtml(player.name)}', ${player.streak}, ${player.score})">✏️ Edit</button>
-            <button class="btn-admin-action btn-admin-del" onclick="adminDeletePlayer('${escapeHtml(player.name)}')">🗑️ Del</button>
+            <button class="btn-admin-action btn-admin-edit" onclick="adminEditPlayer(${idx})">✏️ Edit</button>
+            <button class="btn-admin-action btn-admin-del" onclick="adminDeletePlayer(${idx})">🗑️ Del</button>
           </div>
         `;
         list.appendChild(row);
       });
     }
 
-    async function adminEditPlayer(name, oldStreak, oldScore) {
-      const newStreak = prompt(`Edit Highest Streak for "${name}":`, oldStreak);
+    async function adminEditPlayer(idx) {
+      const player = cloudPlayers[idx];
+      if (!player) return;
+
+      const newStreak = prompt(`Edit Highest Streak for "${player.name}":`, player.streak);
       if (newStreak === null) return;
 
-      const newScore = prompt(`Edit Score for "${name}":`, oldScore);
+      const newScore = prompt(`Edit Score for "${player.name}":`, player.score);
       if (newScore === null) return;
 
       const res = await fetch('/api/admin', {
@@ -1399,7 +1406,7 @@
         },
         body: JSON.stringify({
           action: 'edit',
-          name,
+          name: player.name,
           streak: parseInt(newStreak, 10) || 0,
           score: parseInt(newScore, 10) || 0
         })
@@ -1413,8 +1420,11 @@
       }
     }
 
-    async function adminDeletePlayer(name) {
-      if (!confirm(`Delete "${name}" from Supabase?`)) return;
+    async function adminDeletePlayer(idx) {
+      const player = cloudPlayers[idx];
+      if (!player) return;
+
+      if (!confirm(`Delete "${player.name}" from Supabase?`)) return;
 
       const res = await fetch('/api/admin', {
         method: 'POST',
@@ -1422,7 +1432,7 @@
           'Content-Type': 'application/json',
           'x-admin-token': adminToken
         },
-        body: JSON.stringify({ action: 'delete', name })
+        body: JSON.stringify({ action: 'delete', name: player.name })
       });
 
       if (res.ok) {
@@ -1489,8 +1499,14 @@
 
     async function startGame(e) {
       if (e) e.preventDefault();
-      const nameVal = playerNameInput.value.trim();
-      if (!nameVal) return;
+      // Sanitize input to block XSS and malicious characters
+      const rawName = playerNameInput.value.trim();
+      const nameVal = rawName.replace(/[<>"'/\\`]/g, '').slice(0, 14);
+
+      if (!nameVal) {
+        alert("Please enter a valid alphanumeric player tag.");
+        return;
+      }
 
       const isDevChecked = document.getElementById('devCheckbox').checked;
       const pwdVal = document.getElementById('devPasswordInput').value;
@@ -1674,7 +1690,7 @@
       const currentCps = clickTimestamps.length;
       valCps.textContent = currentCps.toFixed(1);
 
-      // Autoclicker detection: > 20 clicks in the last 1000ms window
+      // Autoclicker detection threshold
       if (currentCps > 20 && !isCheaterBlocked) {
         triggerCheatWarning();
       }
@@ -1863,7 +1879,6 @@
       const now = performance.now();
       clickTimestamps.push(now);
 
-      // Instant autoclicker check before scoring
       const recentClicks = clickTimestamps.filter(t => now - t <= 1000).length;
       if (recentClicks > 20) {
         triggerCheatWarning();
