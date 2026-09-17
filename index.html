@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>Spank Master CPS - Auto Cloud Sync</title>
+  <title>Spank Master CPS - Server Edition</title>
   <style>
     :root {
       --bg-dark: #0f0c1b;
@@ -785,7 +785,7 @@
       color: #8c889f;
     }
 
-    /* Admin Panel Modal */
+    /* Admin Modal */
     #adminOverlay {
       position: fixed;
       inset: 0;
@@ -807,7 +807,7 @@
       border: 1px solid var(--accent-pink);
       border-radius: 18px;
       padding: 20px 18px;
-      max-width: 480px;
+      max-width: 460px;
       width: 100%;
       box-shadow: 0 12px 40px rgba(0, 0, 0, 0.8), 0 0 25px rgba(255, 42, 133, 0.4);
       display: flex;
@@ -933,7 +933,7 @@
   <div id="introOverlay">
     <div class="intro-card">
       <div class="intro-title">Spank Master CPS</div>
-      <p class="intro-desc">Enter your Spanker tag to play. Scores automatically sync in real-time across your phone and laptop!</p>
+      <p class="intro-desc">Enter your Spanker tag to begin. Scores sync automatically to the server database.</p>
       
       <form id="introForm" onsubmit="startGame(event)">
         <div class="name-input-group">
@@ -949,13 +949,11 @@
           />
         </div>
 
-        <!-- Developer Checkbox -->
         <label class="dev-checkbox-container" for="devCheckbox">
           <input type="checkbox" id="devCheckbox" onchange="toggleDevPasswordField()" />
           <span class="dev-checkbox-label">Developer</span>
         </label>
 
-        <!-- Developer Password -->
         <div class="name-input-group dev-password-group" id="devPasswordGroup">
           <label for="devPasswordInput" style="color:var(--accent-gold);">Developer Passkey</label>
           <input 
@@ -974,13 +972,10 @@
 
   <div class="app-layout">
     
-    <!-- MAIN GAME SECTION -->
     <main class="game-section">
-      
       <div class="player-badge">
         <span>Player: <strong id="activePlayerTag">Guest</strong></span>
         <button class="btn-edit-name" onclick="openNamePrompt()">[Change Name]</button>
-        <!-- Gear icon for developer mode -->
         <button class="btn-admin-gear" id="adminGearBtn" style="display:none;" onclick="openAdminPanel()">⚙️ Admin</button>
       </div>
 
@@ -989,7 +984,6 @@
         <div class="subtitle">Reach a 250-streak for the cinematic Mega Spank!</div>
       </header>
 
-      <!-- 4 Score Tabs -->
       <div class="dashboard">
         <div class="stat-card">
           <div class="stat-label">Score</div>
@@ -1009,13 +1003,11 @@
         </div>
       </div>
 
-      <!-- SHOW LEADERBOARD BUTTON -->
       <button class="btn-show-leaderboard" id="btnShowLeaderboard" onclick="openLeaderboard()">
         <span class="pulse-dot"></span>
         🏆 Show Leaderboard (Top 10)
       </button>
 
-      <!-- Arena -->
       <div class="arena" id="arena">
         <div class="target-wrapper" id="target">
           <svg width="250" height="230" viewBox="0 0 260 240" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -1043,7 +1035,6 @@
           </svg>
         </div>
 
-        <!-- Mega Hand -->
         <div class="mega-hand-container" id="megaHandContainer">
           <svg viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:100%; height:100%;">
             <defs>
@@ -1063,7 +1054,6 @@
         <div class="mega-banner" id="megaBanner">💥 250 STREAK MEGA SPANK! 💥</div>
       </div>
 
-      <!-- Combo Bar -->
       <div class="combo-bar-container">
         <div class="combo-header">
           <span class="combo-rank" id="comboRank">Cold Warmup</span>
@@ -1074,18 +1064,16 @@
         </div>
       </div>
 
-      <!-- Controls -->
       <div class="controls">
         <button id="btnSound" class="btn-pill">🔊 Sound: ON</button>
         <button id="btnTestMega" class="btn-pill btn-test">🔥 Test Mega</button>
       </div>
     </main>
 
-    <!-- LEADERBOARD ASIDE -->
     <aside class="leaderboard-container" id="leaderboardBox">
       <div class="lb-header">
         <div class="lb-title">🏆 Top 10 Spankers</div>
-        <div class="lb-sync-badge" id="syncBadge">● Live Synced</div>
+        <div class="lb-sync-badge" id="syncBadge">● Server DB</div>
         <button class="btn-admin-gear" id="lbAdminBtn" style="display:none;" onclick="openAdminPanel()">⚙️</button>
         <button class="lb-close-btn" onclick="closeLeaderboard()">✖ Close</button>
       </div>
@@ -1095,48 +1083,45 @@
 
   </div>
 
-  <!-- ADMIN MANAGEMENT MODAL -->
+  <!-- Admin Modal -->
   <div id="adminOverlay" class="hidden">
     <div class="admin-card">
       <div class="admin-header">
-        <h3>⚙️ Developer Controls</h3>
+        <h3>⚙️ Server Admin Controls</h3>
         <button class="admin-close" onclick="closeAdminPanel()">✖</button>
       </div>
 
       <div class="admin-player-list" id="adminPlayerList"></div>
 
       <button class="btn-wipe-all" onclick="adminClearAll()">
-        🗑️ Wipe Entire Leaderboard
+        🗑️ Wipe Entire Database
       </button>
     </div>
   </div>
 
   <script>
     /* -------------------------------------------------------------
-       ZERO-CONFIG CLOUD JSON DATABASE (REAL-TIME AUTO-SYNC)
+       CLIENT-SIDE CONTROLLER (COMMUNICATES WITH SERVER ENDPOINTS)
     ------------------------------------------------------------- */
-    const DEV_PASSKEY = "yy950271";
     const STORAGE_KEY_USER = 'spank_master_active_user';
-    const STORAGE_KEY_DEV = 'spank_master_is_dev';
-    
-    // Dedicated live JSON endpoint (Shared automatically by all players)
-    const AUTO_CLOUD_URL = 'https://mantledb.sh/v2/spank-master-live-v3/scores';
+    const STORAGE_KEY_ADMIN_TOKEN = 'spank_master_admin_token';
 
     let activePlayerName = '';
-    let isDeveloper = false;
+    let adminToken = '';
     let cloudPlayers = [];
     let saveDebounceTimer = null;
 
     try {
       activePlayerName = localStorage.getItem(STORAGE_KEY_USER) || '';
-      isDeveloper = localStorage.getItem(STORAGE_KEY_DEV) === 'true';
+      adminToken = localStorage.getItem(STORAGE_KEY_ADMIN_TOKEN) || '';
     } catch (e) {}
 
     function updateAdminVisibility() {
+      const isAuth = !!adminToken;
       const gearBtn = document.getElementById('adminGearBtn');
       const lbGearBtn = document.getElementById('lbAdminBtn');
-      if (gearBtn) gearBtn.style.display = isDeveloper ? 'inline-flex' : 'none';
-      if (lbGearBtn) lbGearBtn.style.display = isDeveloper ? 'inline-flex' : 'none';
+      if (gearBtn) gearBtn.style.display = isAuth ? 'inline-flex' : 'none';
+      if (lbGearBtn) lbGearBtn.style.display = isAuth ? 'inline-flex' : 'none';
     }
 
     function toggleDevPasswordField() {
@@ -1151,23 +1136,17 @@
     }
 
     /* -------------------------------------------------------------
-       AUTOMATIC CLOUD FETCH & COMMIT
+       SERVER API CALLS
     ------------------------------------------------------------- */
-    async function fetchLeaderboard() {
+    async function fetchServerLeaderboard() {
       try {
-        const res = await fetch(AUTO_CLOUD_URL, {
-          headers: { 'Accept': 'application/json' }
-        });
+        const res = await fetch('/api/leaderboard');
         if (res.ok) {
           const data = await res.json();
           if (data && Array.isArray(data.players)) {
             cloudPlayers = data.players;
             renderLeaderboard();
-            const overlay = document.getElementById('adminOverlay');
-            if (overlay && !overlay.classList.contains('hidden')) {
-              renderAdminList();
-            }
-            updateSyncStatus("● Live Synced", "#00ff88");
+            updateSyncStatus("● Server Synced", "#00ff88");
 
             const me = cloudPlayers.find(p => p.name.toLowerCase() === activePlayerName.toLowerCase());
             if (me) {
@@ -1178,64 +1157,40 @@
           }
         }
       } catch (err) {
-        updateSyncStatus("● Local Offline", "#ffd60a");
+        updateSyncStatus("● Offline", "#ffd60a");
       }
     }
 
-    async function saveLeaderboard() {
+    async function sendScoreToServer(streak, score, cps) {
       try {
-        updateSyncStatus("● Saving...", "#00f0ff");
-        const res = await fetch(AUTO_CLOUD_URL, {
+        updateSyncStatus("● Syncing...", "#00f0ff");
+        const res = await fetch('/api/score', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ players: cloudPlayers })
+          body: JSON.stringify({
+            name: activePlayerName,
+            streak,
+            score,
+            cps: parseFloat(cps) || 0
+          })
         });
         if (res.ok) {
-          updateSyncStatus("● Live Synced", "#00ff88");
+          updateSyncStatus("● Server Synced", "#00ff88");
+        } else {
+          updateSyncStatus("● Rejected", "#ff4500");
         }
       } catch (err) {
-        updateSyncStatus("● Sync Pending", "#ff4500");
-      }
-    }
-
-    function updateSyncStatus(text, color) {
-      const badge = document.getElementById('syncBadge');
-      if (badge) {
-        badge.textContent = text;
-        badge.style.color = color;
-        badge.style.borderColor = color;
+        updateSyncStatus("● Sync Error", "#ff4500");
       }
     }
 
     function recordPlayerMetrics(currentStreak, currentScore) {
       if (!activePlayerName) return;
 
-      let existing = cloudPlayers.find(p => p.name.toLowerCase() === activePlayerName.toLowerCase());
-      let modified = false;
-
-      if (existing) {
-        if (currentStreak > existing.streak) {
-          existing.streak = currentStreak;
-          modified = true;
-        }
-        if (currentScore > existing.score) {
-          existing.score = currentScore;
-          modified = true;
-        }
-      } else {
-        cloudPlayers.push({
-          name: activePlayerName,
-          streak: currentStreak,
-          score: currentScore
-        });
-        modified = true;
-      }
-
-      if (modified) {
-        renderLeaderboard();
-        clearTimeout(saveDebounceTimer);
-        saveDebounceTimer = setTimeout(saveLeaderboard, 450);
-      }
+      clearTimeout(saveDebounceTimer);
+      saveDebounceTimer = setTimeout(() => {
+        sendScoreToServer(highStreak, highScore, valCps.textContent);
+      }, 500);
     }
 
     function renderLeaderboard() {
@@ -1280,15 +1235,24 @@
       return String(str).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
     }
 
-    setInterval(fetchLeaderboard, 3500);
-    window.addEventListener('focus', fetchLeaderboard);
+    function updateSyncStatus(text, color) {
+      const badge = document.getElementById('syncBadge');
+      if (badge) {
+        badge.textContent = text;
+        badge.style.color = color;
+        badge.style.borderColor = color;
+      }
+    }
+
+    setInterval(fetchServerLeaderboard, 3500);
+    window.addEventListener('focus', fetchServerLeaderboard);
 
     /* -------------------------------------------------------------
-       ADMIN MODAL LOGIC (PASSWORD PROTECTED)
+       ADMIN MODAL LOGIC (SERVER AUTHENTICATED)
     ------------------------------------------------------------- */
     function openAdminPanel() {
-      if (!isDeveloper) {
-        alert("Developer mode not authorized.");
+      if (!adminToken) {
+        alert("Developer session required.");
         return;
       }
       renderAdminList();
@@ -1309,7 +1273,7 @@
         return;
       }
 
-      cloudPlayers.forEach((player, idx) => {
+      cloudPlayers.forEach((player) => {
         const row = document.createElement('div');
         row.className = 'admin-row';
         row.innerHTML = `
@@ -1320,52 +1284,74 @@
             </div>
           </div>
           <div class="admin-row-actions">
-            <button class="btn-admin-action btn-admin-edit" onclick="adminEditPlayer(${idx})">✏️ Edit</button>
-            <button class="btn-admin-action btn-admin-del" onclick="adminDeletePlayer(${idx})">🗑️ Del</button>
+            <button class="btn-admin-action btn-admin-edit" onclick="adminEditPlayer('${escapeHtml(player.name)}', ${player.streak}, ${player.score})">✏️ Edit</button>
+            <button class="btn-admin-action btn-admin-del" onclick="adminDeletePlayer('${escapeHtml(player.name)}')">🗑️ Del</button>
           </div>
         `;
         list.appendChild(row);
       });
     }
 
-    function adminEditPlayer(idx) {
-      if (!isDeveloper) return;
-      const player = cloudPlayers[idx];
+    async function adminEditPlayer(name, oldStreak, oldScore) {
+      const newStreak = prompt(`Edit Highest Streak for "${name}":`, oldStreak);
+      if (newStreak === null) return;
 
-      const newStreakInput = prompt(`Edit Highest Streak for "${player.name}":`, player.streak);
-      if (newStreakInput === null) return;
+      const newScore = prompt(`Edit Score for "${name}":`, oldScore);
+      if (newScore === null) return;
 
-      const newScoreInput = prompt(`Edit Score for "${player.name}":`, player.score);
-      if (newScoreInput === null) return;
+      const res = await fetch('/api/admin/edit', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-admin-token': adminToken
+        },
+        body: JSON.stringify({
+          name,
+          streak: parseInt(newStreak, 10) || 0,
+          score: parseInt(newScore, 10) || 0
+        })
+      });
 
-      const newStreak = parseInt(newStreakInput, 10);
-      const newScore = parseInt(newScoreInput, 10);
-
-      if (!isNaN(newStreak)) player.streak = Math.max(0, newStreak);
-      if (!isNaN(newScore)) player.score = Math.max(0, newScore);
-
-      saveLeaderboard();
-      renderLeaderboard();
-      renderAdminList();
-    }
-
-    function adminDeletePlayer(idx) {
-      if (!isDeveloper) return;
-      const player = cloudPlayers[idx];
-      if (confirm(`Are you sure you want to delete "${player.name}" from the leaderboard?`)) {
-        cloudPlayers.splice(idx, 1);
-        saveLeaderboard();
-        renderLeaderboard();
+      if (res.ok) {
+        await fetchServerLeaderboard();
         renderAdminList();
+      } else {
+        alert("Server rejected edit (Session expired or unauthorized).");
       }
     }
 
-    function adminClearAll() {
-      if (!isDeveloper) return;
-      if (confirm("⚠️ Wipe all scores from the live database?")) {
-        cloudPlayers = [];
-        saveLeaderboard();
-        renderLeaderboard();
+    async function adminDeletePlayer(name) {
+      if (!confirm(`Delete "${name}" from server leaderboard.json?`)) return;
+
+      const res = await fetch('/api/admin/delete', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-admin-token': adminToken
+        },
+        body: JSON.stringify({ name })
+      });
+
+      if (res.ok) {
+        await fetchServerLeaderboard();
+        renderAdminList();
+      } else {
+        alert("Server rejected delete.");
+      }
+    }
+
+    async function adminClearAll() {
+      if (!confirm("⚠️ Completely wipe the server database?")) return;
+
+      const res = await fetch('/api/admin/wipe', {
+        method: 'POST',
+        headers: {
+          'x-admin-token': adminToken
+        }
+      });
+
+      if (res.ok) {
+        await fetchServerLeaderboard();
         renderAdminList();
       }
     }
@@ -1383,7 +1369,7 @@
       } else {
         leaderboardBox.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
       }
-      fetchLeaderboard();
+      fetchServerLeaderboard();
     }
 
     function closeLeaderboard() {
@@ -1406,11 +1392,11 @@
         activePlayerTag.textContent = activePlayerName;
         introOverlay.classList.add('hidden');
         updateAdminVisibility();
-        fetchLeaderboard();
+        fetchServerLeaderboard();
       }
     }
 
-    function startGame(e) {
+    async function startGame(e) {
       if (e) e.preventDefault();
       const nameVal = playerNameInput.value.trim();
       if (!nameVal) return;
@@ -1419,21 +1405,40 @@
       const pwdVal = document.getElementById('devPasswordInput').value;
 
       if (isDevChecked) {
-        if (pwdVal === DEV_PASSKEY) {
-          isDeveloper = true;
-          alert("Developer Authenticated! Admin controls unlocked.");
-        } else {
-          alert("Incorrect Developer Passkey! Entering as normal player.");
-          isDeveloper = false;
+        try {
+          const authRes = await fetch('/api/admin/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ password: pwdVal })
+          });
+
+          if (authRes.ok) {
+            const authData = await authRes.json();
+            adminToken = authData.token;
+            try {
+              localStorage.setItem(STORAGE_KEY_ADMIN_TOKEN, adminToken);
+            } catch (err) {}
+            alert("Developer Verified! Admin controls unlocked on the server.");
+          } else {
+            alert("Incorrect Developer Passkey! Entering as standard player.");
+            adminToken = '';
+            try {
+              localStorage.removeItem(STORAGE_KEY_ADMIN_TOKEN);
+            } catch (err) {}
+          }
+        } catch (err) {
+          alert("Could not reach backend authentication service.");
         }
       } else {
-        isDeveloper = false;
+        adminToken = '';
+        try {
+          localStorage.removeItem(STORAGE_KEY_ADMIN_TOKEN);
+        } catch (err) {}
       }
 
       activePlayerName = nameVal;
       try {
         localStorage.setItem(STORAGE_KEY_USER, activePlayerName);
-        localStorage.setItem(STORAGE_KEY_DEV, isDeveloper ? 'true' : 'false');
       } catch (err) {}
 
       activePlayerTag.textContent = activePlayerName;
@@ -1441,7 +1446,7 @@
 
       initAudio();
       updateAdminVisibility();
-      fetchLeaderboard();
+      fetchServerLeaderboard();
     }
 
     function openNamePrompt() {
