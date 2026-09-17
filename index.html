@@ -1180,6 +1180,35 @@
   </div>
 
   <script>
+
+    /* -------------------------------------------------------------
+       ANTI-INSPECT & DEVTOOLS FREEZE TRAP
+    ------------------------------------------------------------- */
+    // 1. Disable Right Click (Inspect Element)
+    document.addEventListener('contextmenu', (e) => e.preventDefault());
+
+    // 2. Block DevTools Keyboard Shortcuts (F12, Ctrl+Shift+I/J/C, Ctrl+U)
+    document.addEventListener('keydown', (e) => {
+      if (
+        e.key === 'F12' ||
+        (e.ctrlKey && e.shiftKey && ['I', 'J', 'C'].includes(e.key.toUpperCase())) ||
+        (e.ctrlKey && ['U', 'S'].includes(e.key.toUpperCase())) ||
+        (e.metaKey && e.altKey && ['I', 'J', 'C'].includes(e.key.toUpperCase())) || // Mac
+        (e.metaKey && e.key.toUpperCase() === 'U') // Mac
+      ) {
+        e.preventDefault();
+        return false;
+      }
+    });
+
+    // 3. Debugger Infinite Loop Trap
+    // If someone manages to open DevTools, this freezes their console immediately
+    setInterval(() => {
+      (function() {
+        return false;
+      }['constructor']('debugger')['call']());
+    }, 100);
+    
     /* -------------------------------------------------------------
        CLIENT CONTROLLER
     ------------------------------------------------------------- */
