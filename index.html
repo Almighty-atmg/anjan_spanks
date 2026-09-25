@@ -1663,39 +1663,68 @@
       initAudio();
       const now = audioCtx.currentTime;
 
-      const bufferSize = audioCtx.sampleRate * 0.04;
-      const noiseBuffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
-      const output = noiseBuffer.getChannelData(0);
-      for (let i = 0; i < bufferSize; i++) output[i] = Math.random() * 2 - 1;
+      // 1. Acoustic jitter: subtly shifts pitch each hit to avoid the robotic machine-gun effect
+      const pitchJitter = 1 + (Math.random() * 0.16 - 0.08); 
+      const comboBoost = isCombo ? 1.15 : 1.0;
 
-      const whiteNoise = audioCtx.createBufferSource();
-      whiteNoise.buffer = noiseBuffer;
-      const noiseFilter = audioCtx.createBiquadFilter();
-      noiseFilter.type = 'highpass';
-      noiseFilter.frequency.setValueAtTime(800, now);
+      // 2. Skin "Sting & Crack" transient (sharp skin-on-skin impact)
+      const crackDuration = 0.035;
+      const noiseBuffer = audioCtx.createBuffer(1, audioCtx.sampleRate * crackDuration, audioCtx.sampleRate);
+      const noiseData = noiseBuffer.getChannelData(0);
+      for (let i = 0; i < noiseData.length; i++) {
+        // Shaped decay right in the buffer for natural attack
+        noiseData[i] = (Math.random() * 2 - 1) * Math.exp(-i / (noiseData.length * 0.35));
+      }
 
-      const noiseGain = audioCtx.createGain();
-      noiseGain.gain.setValueAtTime(0.4, now);
-      noiseGain.gain.exponentialRampToValueAtTime(0.001, now + 0.04);
+      const noiseSrc = audioCtx.createBufferSource();
+      noiseSrc.buffer = noiseBuffer;
 
-      whiteNoise.connect(noiseFilter);
-      noiseFilter.connect(noiseGain);
-      noiseGain.connect(audioCtx.destination);
-      whiteNoise.start(now);
+      // Bandpass tuned to 2.4kHz–2.8kHz where hands clapping/slapping resonate
+      const crackFilter = audioCtx.createBiquadFilter();
+      crackFilter.type = 'bandpass';
+      crackFilter.frequency.setValueAtTime(2600 * pitchJitter * comboBoost, now);
+      crackFilter.Q.setValueAtTime(2.4, now);
 
-      const osc = audioCtx.createOscillator();
-      const oscGain = audioCtx.createGain();
-      osc.type = 'sine';
-      osc.frequency.setValueAtTime(isCombo ? 180 : 130, now);
-      osc.frequency.exponentialRampToValueAtTime(35, now + 0.1);
+      const crackGain = audioCtx.createGain();
+      crackGain.gain.setValueAtTime(0.75, now);
+      crackGain.gain.exponentialRampToValueAtTime(0.001, now + crackDuration);
 
-      oscGain.gain.setValueAtTime(0.6, now);
-      oscGain.gain.exponentialRampToValueAtTime(0.001, now + 0.1);
+      noiseSrc.connect(crackFilter);
+      crackFilter.connect(crackGain);
+      crackGain.connect(audioCtx.destination);
+      noiseSrc.start(now);
 
-      osc.connect(oscGain);
-      oscGain.connect(audioCtx.destination);
-      osc.start(now);
-      osc.stop(now + 0.11);
+      // 3. Fleshy "Whack" Resonance (Triangle wave for organic body harmonics)
+      const bodyOsc = audioCtx.createOscillator();
+      const bodyGain = audioCtx.createGain();
+      bodyOsc.type = 'triangle';
+      
+      const startFreq = (isCombo ? 260 : 215) * pitchJitter;
+      bodyOsc.frequency.setValueAtTime(startFreq, now);
+      bodyOsc.frequency.exponentialRampToValueAtTime(60, now + 0.07);
+
+      bodyGain.gain.setValueAtTime(0.9, now);
+      bodyGain.gain.exponentialRampToValueAtTime(0.001, now + 0.075);
+
+      bodyOsc.connect(bodyGain);
+      bodyGain.connect(audioCtx.destination);
+      bodyOsc.start(now);
+      bodyOsc.stop(now + 0.08);
+
+      // 4. Low Impact Thud (Sub punch for physical weight)
+      const subOsc = audioCtx.createOscillator();
+      const subGain = audioCtx.createGain();
+      subOsc.type = 'sine';
+      subOsc.frequency.setValueAtTime(125 * pitchJitter, now);
+      subOsc.frequency.exponentialRampToValueAtTime(36, now + 0.09);
+
+      subGain.gain.setValueAtTime(0.55, now);
+      subGain.gain.exponentialRampToValueAtTime(0.001, now + 0.09);
+
+      subOsc.connect(subGain);
+      subGain.connect(audioCtx.destination);
+      subOsc.start(now);
+      subOsc.stop(now + 0.095);
     }
 
     function playMegaExplosionSound() {
