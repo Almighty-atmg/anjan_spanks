@@ -1758,6 +1758,75 @@
       subOsc.stop(now + 0.72);
     }
 
+    function playMegaMoanSound() {
+      if (!soundEnabled) return;
+      initAudio();
+      const now = audioCtx.currentTime;
+
+      // 1. Vocal Chord Source (Sawtooth wave for human harmonic overtones)
+      const voiceOsc = audioCtx.createOscillator();
+      const voiceGain = audioCtx.createGain();
+      voiceOsc.type = 'sawtooth';
+
+      // Pitch inflection: initial sharp peak (440Hz -> 490Hz) then a long breathy downward slide (-> 240Hz)
+      voiceOsc.frequency.setValueAtTime(420, now);
+      voiceOsc.frequency.exponentialRampToValueAtTime(490, now + 0.12);
+      voiceOsc.frequency.exponentialRampToValueAtTime(240, now + 0.75);
+
+      // 2. Vocal Tract Formant Filters (F1: 850Hz, F2: 1350Hz simulate the open mouth "Ahhh" vowel)
+      const f1 = audioCtx.createBiquadFilter();
+      f1.type = 'bandpass';
+      f1.frequency.setValueAtTime(850, now);
+      f1.Q.setValueAtTime(4.2, now);
+
+      const f2 = audioCtx.createBiquadFilter();
+      f2.type = 'bandpass';
+      f2.frequency.setValueAtTime(1350, now);
+      f2.Q.setValueAtTime(4.8, now);
+
+      // Volume envelope for the voice tone
+      voiceGain.gain.setValueAtTime(0.001, now);
+      voiceGain.gain.linearRampToValueAtTime(0.4, now + 0.1);
+      voiceGain.gain.exponentialRampToValueAtTime(0.001, now + 0.75);
+
+      voiceOsc.connect(f1);
+      voiceOsc.connect(f2);
+      f1.connect(voiceGain);
+      f2.connect(voiceGain);
+      voiceGain.connect(audioCtx.destination);
+
+      // 3. Breathy Sigh / Exhale Layer (Pink/filtered air hiss)
+      const breathDuration = 0.8;
+      const breathBuffer = audioCtx.createBuffer(1, audioCtx.sampleRate * breathDuration, audioCtx.sampleRate);
+      const breathData = breathBuffer.getChannelData(0);
+      for (let i = 0; i < breathData.length; i++) {
+        breathData[i] = (Math.random() * 2 - 1) * 0.4;
+      }
+
+      const breathSrc = audioCtx.createBufferSource();
+      breathSrc.buffer = breathBuffer;
+
+      const breathFilter = audioCtx.createBiquadFilter();
+      breathFilter.type = 'bandpass';
+      breathFilter.frequency.setValueAtTime(1500, now);
+      breathFilter.Q.setValueAtTime(2.2, now);
+
+      const breathGain = audioCtx.createGain();
+      breathGain.gain.setValueAtTime(0.001, now);
+      breathGain.gain.linearRampToValueAtTime(0.28, now + 0.15);
+      breathGain.gain.exponentialRampToValueAtTime(0.001, now + breathDuration);
+
+      breathSrc.connect(breathFilter);
+      breathFilter.connect(breathGain);
+      breathGain.connect(audioCtx.destination);
+
+      // Trigger playback
+      voiceOsc.start(now);
+      voiceOsc.stop(now + 0.76);
+      breathSrc.start(now);
+      breathSrc.stop(now + breathDuration);
+    }
+
     function updateCPS() {
       const now = performance.now();
       clickTimestamps = clickTimestamps.filter(t => now - t <= 1000);
@@ -1877,6 +1946,7 @@
         document.body.classList.add('camera-shake');
 
         playMegaExplosionSound();
+        playMegaMoanSound();
 
         megaBanner.textContent = `💥 ${streak || 250} STREAK MEGA SPANK! 💥`;
         megaBanner.classList.remove('show');
