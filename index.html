@@ -1658,73 +1658,121 @@
       }
     }
 
+    // Reusable saturation curve for punchy skin-impact overdrive
+    let distortionCurve = null;
+    function getDistortionCurve() {
+      if (distortionCurve) return distortionCurve;
+      const n_samples = 44100;
+      const curve = new Float32Array(n_samples);
+      const deg = Math.PI / 180;
+      for (let i = 0; i < n_samples; ++i) {
+        let x = (i * 2) / n_samples - 1;
+        // Soft-clip saturation formula
+        curve[i] = ((3 + 12) * x * 20 * deg) / (Math.PI + 12 * Math.abs(x));
+      }
+      distortionCurve = curve;
+      return curve;
+    }
+
     function playSlapSound(isCombo = false) {
       if (!soundEnabled) return;
       initAudio();
       const now = audioCtx.currentTime;
 
-      // 1. Acoustic jitter: subtly shifts pitch each hit to avoid the robotic machine-gun effect
-      const pitchJitter = 1 + (Math.random() * 0.16 - 0.08); 
-      const comboBoost = isCombo ? 1.15 : 1.0;
+      // Master bus with soft saturation for stinging, crisp presence
+      const compressor = audioCtx.createDynamicsCompressor();
+      compressor.threshold.setValueAtTime(-14, now);
+      compressor.knee.setValueAtTime(4, now);
+      compressor.ratio.setValueAtTime(8, now);
+      compressor.attack.setValueAtTime(0.001, now);
+      compressor.release.setValueAtTime(0.06, now);
 
-      // 2. Skin "Sting & Crack" transient (sharp skin-on-skin impact)
-      const crackDuration = 0.035;
-      const noiseBuffer = audioCtx.createBuffer(1, audioCtx.sampleRate * crackDuration, audioCtx.sampleRate);
-      const noiseData = noiseBuffer.getChannelData(0);
-      for (let i = 0; i < noiseData.length; i++) {
-        // Shaped decay right in the buffer for natural attack
-        noiseData[i] = (Math.random() * 2 - 1) * Math.exp(-i / (noiseData.length * 0.35));
+      const saturation = audioCtx.createWaveShaper();
+      saturation.curve = getDistortionCurve();
+      saturation.oversample = '2x';
+
+      compressor.connect(saturation);
+      saturation.connect(audioCtx.destination);
+
+      const pitchRand = 1 + (Math.random() * 0.14 - 0.07);
+      const intensity = isCombo ? 1.3 : 1.0;
+
+      // 1. Sharp "Skin-Sting" Crack (Explosive wideband snap up to 6.5kHz)
+      const snapLen = 0.028;
+      const snapBuffer = audioCtx.createBuffer(1, audioCtx.sampleRate * snapLen, audioCtx.sampleRate);
+      const snapData = snapBuffer.getChannelData(0);
+      for (let i = 0; i < snapData.length; i++) {
+        // Hyperbolic decay: violently loud attack in the first 2ms
+        snapData[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / snapData.length, 3.2);
       }
 
-      const noiseSrc = audioCtx.createBufferSource();
-      noiseSrc.buffer = noiseBuffer;
+      const snapSrc = audioCtx.createBufferSource();
+      snapSrc.buffer = snapBuffer;
 
-      // Bandpass tuned to 2.4kHz–2.8kHz where hands clapping/slapping resonate
-      const crackFilter = audioCtx.createBiquadFilter();
-      crackFilter.type = 'bandpass';
-      crackFilter.frequency.setValueAtTime(2600 * pitchJitter * comboBoost, now);
-      crackFilter.Q.setValueAtTime(2.4, now);
+      const snapFilter = audioCtx.createBiquadFilter();
+      snapFilter.type = 'highpass';
+      snapFilter.frequency.setValueAtTime(3200 * pitchRand, now);
 
-      const crackGain = audioCtx.createGain();
-      crackGain.gain.setValueAtTime(0.75, now);
-      crackGain.gain.exponentialRampToValueAtTime(0.001, now + crackDuration);
+      const snapPresence = audioCtx.createBiquadFilter();
+      snapPresence.type = 'peaking';
+      snapPresence.frequency.setValueAtTime(5400 * pitchRand, now);
+      snapPresence.gain.setValueAtTime(10, now);
+      snapPresence.Q.setValueAtTime(1.8, now);
 
-      noiseSrc.connect(crackFilter);
-      crackFilter.connect(crackGain);
-      crackGain.connect(audioCtx.destination);
-      noiseSrc.start(now);
+      const snapGain = audioCtx.createGain();
+      snapGain.gain.setValueAtTime(1.6 * intensity, now);
+      snapGain.gain.exponentialRampToValueAtTime(0.0001, now + snapLen);
 
-      // 3. Fleshy "Whack" Resonance (Triangle wave for organic body harmonics)
-      const bodyOsc = audioCtx.createOscillator();
-      const bodyGain = audioCtx.createGain();
-      bodyOsc.type = 'triangle';
-      
-      const startFreq = (isCombo ? 260 : 215) * pitchJitter;
-      bodyOsc.frequency.setValueAtTime(startFreq, now);
-      bodyOsc.frequency.exponentialRampToValueAtTime(60, now + 0.07);
+      snapSrc.connect(snapFilter);
+      snapFilter.connect(snapPresence);
+      snapPresence.connect(snapGain);
+      snapGain.connect(compressor);
+      snapSrc.start(now);
 
-      bodyGain.gain.setValueAtTime(0.9, now);
-      bodyGain.gain.exponentialRampToValueAtTime(0.001, now + 0.075);
+      // 2. Air-Pocket "Pop" (Rapid skin-contact vacuum sound: 900Hz -> 140Hz in 18ms)
+      const popOsc = audioCtx.createOscillator();
+      const popGain = audioCtx.createGain();
+      popOsc.type = 'sine';
+      popOsc.frequency.setValueAtTime(950 * pitchRand, now);
+      popOsc.frequency.exponentialRampToValueAtTime(140 * pitchRand, now + 0.018);
 
-      bodyOsc.connect(bodyGain);
-      bodyGain.connect(audioCtx.destination);
-      bodyOsc.start(now);
-      bodyOsc.stop(now + 0.08);
+      popGain.gain.setValueAtTime(1.2 * intensity, now);
+      popGain.gain.exponentialRampToValueAtTime(0.001, now + 0.024);
 
-      // 4. Low Impact Thud (Sub punch for physical weight)
+      popOsc.connect(popGain);
+      popGain.connect(compressor);
+      popOsc.start(now);
+      popOsc.stop(now + 0.025);
+
+      // 3. Fleshy Meat Resonance (Square-sine hybrid body punch)
+      const fleshOsc = audioCtx.createOscillator();
+      const fleshGain = audioCtx.createGain();
+      fleshOsc.type = 'triangle';
+      fleshOsc.frequency.setValueAtTime(260 * pitchRand, now);
+      fleshOsc.frequency.exponentialRampToValueAtTime(70 * pitchRand, now + 0.06);
+
+      fleshGain.gain.setValueAtTime(0.95 * intensity, now);
+      fleshGain.gain.exponentialRampToValueAtTime(0.001, now + 0.065);
+
+      fleshOsc.connect(fleshGain);
+      fleshGain.connect(compressor);
+      fleshOsc.start(now);
+      fleshOsc.stop(now + 0.07);
+
+      // 4. Low Impact Thump (Heavy sub shockwave)
       const subOsc = audioCtx.createOscillator();
       const subGain = audioCtx.createGain();
       subOsc.type = 'sine';
-      subOsc.frequency.setValueAtTime(125 * pitchJitter, now);
-      subOsc.frequency.exponentialRampToValueAtTime(36, now + 0.09);
+      subOsc.frequency.setValueAtTime(110 * pitchRand, now);
+      subOsc.frequency.exponentialRampToValueAtTime(32, now + 0.08);
 
-      subGain.gain.setValueAtTime(0.55, now);
-      subGain.gain.exponentialRampToValueAtTime(0.001, now + 0.09);
+      subGain.gain.setValueAtTime(0.7 * intensity, now);
+      subGain.gain.exponentialRampToValueAtTime(0.001, now + 0.08);
 
       subOsc.connect(subGain);
-      subGain.connect(audioCtx.destination);
+      subGain.connect(compressor);
       subOsc.start(now);
-      subOsc.stop(now + 0.095);
+      subOsc.stop(now + 0.085);
     }
 
     function playMegaExplosionSound() {
