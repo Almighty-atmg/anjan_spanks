@@ -1678,65 +1678,45 @@
       if (!soundEnabled) return;
       initAudio();
       const now = audioCtx.currentTime;
-      const pitchJitter = 1 + (Math.random() * 0.12 - 0.06);
 
-      // 1. High-frequency skin crack & sting transient
-      const snapLen = 0.032;
-      const snapBuffer = audioCtx.createBuffer(1, audioCtx.sampleRate * snapLen, audioCtx.sampleRate);
-      const snapData = snapBuffer.getChannelData(0);
-      for (let i = 0; i < snapData.length; i++) {
-        // Steep exponential burst in the first 3 milliseconds
-        snapData[i] = (Math.random() * 2 - 1) * Math.exp(-i / (audioCtx.sampleRate * 0.0035));
-      }
+      // 1. Crisp high-frequency snap (0.04s clean white noise burst)
+      const bufferSize = audioCtx.sampleRate * 0.04;
+      const noiseBuffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+      const output = noiseBuffer.getChannelData(0);
+      for (let i = 0; i < bufferSize; i++) output[i] = Math.random() * 2 - 1;
 
-      const snapSrc = audioCtx.createBufferSource();
-      snapSrc.buffer = snapBuffer;
+      const whiteNoise = audioCtx.createBufferSource();
+      whiteNoise.buffer = noiseBuffer;
 
-      const snapFilter = audioCtx.createBiquadFilter();
-      snapFilter.type = 'bandpass';
-      snapFilter.frequency.setValueAtTime(4200 * pitchJitter, now);
-      snapFilter.Q.setValueAtTime(1.8, now);
+      const noiseFilter = audioCtx.createBiquadFilter();
+      noiseFilter.type = 'highpass';
+      noiseFilter.frequency.setValueAtTime(800, now);
 
-      const snapGain = audioCtx.createGain();
-      snapGain.gain.setValueAtTime(isCombo ? 1.5 : 1.2, now);
-      snapGain.gain.exponentialRampToValueAtTime(0.001, now + snapLen);
+      const noiseGain = audioCtx.createGain();
+      noiseGain.gain.setValueAtTime(0.4, now);
+      noiseGain.gain.exponentialRampToValueAtTime(0.001, now + 0.04);
 
-      snapSrc.connect(snapFilter);
-      snapFilter.connect(snapGain);
-      snapGain.connect(audioCtx.destination);
-      snapSrc.start(now);
+      whiteNoise.connect(noiseFilter);
+      noiseFilter.connect(noiseGain);
+      noiseGain.connect(audioCtx.destination);
+      whiteNoise.start(now);
 
-      // 2. Wet "Cupped Skin" Pop (Fast downward sweep: 1.2 kHz -> 90 Hz in 20ms)
-      const popOsc = audioCtx.createOscillator();
-      const popGain = audioCtx.createGain();
-      popOsc.type = 'triangle';
-      popOsc.frequency.setValueAtTime(1200 * pitchJitter, now);
-      popOsc.frequency.exponentialRampToValueAtTime(90 * pitchJitter, now + 0.022);
+      // 2. Punchy body thud (clean sine wave drop)
+      const osc = audioCtx.createOscillator();
+      const oscGain = audioCtx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(isCombo ? 180 : 130, now);
+      osc.frequency.exponentialRampToValueAtTime(35, now + 0.1);
 
-      popGain.gain.setValueAtTime(1.1, now);
-      popGain.gain.exponentialRampToValueAtTime(0.001, now + 0.025);
+      oscGain.gain.setValueAtTime(0.6, now);
+      oscGain.gain.exponentialRampToValueAtTime(0.001, now + 0.1);
 
-      popOsc.connect(popGain);
-      popGain.connect(audioCtx.destination);
-      popOsc.start(now);
-      popOsc.stop(now + 0.026);
-
-      // 3. Low-end flesh body thud
-      const thudOsc = audioCtx.createOscillator();
-      const thudGain = audioCtx.createGain();
-      thudOsc.type = 'sine';
-      thudOsc.frequency.setValueAtTime(180 * pitchJitter, now);
-      thudOsc.frequency.exponentialRampToValueAtTime(45, now + 0.06);
-
-      thudGain.gain.setValueAtTime(0.85, now);
-      thudGain.gain.exponentialRampToValueAtTime(0.001, now + 0.065);
-
-      thudOsc.connect(thudGain);
-      thudGain.connect(audioCtx.destination);
-      thudOsc.start(now);
-      thudOsc.stop(now + 0.07);
+      osc.connect(oscGain);
+      oscGain.connect(audioCtx.destination);
+      osc.start(now);
+      osc.stop(now + 0.11);
     }
-
+    
     function playMegaExplosionSound() {
       if (!soundEnabled) return;
       initAudio();
