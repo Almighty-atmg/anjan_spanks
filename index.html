@@ -422,7 +422,7 @@
       text-transform: uppercase;
       letter-spacing: 1px;
       cursor: pointer;
-      margin: 4px 0 10px 0;
+      margin: 4px 0 6px 0;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -444,6 +444,73 @@
       border-radius: 50%;
       box-shadow: 0 0 8px var(--accent-green);
       animation: pulse 1.5s infinite;
+    }
+
+    /* Mega & Moan Volume Slider */
+    .mega-volume-control {
+      width: 100%;
+      max-width: 580px;
+      margin: 0 0 10px 0;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 12px;
+      padding: 8px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .mega-volume-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.76rem;
+      font-weight: 800;
+      color: #b3aeca;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .mega-volume-header strong {
+      color: var(--accent-pink);
+      font-size: 0.85rem;
+    }
+
+    .mega-slider {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 100%;
+      height: 6px;
+      border-radius: 99px;
+      background: rgba(255, 255, 255, 0.15);
+      outline: none;
+      cursor: pointer;
+    }
+
+    .mega-slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--accent-pink), var(--accent-gold));
+      box-shadow: 0 0 10px var(--accent-pink);
+      cursor: pointer;
+      transition: transform 0.1s ease;
+    }
+
+    .mega-slider::-webkit-slider-thumb:hover {
+      transform: scale(1.18);
+    }
+
+    .mega-slider::-moz-range-thumb {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--accent-pink), var(--accent-gold));
+      box-shadow: 0 0 10px var(--accent-pink);
+      cursor: pointer;
+      border: none;
     }
 
     @keyframes pulse {
@@ -1089,6 +1156,23 @@
         🏆 Show Leaderboard (Top 10)
       </button>
 
+      <!-- Mega & Moan Volume Slider (Just Below Show Leaderboard) -->
+      <div class="mega-volume-control">
+        <div class="mega-volume-header">
+          <span>💥 Mega Explosion & Moan Volume</span>
+          <strong id="megaVolumeVal">100%</strong>
+        </div>
+        <input 
+          type="range" 
+          id="megaVolumeSlider" 
+          class="mega-slider" 
+          min="0" 
+          max="100" 
+          value="100" 
+          oninput="updateMegaVolume(this.value)" 
+        />
+      </div>
+
       <div class="arena" id="arena">
         <div class="target-wrapper" id="target">
           <svg width="250" height="230" viewBox="0 0 260 240" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -1215,6 +1299,14 @@
     let cloudPlayers = [];
     let saveDebounceTimer = null;
     let isCheaterBlocked = false;
+
+    // Mega & Moan Volume Gain (0.0 to 1.0)
+    let megaVolume = 1.0;
+
+    function updateMegaVolume(val) {
+      megaVolume = parseFloat(val) / 100;
+      document.getElementById('megaVolumeVal').textContent = `${val}%`;
+    }
 
     try {
       activePlayerName = localStorage.getItem(STORAGE_KEY_USER) || '';
@@ -1595,7 +1687,7 @@
         localStorage.setItem(STORAGE_KEY_USER, activePlayerName);
       } catch (err) {}
 
-      // RESET GAME STATE ON NAME CHANGE TO PREVENT ANTI-CHEAT FALSE POSITIVES
+      // Reset local gameplay metrics on new player entry
       score = 0;
       streak = 0;
       highStreak = 0;
@@ -1658,28 +1750,12 @@
       }
     }
 
-    // Reusable saturation curve for punchy skin-impact overdrive
-    let distortionCurve = null;
-    function getDistortionCurve() {
-      if (distortionCurve) return distortionCurve;
-      const n_samples = 44100;
-      const curve = new Float32Array(n_samples);
-      const deg = Math.PI / 180;
-      for (let i = 0; i < n_samples; ++i) {
-        let x = (i * 2) / n_samples - 1;
-        // Soft-clip saturation formula
-        curve[i] = ((3 + 12) * x * 20 * deg) / (Math.PI + 12 * Math.abs(x));
-      }
-      distortionCurve = curve;
-      return curve;
-    }
-
+    /* Restored Crisp Original Spank Sound */
     function playSlapSound(isCombo = false) {
       if (!soundEnabled) return;
       initAudio();
       const now = audioCtx.currentTime;
 
-      // 1. Crisp high-frequency snap (0.04s clean white noise burst)
       const bufferSize = audioCtx.sampleRate * 0.04;
       const noiseBuffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
       const output = noiseBuffer.getChannelData(0);
@@ -1701,7 +1777,6 @@
       noiseGain.connect(audioCtx.destination);
       whiteNoise.start(now);
 
-      // 2. Punchy body thud (clean sine wave drop)
       const osc = audioCtx.createOscillator();
       const oscGain = audioCtx.createGain();
       osc.type = 'sine';
@@ -1716,11 +1791,17 @@
       osc.start(now);
       osc.stop(now + 0.11);
     }
-    
+
+    /* Mega Explosion Sound (Routes to master slider volume) */
     function playMegaExplosionSound() {
-      if (!soundEnabled) return;
+      if (!soundEnabled || megaVolume <= 0) return;
       initAudio();
       const now = audioCtx.currentTime;
+
+      // Master gain node governed by the slider
+      const masterMegaGain = audioCtx.createGain();
+      masterMegaGain.gain.setValueAtTime(megaVolume, now);
+      masterMegaGain.connect(audioCtx.destination);
 
       const bufferSize = audioCtx.sampleRate * 0.9;
       const noiseBuffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
@@ -1740,7 +1821,7 @@
 
       noise.connect(filter);
       filter.connect(noiseGain);
-      noiseGain.connect(audioCtx.destination);
+      noiseGain.connect(masterMegaGain);
       noise.start(now);
 
       const subOsc = audioCtx.createOscillator();
@@ -1753,27 +1834,32 @@
       subGain.gain.exponentialRampToValueAtTime(0.001, now + 0.7);
 
       subOsc.connect(subGain);
-      subGain.connect(audioCtx.destination);
+      subGain.connect(masterMegaGain);
       subOsc.start(now);
       subOsc.stop(now + 0.72);
     }
 
+    /* Mega Moan Sound Synthesis (Routes to master slider volume) */
     function playMegaMoanSound() {
-      if (!soundEnabled) return;
+      if (!soundEnabled || megaVolume <= 0) return;
       initAudio();
       const now = audioCtx.currentTime;
 
-      // 1. Vocal Chord Source (Sawtooth wave for human harmonic overtones)
+      // Master gain node governed by the slider
+      const masterMoanGain = audioCtx.createGain();
+      masterMoanGain.gain.setValueAtTime(megaVolume, now);
+      masterMoanGain.connect(audioCtx.destination);
+
+      // Vocal source
       const voiceOsc = audioCtx.createOscillator();
       const voiceGain = audioCtx.createGain();
       voiceOsc.type = 'sawtooth';
 
-      // Pitch inflection: initial sharp peak (440Hz -> 490Hz) then a long breathy downward slide (-> 240Hz)
       voiceOsc.frequency.setValueAtTime(420, now);
       voiceOsc.frequency.exponentialRampToValueAtTime(490, now + 0.12);
       voiceOsc.frequency.exponentialRampToValueAtTime(240, now + 0.75);
 
-      // 2. Vocal Tract Formant Filters (F1: 850Hz, F2: 1350Hz simulate the open mouth "Ahhh" vowel)
+      // Vocal Formant Filters ("Ahhh" formant)
       const f1 = audioCtx.createBiquadFilter();
       f1.type = 'bandpass';
       f1.frequency.setValueAtTime(850, now);
@@ -1784,24 +1870,21 @@
       f2.frequency.setValueAtTime(1350, now);
       f2.Q.setValueAtTime(4.8, now);
 
-      // Volume envelope for the voice tone
       voiceGain.gain.setValueAtTime(0.001, now);
-      voiceGain.gain.linearRampToValueAtTime(0.4, now + 0.1);
+      voiceGain.gain.linearRampToValueAtTime(0.45, now + 0.1);
       voiceGain.gain.exponentialRampToValueAtTime(0.001, now + 0.75);
 
       voiceOsc.connect(f1);
       voiceOsc.connect(f2);
       f1.connect(voiceGain);
       f2.connect(voiceGain);
-      voiceGain.connect(audioCtx.destination);
+      voiceGain.connect(masterMoanGain);
 
-      // 3. Breathy Sigh / Exhale Layer (Pink/filtered air hiss)
+      // Breathy Air Exhale
       const breathDuration = 0.8;
       const breathBuffer = audioCtx.createBuffer(1, audioCtx.sampleRate * breathDuration, audioCtx.sampleRate);
       const breathData = breathBuffer.getChannelData(0);
-      for (let i = 0; i < breathData.length; i++) {
-        breathData[i] = (Math.random() * 2 - 1) * 0.4;
-      }
+      for (let i = 0; i < breathData.length; i++) breathData[i] = (Math.random() * 2 - 1) * 0.4;
 
       const breathSrc = audioCtx.createBufferSource();
       breathSrc.buffer = breathBuffer;
@@ -1818,9 +1901,8 @@
 
       breathSrc.connect(breathFilter);
       breathFilter.connect(breathGain);
-      breathGain.connect(audioCtx.destination);
+      breathGain.connect(masterMoanGain);
 
-      // Trigger playback
       voiceOsc.start(now);
       voiceOsc.stop(now + 0.76);
       breathSrc.start(now);
@@ -1945,6 +2027,7 @@
         void document.body.offsetWidth;
         document.body.classList.add('camera-shake');
 
+        // Play the explosion boom and moan reaction together
         playMegaExplosionSound();
         playMegaMoanSound();
 
